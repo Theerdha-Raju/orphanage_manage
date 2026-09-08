@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/child_photos/*
+media/academic_docs/*
+!media/child_photos/.gitkeep
+!media/academic_docs/.gitkeep
+
+# Virtual environment
+.venv
+venv/
+ENV/
+env/
+
+# Node / React stuff
+node_modules/
+dist/
+dist-ssr/
+*.local
+.npm
+.eslintcache
+
+# Vite
+.vite/
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
