@@ -217,18 +217,18 @@ export default function ExpenseManagementPage() {
         </div>
 
         {/* Table */}
-        <div className="table-wrap" style={{ borderRadius: '1rem', border: '1px solid rgba(255, 255, 255, 0.08)', overflowX: 'auto', background: 'var(--bg-card)' }}>
-          <table className="table" style={{ width: '100%', margin: 0, borderCollapse: 'separate', borderSpacing: 0 }}>
+        <div className="table-wrap" style={{ borderRadius: '1rem', border: '1px solid #e2e8f0', overflowX: 'auto', background: '#ffffff' }}>
+          <table className="table" style={{ width: '100%', minWidth: '850px', margin: 0, borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
-              <tr style={{ background: 'rgba(15, 23, 42, 0.95)' }}>
-                <th style={{ padding: '0.75rem 0.5rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', width: '35px' }}>#</th>
-                <th style={{ padding: '0.75rem 0.6rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>TITLE</th>
-                <th style={{ padding: '0.75rem 0.6rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>CATEGORY</th>
-                <th style={{ padding: '0.75rem 0.6rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>AMOUNT</th>
-                <th style={{ padding: '0.75rem 0.6rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>DATE</th>
-                <th style={{ padding: '0.75rem 0.6rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>PAID BY</th>
-                <th style={{ padding: '0.75rem 0.5rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center' }}>STATUS</th>
-                <th style={{ padding: '0.75rem 0.6rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', minWidth: '95px', whiteSpace: 'nowrap' }}>ACTIONS</th>
+              <tr style={{ background: '#f8fafc' }}>
+                <th style={{ padding: '0.75rem 0.5rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', width: '35px' }}>#</th>
+                <th style={{ padding: '0.75rem 0.6rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>TITLE</th>
+                <th style={{ padding: '0.75rem 0.6rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>CATEGORY</th>
+                <th style={{ padding: '0.75rem 0.6rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>AMOUNT</th>
+                <th style={{ padding: '0.75rem 0.6rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>DATE</th>
+                <th style={{ padding: '0.75rem 0.6rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>PAID BY</th>
+                <th style={{ padding: '0.75rem 0.5rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center' }}>STATUS</th>
+                <th style={{ padding: '0.75rem 0.6rem', color: '#64748b', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', minWidth: '95px', whiteSpace: 'nowrap' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -242,10 +242,10 @@ export default function ExpenseManagementPage() {
                   No expenses found
                 </td></tr>
               ) : filtered.map((e, i) => (
-                <tr key={e.expense_id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <tr key={e.expense_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600, padding: '0.75rem 0.5rem', textAlign: 'center' }}>{i + 1}</td>
                   <td style={{ padding: '0.75rem 0.6rem' }}>
-                    <div style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.88rem', whiteSpace: 'nowrap' }}>{e.title}</div>
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem', whiteSpace: 'nowrap' }}>{e.title}</div>
                     {e.description && <div style={{ fontSize: '0.7rem', color: '#94a3b8', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.description}</div>}
                   </td>
                   <td style={{ padding: '0.75rem 0.6rem' }}>

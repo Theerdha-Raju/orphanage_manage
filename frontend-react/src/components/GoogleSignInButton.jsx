@@ -27,7 +27,7 @@ export default function GoogleSignInButton({ onSuccess, onError, text = "sign_in
             size: 'large',
             width: '100%',
             text: text,
-            shape: 'rectangular',
+            shape: 'pill',
             logo_alignment: 'left',
           });
         }
@@ -77,27 +77,31 @@ export default function GoogleSignInButton({ onSuccess, onError, text = "sign_in
             alignItems: 'center',
             justifyContent: 'center',
             gap: '0.75rem',
-            padding: '0.65rem 1rem',
-            background: 'var(--bg-card, #1e293b)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: 'var(--radius-md, 10px)',
-            color: 'var(--text-primary, #f8fafc)',
+            padding: '0.75rem 1rem',
+            background: '#ffffff',
+            border: '1.5px solid #e2e8f0',
+            borderRadius: '9999px',
+            color: '#334155',
             fontWeight: 600,
             fontSize: '0.9rem',
             cursor: disabled ? 'not-allowed' : 'pointer',
             transition: 'all 0.2s ease',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
           }}
           onMouseEnter={(e) => {
             if (!disabled) {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.background = '#f8fafc';
+              e.currentTarget.style.borderColor = '#cbd5e1';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
             }
           }}
           onMouseLeave={(e) => {
             if (!disabled) {
-              e.currentTarget.style.background = 'var(--bg-card, #1e293b)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.background = '#ffffff';
+              e.currentTarget.style.borderColor = '#e2e8f0';
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }
           }}
         >

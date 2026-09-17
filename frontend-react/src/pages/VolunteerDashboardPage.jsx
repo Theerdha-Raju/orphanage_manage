@@ -14,6 +14,7 @@ export default function VolunteerDashboardPage() {
   const [showModal, setShowModal]     = useState(false);
   const [saving, setSaving]           = useState(false);
   const [msg, setMsg]                 = useState('');
+  const [modalErr, setModalErr]       = useState('');
   const [form, setForm]               = useState({ volunteer: '', event_name: '', assigned_date: new Date().toISOString().slice(0,10), status: 'Assigned' });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -33,6 +34,21 @@ export default function VolunteerDashboardPage() {
 
   const handleSaveAssignment = async (e) => {
     e.preventDefault();
+    setModalErr('');
+
+    if (!form.volunteer) {
+      setModalErr('Validation Error: Please select a volunteer.');
+      return;
+    }
+    if (!form.event_name || form.event_name.trim().length < 2) {
+      setModalErr('Validation Error: Event / Task Name is required and must be at least 2 characters.');
+      return;
+    }
+    if (!form.assigned_date) {
+      setModalErr('Validation Error: Date is required.');
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await fetch(`${API}/volunteer-assignments/`, {
@@ -203,6 +219,11 @@ export default function VolunteerDashboardPage() {
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><i className="bi bi-x-lg" /></button>
             </div>
             <form onSubmit={handleSaveAssignment}>
+              {modalErr && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '0.65rem 0.9rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <i className="bi bi-exclamation-triangle-fill" /> {modalErr}
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label">Volunteer *</label>
                 <select className="form-control" required value={form.volunteer} onChange={e => set('volunteer', e.target.value)}>

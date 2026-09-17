@@ -14,8 +14,8 @@ const chartDefaults = {
   maintainAspectRatio: false,
   plugins: { legend: { labels: { color: '#64748b', font: { size: 11 }, padding: 12 } } },
   scales: {
-    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 11 } } },
-    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 11 } } }
+    y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+    x: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#64748b', font: { size: 11 } } }
   }
 };
 

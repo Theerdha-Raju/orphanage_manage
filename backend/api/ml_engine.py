@@ -45,14 +45,20 @@ class MLEngine:
         confidence = max(probs)
         
         # Calculate a predicted numerical score
-        base_score = (attendance * 0.4) + (prev_score * 0.4) + (study_hours * 0.8)
-        predicted_score = min(100, max(0, round(base_score)))
+        base_score = (attendance * 0.35) + (prev_score * 0.45) + (study_hours * 1.5)
+        predicted_score = min(100.0, max(0.0, round(base_score, 1)))
         
         grade_map = {0: "C/Needs Improvement", 1: "B/Good", 2: "A/Excellent"}
+        rec_map = {
+            0: "Schedule remedial tutoring in core subjects and monitor daily study hours.",
+            1: "Maintain current study routine and encourage participation in science/math clubs.",
+            2: "Advanced learning track recommended with mentorship opportunities."
+        }
         return {
             "predicted_score": predicted_score,
             "predicted_grade": grade_map[prediction],
-            "confidence": round(confidence * 100, 2)
+            "confidence": round(confidence * 100, 2),
+            "recommendation": rec_map[prediction]
         }
 
     def predict_health(self, bmi, sick_days):
@@ -62,9 +68,15 @@ class MLEngine:
         confidence = max(probs)
         
         risk_map = {0: "Low Risk", 1: "Medium Risk", 2: "High Risk"}
+        rec_map = {
+            0: "Standard health parameters. Maintain routine nutrition and active lifestyle.",
+            1: "Slight irregularity detected. Recommend dietary supplement & 2-week follow-up.",
+            2: "High risk flagged due to BMI or frequent sick days. Immediate pediatric checkup required."
+        }
         return {
             "risk_level": risk_map[prediction],
-            "confidence": round(confidence * 100, 2)
+            "confidence": round(confidence * 100, 2),
+            "recommendation": rec_map[prediction]
         }
 
     def predict_behavior(self, incidents, interaction_score):
@@ -74,9 +86,14 @@ class MLEngine:
         confidence = max(probs)
         
         status_map = {0: "Stable/Positive", 1: "Needs Caregiver Attention"}
+        rec_map = {
+            0: "Child demonstrates healthy emotional balance and strong social engagement.",
+            1: "Higher conflict incidents or lower interaction detected. Assign counselor mentorship."
+        }
         return {
             "behavior_status": status_map[prediction],
-            "confidence": round(confidence * 100, 2)
+            "confidence": round(confidence * 100, 2),
+            "recommendation": rec_map[prediction]
         }
 
     def predict_growth(self, age, height, weight):
@@ -85,10 +102,24 @@ class MLEngine:
         probs = self.log_reg.predict_proba(input_data)[0]
         confidence = max(probs)
         
+        # 6-Month Projected Growth Delta
+        h_inc = round(3.2 if age <= 12 else 2.1, 1)
+        w_inc = round(1.8 if age <= 12 else 2.5, 1)
+        
+        predicted_height = round(height + h_inc, 1)
+        predicted_weight = round(weight + w_inc, 1)
+
         growth_map = {0: "Below Average - Consult Nutritionist", 1: "Normal Growth Trajectory"}
+        rec_map = {
+            0: "Growth curve below expected percentile for age group. Increase protein & calorie intake.",
+            1: "Growth trajectory on track. Continue balanced diet and physical activities."
+        }
         return {
             "growth_forecast": growth_map[prediction],
-            "confidence": round(confidence * 100, 2)
+            "predicted_height": predicted_height,
+            "predicted_weight": predicted_weight,
+            "confidence": round(confidence * 100, 2),
+            "recommendation": rec_map[prediction]
         }
 
 # Global singleton instance

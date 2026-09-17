@@ -84,6 +84,7 @@ export default function StaffDashboardPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+  const [modalErr, setModalErr] = useState('');
 
   // Selected Staff Profile Modal
   const [selectedStaffProfile, setSelectedStaffProfile] = useState(null);
@@ -218,6 +219,7 @@ export default function StaffDashboardPage() {
   const openAdd = () => {
     setEditStaff(null);
     setForm(emptyForm);
+    setModalErr('');
     setShowModal(true);
   };
 
@@ -230,6 +232,7 @@ export default function StaffDashboardPage() {
       phone: staff.phone_number || '',
       role: staff.designation || 'staff'
     });
+    setModalErr('');
     setShowModal(true);
   };
 
@@ -251,6 +254,30 @@ export default function StaffDashboardPage() {
 
   const handleSaveStaff = async (e) => {
     e.preventDefault();
+    setModalErr('');
+
+    // --- FORM VALIDATION ---
+    if (!form.name || form.name.trim().length < 2) {
+      setModalErr('Validation Error: Full Name is required and must be at least 2 characters.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!editStaff && (!form.email || !emailRegex.test(form.email.trim()))) {
+      setModalErr('Validation Error: Please enter a valid email address.');
+      return;
+    }
+    if (form.phone && form.phone.trim()) {
+      const cleanPhone = form.phone.trim().replace(/[\s\-]/g, '');
+      if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
+        setModalErr('Validation Error: Please enter a valid phone number (at least 10 digits).');
+        return;
+      }
+    }
+    if (!editStaff && (!form.password || form.password.length < 6)) {
+      setModalErr('Validation Error: Password must be at least 6 characters.');
+      return;
+    }
+
     setSaving(true);
     try {
       if (editStaff) {
@@ -632,6 +659,11 @@ export default function StaffDashboardPage() {
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><i className="bi bi-x-lg" /></button>
             </div>
             <form onSubmit={handleSaveStaff}>
+              {modalErr && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '0.65rem 0.9rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <i className="bi bi-exclamation-triangle-fill" /> {modalErr}
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label">Full Name *</label>
                 <input type="text" className="form-control" required value={form.name} onChange={e => set('name', e.target.value)} />

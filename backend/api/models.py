@@ -36,12 +36,26 @@ class Login(models.Model):
         return self.email
 
 class Child(models.Model):
+    GUARDIAN_RELATION_CHOICES = [
+        ('Father', 'Father'),
+        ('Mother', 'Mother'),
+        ('Uncle', 'Uncle'),
+        ('Aunt', 'Aunt'),
+        ('Grandparent', 'Grandparent'),
+        ('Sibling', 'Sibling'),
+        ('Government', 'Government'),
+        ('None', 'None'),
+    ]
+
     child_id = models.AutoField(primary_key=True)
     full_name = models.CharField(max_length=100)
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
     admission_date = models.DateField()
     guardian_name = models.CharField(max_length=100, blank=True, null=True)
+    father_name = models.CharField(max_length=100, blank=True, null=True)
+    mother_name = models.CharField(max_length=100, blank=True, null=True)
+    guardian_relation = models.CharField(max_length=50, choices=GUARDIAN_RELATION_CHOICES, blank=True, null=True)
     blood_group = models.CharField(max_length=5, blank=True, null=True)
     aadhar_number = models.CharField(max_length=20, blank=True, null=True)
     photo = models.FileField(upload_to='child_photos/', blank=True, null=True)
@@ -97,6 +111,7 @@ class Volunteer(models.Model):
     email = models.CharField(unique=True, max_length=150, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     skills = models.TextField(blank=True, null=True)
+    areas_of_interest = models.TextField(blank=True, null=True)
     availability = models.CharField(max_length=100)
     status = models.CharField(max_length=20, default='Active')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -109,16 +124,28 @@ class Volunteer(models.Model):
         return self.full_name
 
 class VolunteerAssignment(models.Model):
+    PRIORITY_CHOICES = [
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+    ]
+
     assignment_id = models.AutoField(primary_key=True)
     volunteer = models.ForeignKey(Volunteer, models.CASCADE)
     event_name = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
+    activity_type = models.CharField(max_length=100, default='Education', blank=True, null=True)
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='Medium')
     assigned_date = models.DateField()
+    scheduled_date = models.DateField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
+    assigned_children = models.CharField(max_length=200, blank=True, null=True, default='5 Children')
     location = models.CharField(max_length=255, blank=True, null=True)
     assigned_by = models.CharField(max_length=100, blank=True, null=True, default='Admin')
     instructions = models.TextField(blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
+    remarks = models.TextField(blank=True, null=True)
+    completion_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -127,10 +154,16 @@ class VolunteerAssignment(models.Model):
         db_table = 'volunteer_assignment'
 
 class Attendance(models.Model):
+    STATUS_CHOICES = [
+        ('Present', 'Present'),
+        ('Absent', 'Absent'),
+        ('Leave', 'Leave'),
+    ]
+
     attendance_id = models.AutoField(primary_key=True)
     child = models.ForeignKey(Child, models.CASCADE)
     attendance_date = models.DateField()
-    attendance_status = models.CharField(max_length=20)
+    attendance_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Present')
     marked_by = models.ForeignKey(Users, models.SET_NULL, db_column='marked_by', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

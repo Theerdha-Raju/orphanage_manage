@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS login (
 # Insert admin user
 cur.execute('''
 INSERT OR IGNORE INTO users (full_name, phone_number, gender, address, designation, status)
-VALUES ('Admin User', '0000000000', 'Other', 'Orphanage HQ', 'admin', 'Active')
+VALUES ('Admin', '0000000000', 'Other', 'Orphanage HQ', 'admin', 'Active')
 ''')
 
 user_id = cur.lastrowid

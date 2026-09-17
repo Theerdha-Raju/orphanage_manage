@@ -23,6 +23,7 @@ export default function DonorManagementPage() {
   const [form, setForm]           = useState(emptyForm);
   const [saving, setSaving]       = useState(false);
   const [msg, setMsg]             = useState('');
+  const [modalErr, setModalErr]   = useState('');
   const [search, setSearch]       = useState('');
   const [showPassMap, setShowPassMap] = useState({});
 
@@ -48,6 +49,7 @@ export default function DonorManagementPage() {
   const openAdd = () => {
     setEditDonor(null);
     setForm(emptyForm);
+    setModalErr('');
     setShowModal(true);
   };
 
@@ -61,11 +63,12 @@ export default function DonorManagementPage() {
       address: donor.address || '',
       status: donor.status || 'Active',
     });
+    setModalErr('');
     setShowModal(true);
   };
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Delete donor "${name}"? This cannot be undone.`)) return;
+    if (!window.confirm(`Delete donor "${name}"?`)) return;
     try {
       const r = await fetch(`${API}/donors/${id}/`, { method: 'DELETE' });
       if (r.ok || r.status === 204) {
@@ -78,23 +81,29 @@ export default function DonorManagementPage() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setModalErr('');
 
     // --- FORM VALIDATION ---
     if (!form.full_name || form.full_name.trim().length < 2) {
-      alert('Validation Error: Full Name is required and must be at least 2 characters.');
+      setModalErr('Validation Error: Full Name is required and must be at least 2 characters.');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!form.email || !emailRegex.test(form.email.trim())) {
-      alert('Validation Error: Please enter a valid email address.');
+      setModalErr('Validation Error: Please enter a valid email address.');
+      return;
+    }
+
+    if (form.password && form.password.trim().length < 6) {
+      setModalErr('Validation Error: Password must be at least 6 characters.');
       return;
     }
 
     if (form.phone_number && form.phone_number.trim()) {
       const cleanPhone = form.phone_number.trim().replace(/[\s\-]/g, '');
       if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
-        alert('Validation Error: Please enter a valid phone number (at least 10 digits).');
+        setModalErr('Validation Error: Please enter a valid phone number (at least 10 digits).');
         return;
       }
     }
@@ -315,6 +324,11 @@ export default function DonorManagementPage() {
             </div>
 
             <form onSubmit={handleSave}>
+              {modalErr && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '0.65rem 0.9rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <i className="bi bi-exclamation-triangle-fill" /> {modalErr}
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label">Full Name / Organization *</label>
                 <input

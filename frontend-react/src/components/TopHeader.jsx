@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function TopHeader({ title, onToggleSidebar }) {
   const navigate = useNavigate();
-  const userName = localStorage.getItem('userName') || 'User';
+  const rawUserName = localStorage.getItem('userName') || 'User';
+  const userName = rawUserName === 'Admin User' ? 'Admin' : rawUserName;
   const userRole = localStorage.getItem('userRole') || '';
 
   const initials = userName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();

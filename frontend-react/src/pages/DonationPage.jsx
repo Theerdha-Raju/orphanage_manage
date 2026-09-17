@@ -168,7 +168,7 @@ export default function DonationPage() {
           <div className="chart-card">
             <div className="chart-card-title"><i className="bi bi-bar-chart-fill" />Monthly Cash Overview</div>
             <div style={{ height: 200 }}>
-              <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } }, x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } } } }} />
+              <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#64748b', font: { size: 10 } } }, x: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { color: '#64748b', font: { size: 10 } } } } }} />
             </div>
           </div>
           <div className="table-wrap" style={{ maxHeight: 280, overflowY: 'auto' }}>

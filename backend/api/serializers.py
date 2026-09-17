@@ -17,7 +17,13 @@ class ChildSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Child
-        fields = '__all__'
+        fields = [
+            'child_id', 'full_name', 'date_of_birth', 'gender', 'admission_date',
+            'guardian_name', 'father_name', 'mother_name', 'guardian_relation',
+            'blood_group', 'aadhar_number', 'photo', 'previous_school',
+            'academic_document', 'status', 'created_at', 'updated_at',
+            'email', 'password',
+        ]
 
     def get_email(self, obj):
         clean_name = ''.join(c.lower() for c in (obj.full_name or 'Child') if c.isalnum() or c == ' ').replace(' ', '.')

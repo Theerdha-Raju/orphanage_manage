@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
-const API = 'http://localhost:8000/api';
+import { requestApi } from '../apiConfig';
 
 export default function VolunteerLogin() {
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ export default function VolunteerLogin() {
     setError('');
 
     try {
-      const res = await fetch(`${API}/auth/login/`, {
+      const res = await requestApi('/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, role: 'volunteer' })

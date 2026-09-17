@@ -4,142 +4,253 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
 
-from api.models import Volunteer, VolunteerAssignment, Login
+from api.models import Volunteer, VolunteerAssignment, Login, Users
 
 def seed_tasks():
-    print("Seeding volunteer tasks...")
+    print("Seeding volunteer tasks and profiles...")
     
-    # 1. Ensure Login credentials for all volunteers
-    vols = Volunteer.objects.all()
-    for v in vols:
-        if v.email:
-            first = (v.full_name or 'Vol').strip().split()[0]
-            first = ''.join(c for c in first if c.isalpha()) or 'Vol'
-            pwd = f"{first}@Vol123"
-            
-            login_obj = Login.objects.filter(email__iexact=v.email).first()
-            if not login_obj:
-                Login.objects.create(
-                    email=v.email,
-                    password=pwd,
-                    role='volunteer',
-                    status='Active',
-                    user_id=1
-                )
-                print(f"Created login for {v.email} -> Password: {pwd}")
+    # 1. Ensure dedicated default volunteer exists
+    default_vol = Volunteer.objects.filter(email__iexact='volunteer@orphanage.com').first()
+    if not default_vol:
+        default_vol = Volunteer.objects.create(
+            full_name='Rahul Singh',
+            phone_number='+91 98765 43210',
+            email='volunteer@orphanage.com',
+            address='Room 12, Volunteer Quarters, Orphanage Campus',
+            skills='Mathematics Tutoring, STEM Mentorship, Basic First Aid',
+            areas_of_interest='Education, Computer Learning, Extracurricular',
+            availability='Weekends & Evenings',
+            status='Active'
+        )
+    else:
+        default_vol.full_name = 'Rahul Singh'
+        default_vol.phone_number = default_vol.phone_number or '+91 98765 43210'
+        default_vol.skills = default_vol.skills or 'Mathematics Tutoring, STEM Mentorship, Basic First Aid'
+        default_vol.areas_of_interest = 'Education, Computer Learning, Extracurricular'
+        default_vol.availability = default_vol.availability or 'Weekends & Evenings'
+        default_vol.status = 'Active'
+        default_vol.save()
 
-    # 2. Clear old test assignments and create rich assignments
+    # Ensure associated User and Login
+    usr = Users.objects.filter(full_name=default_vol.full_name).first()
+    if not usr:
+        usr = Users.objects.create(
+            full_name=default_vol.full_name,
+            phone_number=default_vol.phone_number or 'vol_default',
+            gender='Male',
+            address=default_vol.address or '',
+            designation='volunteer',
+            status='Active'
+        )
+
+    logins_to_ensure = [
+        ('volunteer@orphanage.com', 'Volunteer@123', default_vol.full_name),
+        ('rahul.singh@volunteer.orphanage.com', 'Rahul@Vol123', 'Rahul Singh'),
+        ('anita.desai@volunteer.orphanage.com', 'Anita@Vol123', 'Anita Desai'),
+        ('priya.verma@volunteer.orphanage.com', 'Priya@Vol123', 'Priya Verma'),
+    ]
+
+    for em, pwd, name in logins_to_ensure:
+        v = Volunteer.objects.filter(email__iexact=em).first()
+        if not v:
+            v = Volunteer.objects.create(
+                full_name=name,
+                email=em,
+                phone_number=f"+91 987{len(em)}0 12345",
+                skills="Education, Arts, Sports",
+                areas_of_interest="Education, Child Development",
+                availability="Weekends",
+                status="Active"
+            )
+        else:
+            if not v.areas_of_interest:
+                v.areas_of_interest = "Education, Child Mentorship, Sports"
+                v.save()
+
+        l = Login.objects.filter(email__iexact=em).first()
+        if not l:
+            Login.objects.create(
+                email=em,
+                password=pwd,
+                role='volunteer',
+                status='Active',
+                user=usr
+            )
+        else:
+            l.password = pwd
+            l.role = 'volunteer'
+            l.user = usr
+            l.save()
+
+    # 2. Re-create structured assignments
     VolunteerAssignment.objects.all().delete()
 
-    task_data = [
+    activities_dataset = [
         {
-            "vol_email": "rahul.singh@volunteer.orphanage.com",
-            "vol_name": "Rahul Singh",
-            "event_name": "Grade 5 Mathematics Remedial Class",
-            "description": "Conduct 2-hour interactive math session focusing on fractions and long division.",
-            "assigned_date": "2026-08-25",
-            "due_date": "2026-08-30",
+            "vol_email": "volunteer@orphanage.com",
+            "event_name": "Mathematics Learning Support",
+            "description": "Conduct remedial mathematics tutoring for Class 5 students focusing on fractions, percentages, and basic algebra.",
+            "activity_type": "Education",
+            "priority": "High",
+            "assigned_date": "2026-09-15",
+            "scheduled_date": "2026-09-20",
+            "due_date": "2026-09-20",
+            "assigned_children": "5 Children",
             "location": "Education Center - Room 3",
-            "assigned_by": "Academic Head",
-            "instructions": "Use visual fraction charts and conduct a 15-minute quick quiz at the end of class.",
-            "status": "Pending"
+            "assigned_by": "Academic Coordinator",
+            "instructions": "Use interactive fraction cards and conduct a 10-minute mental arithmetic game.",
+            "status": "Pending",
+            "completion_date": None,
+            "remarks": None
         },
         {
-            "vol_email": "rahul.singh@volunteer.orphanage.com",
-            "vol_name": "Rahul Singh",
-            "event_name": "Science Exhibition Model Mentorship",
-            "description": "Guide Class 6 children on building renewable solar energy models.",
-            "assigned_date": "2026-08-20",
-            "due_date": "2026-08-29",
-            "location": "Science & Innovation Lab",
-            "assigned_by": "Admin Office",
-            "instructions": "Assist students with wiring solar cells and testing motor outputs.",
-            "status": "In Progress"
+            "vol_email": "volunteer@orphanage.com",
+            "event_name": "Arts and Crafts Activity",
+            "description": "Engage primary group children in creative origami, clay modeling, and watercolor greeting card design.",
+            "activity_type": "Extracurricular",
+            "priority": "Medium",
+            "assigned_date": "2026-09-18",
+            "scheduled_date": "2026-09-22",
+            "due_date": "2026-09-22",
+            "assigned_children": "8 Children",
+            "location": "Activity Hall B",
+            "assigned_by": "Child Care Lead",
+            "instructions": "Distribute safe child-friendly art supplies. Ensure all children participate in the gallery display.",
+            "status": "In Progress",
+            "completion_date": None,
+            "remarks": "Supplies collected from main store. Children started working on origami models."
         },
         {
-            "vol_email": "anita.desai@volunteer.orphanage.com",
-            "vol_name": "Anita Desai",
-            "event_name": "English Vocabulary & Story Reading Workshop",
-            "description": "Conduct interactive story reading session for Class 3 & 4 children.",
-            "assigned_date": "2026-08-24",
-            "due_date": "2026-08-31",
+            "vol_email": "volunteer@orphanage.com",
+            "event_name": "Sports Activity",
+            "description": "Organize outdoor fitness drills, friendly football scrimmage, and team relay games.",
+            "activity_type": "Sports",
+            "priority": "Medium",
+            "assigned_date": "2026-09-10",
+            "scheduled_date": "2026-09-25",
+            "due_date": "2026-09-25",
+            "assigned_children": "10 Children",
+            "location": "Campus Sports Ground",
+            "assigned_by": "Physical Education Instructor",
+            "instructions": "Lead warm-up stretches, emphasize fair play, and distribute hydration drinks during half-time.",
+            "status": "Completed",
+            "completion_date": "2026-09-25",
+            "remarks": "Successfully organized football match. All 10 children showed great teamwork and high enthusiasm."
+        },
+        {
+            "vol_email": "volunteer@orphanage.com",
+            "event_name": "English Learning Support",
+            "description": "Read illustrated storybooks and practice conversational English pronunciation with Class 4 learners.",
+            "activity_type": "Education",
+            "priority": "High",
+            "assigned_date": "2026-09-21",
+            "scheduled_date": "2026-09-28",
+            "due_date": "2026-09-28",
+            "assigned_children": "6 Children",
             "location": "Orphanage Library",
             "assigned_by": "Education Coordinator",
-            "instructions": "Read 'The Lion & The Mouse' storybook and conduct vocabulary flashcard exercises.",
-            "status": "In Progress"
+            "instructions": "Focus on vocabulary building and encourage each child to narrate one story paragraph.",
+            "status": "Pending",
+            "completion_date": None,
+            "remarks": None
+        },
+        {
+            "vol_email": "volunteer@orphanage.com",
+            "event_name": "Computer Learning",
+            "description": "Introduce basic computer skills, typing practice, and Scratch block-based animations.",
+            "activity_type": "Computer Learning",
+            "priority": "High",
+            "assigned_date": "2026-09-22",
+            "scheduled_date": "2026-09-30",
+            "due_date": "2026-09-30",
+            "assigned_children": "7 Children",
+            "location": "IT & Computer Lab",
+            "assigned_by": "Tech Coordinator",
+            "instructions": "Guide students through moving sprite characters and creating interactive sounds in Scratch.",
+            "status": "Pending",
+            "completion_date": None,
+            "remarks": None
+        },
+        {
+            "vol_email": "volunteer@orphanage.com",
+            "event_name": "Extracurricular Activity",
+            "description": "Coordinate interactive drama workshop and group musical rhythm practice for upcoming festival.",
+            "activity_type": "Extracurricular",
+            "priority": "Low",
+            "assigned_date": "2026-09-23",
+            "scheduled_date": "2026-10-02",
+            "due_date": "2026-10-02",
+            "assigned_children": "12 Children",
+            "location": "Main Auditorium",
+            "assigned_by": "Cultural Secretary",
+            "instructions": "Rehearse play script characters and coordinate stage prop preparation.",
+            "status": "Pending",
+            "completion_date": None,
+            "remarks": None
+        },
+        # Also assign some to other volunteers for multi-user realism
+        {
+            "vol_email": "anita.desai@volunteer.orphanage.com",
+            "event_name": "Grammar & Creative Writing Workshop",
+            "description": "Sentence formation and short essay composition exercise for junior school students.",
+            "activity_type": "Education",
+            "priority": "Medium",
+            "assigned_date": "2026-09-18",
+            "scheduled_date": "2026-09-24",
+            "due_date": "2026-09-24",
+            "assigned_children": "6 Children",
+            "location": "Reading Room A",
+            "assigned_by": "Education Coordinator",
+            "instructions": "Distribute notebooks and evaluate handwritten creative sentences.",
+            "status": "In Progress",
+            "completion_date": None,
+            "remarks": "Initial brainstorming round completed."
         },
         {
             "vol_email": "priya.verma@volunteer.orphanage.com",
-            "vol_name": "Priya Verma",
-            "event_name": "Watercolor Painting & Creative Art Workshop",
-            "description": "Teach basic color mixing and landscape painting to primary grade children.",
-            "assigned_date": "2026-08-26",
-            "due_date": "2026-09-01",
-            "location": "Art & Activity Hall",
+            "event_name": "Clay Modeling & Sculpture Fun",
+            "description": "Sensory development through colorful non-toxic clay animal figurines.",
+            "activity_type": "Arts and Crafts",
+            "priority": "Low",
+            "assigned_date": "2026-09-19",
+            "scheduled_date": "2026-09-26",
+            "due_date": "2026-09-26",
+            "assigned_children": "8 Children",
+            "location": "Art Studio",
             "assigned_by": "Care Coordinator",
-            "instructions": "Distribute brushes, watercolors, and drawing sheets. Ensure clean cleanup after session.",
-            "status": "Pending"
-        },
-        {
-            "vol_email": "vikram.patel@outlook.com",
-            "vol_name": "Vikram Patel",
-            "event_name": "Inter-Wing Football Tournament & Drills",
-            "description": "Organize outdoor football training, fitness drills, and friendly match fixtures.",
-            "assigned_date": "2026-08-22",
-            "due_date": "2026-08-28",
-            "location": "Main Sports Ground",
-            "assigned_by": "Sports Director",
-            "instructions": "Lead 15-min warm-up stretch, practice passing drills, and referee 2 match halves.",
-            "status": "In Progress"
-        },
-        {
-            "vol_email": "siddharth.roy@gmail.com",
-            "vol_name": "Siddharth Roy",
-            "event_name": "Scratch Coding & Computer Literacy Class",
-            "description": "Teach basic computer operations and Scratch drag-and-drop programming concepts.",
-            "assigned_date": "2026-08-24",
-            "due_date": "2026-08-30",
-            "location": "IT Computer Lab",
-            "assigned_by": "Tech Coordinator",
-            "instructions": "Help students create their first animated sprite game using Scratch blocks.",
-            "status": "Pending"
-        },
-        {
-            "vol_email": "deepa6@gmail.com",
-            "vol_name": "Deepa",
-            "event_name": "Evening Homework Supervision & Mentoring",
-            "description": "Supervise evening quiet study hour and help children complete daily school homework.",
-            "assigned_date": "2026-08-15",
-            "due_date": "2026-08-18",
-            "location": "Study Center Room B",
-            "assigned_by": "Staff Nurse",
-            "instructions": "Verify homework logs and clear student doubts in Science and Social Studies.",
-            "status": "Completed"
+            "instructions": "Provide apron to each child and ensure cleanup after session.",
+            "status": "Pending",
+            "completion_date": None,
+            "remarks": None
         }
     ]
 
-    for t in task_data:
-        vol = Volunteer.objects.filter(email__iexact=t["vol_email"]).first()
+    for act in activities_dataset:
+        vol = Volunteer.objects.filter(email__iexact=act["vol_email"]).first()
         if not vol:
-            vol = Volunteer.objects.filter(full_name__icontains=t["vol_name"]).first()
-        if not vol:
-            vol = Volunteer.objects.first()
+            vol = default_vol
 
-        if vol:
-            assignment = VolunteerAssignment.objects.create(
-                volunteer=vol,
-                event_name=t["event_name"],
-                description=t["description"],
-                assigned_date=t["assigned_date"],
-                due_date=t["due_date"],
-                location=t["location"],
-                assigned_by=t["assigned_by"],
-                instructions=t["instructions"],
-                status=t["status"]
-            )
-            print(f"Created Task #{assignment.assignment_id}: '{t['event_name']}' assigned to {vol.full_name} ({t['status']})")
+        created_act = VolunteerAssignment.objects.create(
+            volunteer=vol,
+            event_name=act["event_name"],
+            description=act["description"],
+            activity_type=act["activity_type"],
+            priority=act["priority"],
+            assigned_date=act["assigned_date"],
+            scheduled_date=act["scheduled_date"],
+            due_date=act["due_date"],
+            assigned_children=act["assigned_children"],
+            location=act["location"],
+            assigned_by=act["assigned_by"],
+            instructions=act["instructions"],
+            status=act["status"],
+            completion_date=act["completion_date"],
+            remarks=act["remarks"],
+            feedback=act["remarks"]
+        )
+        print(f"Created Activity #{created_act.assignment_id}: '{created_act.event_name}' ({created_act.activity_type}) -> {vol.full_name} [{created_act.status}]")
 
-    print("\nSuccessfully seeded volunteer tasks!")
+    print("\nVolunteer activities and logins successfully seeded!")
 
 if __name__ == '__main__':
     seed_tasks()

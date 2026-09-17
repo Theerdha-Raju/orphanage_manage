@@ -121,28 +121,153 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right — visual card */}
+            {/* Right — Rich Animated Dashboard Preview */}
             <div className="hero-visual animate-fadeIn" style={{ animationDelay: '0.3s' }}>
-              <div className="hero-dashboard-card" style={{ padding: '0.5rem' }}>
-                <img 
-                  src="/orphanage_children.jpg" 
-                  alt="Orphanage Students" 
-                  style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius-md)', display: 'block', objectFit: 'cover' }}
-                />
-                
-                {/* AI Badge Overlay */}
+              <div style={{ position: 'relative', width: '100%' }}>
+
+                {/* Main Dashboard Card */}
+                <div style={{
+                  background: 'rgba(15, 23, 42, 0.92)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: '20px',
+                  padding: '1.25rem',
+                  backdropFilter: 'blur(20px)',
+                  boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
+                }}>
+                  {/* Dashboard Header Bar */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f59e0b' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#22c55e' }} />
+                      <span style={{ color: '#64748b', fontSize: '0.72rem', marginLeft: '0.5rem' }}>HopeNest Dashboard</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '999px', padding: '0.2rem 0.6rem', fontSize: '0.7rem', color: '#34d399' }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+                      Live
+                    </div>
+                  </div>
+
+                  {/* 4 Stat Tiles Row */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.6rem', marginBottom: '0.85rem' }}>
+                    {[
+                      { label: 'Children', value: '512', change: '+12', icon: 'bi-person-heart', color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
+                      { label: 'Health Score', value: '98%', change: '↑3%', icon: 'bi-heart-pulse', color: '#4ade80', bg: 'rgba(74,222,128,0.12)' },
+                      { label: 'Donations', value: '₹2.4L', change: '+₹18k', icon: 'bi-gift', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
+                      { label: 'Volunteers', value: '162', change: '+7', icon: 'bi-people', color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
+                    ].map(s => (
+                      <div key={s.label} style={{ background: s.bg, border: `1px solid ${s.color}22`, borderRadius: '12px', padding: '0.6rem 0.5rem', textAlign: 'center' }}>
+                        <i className={`bi ${s.icon}`} style={{ color: s.color, fontSize: '0.85rem' }} />
+                        <div style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', marginTop: '0.2rem', lineHeight: 1 }}>{s.value}</div>
+                        <div style={{ fontSize: '0.58rem', color: s.color, fontWeight: 600 }}>{s.change}</div>
+                        <div style={{ fontSize: '0.58rem', color: '#64748b', marginTop: '0.1rem' }}>{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Two Column Detail Panels */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '0.7rem', marginBottom: '0.7rem' }}>
+                    {/* Children Table */}
+                    <div style={{ background: 'rgba(30,41,59,0.8)', borderRadius: '12px', padding: '0.75rem', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <i className="bi bi-people-fill" style={{ color: '#60a5fa' }} /> Recent Admissions
+                      </div>
+                      {[
+                        { name: 'Priya Kumar', age: '8y', status: 'Active', grade: 'Grade 3', color: '#4ade80' },
+                        { name: 'Arjun Singh', age: '12y', status: 'Active', grade: 'Grade 7', color: '#60a5fa' },
+                        { name: 'Meena Devi', age: '6y', status: 'Review', grade: 'Grade 1', color: '#fbbf24' },
+                      ].map(c => (
+                        <div key={c.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.35rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg,#2563eb,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700, color: '#fff' }}>
+                              {c.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.65rem', fontWeight: 600, color: '#e2e8f0' }}>{c.name}</div>
+                              <div style={{ fontSize: '0.55rem', color: '#64748b' }}>{c.grade} · {c.age}</div>
+                            </div>
+                          </div>
+                          <span style={{ fontSize: '0.55rem', background: `${c.color}20`, color: c.color, border: `1px solid ${c.color}40`, borderRadius: '999px', padding: '0.1rem 0.4rem', fontWeight: 600 }}>
+                            {c.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Health & AI Panel */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                      <div style={{ background: 'rgba(30,41,59,0.8)', borderRadius: '12px', padding: '0.75rem', border: '1px solid rgba(255,255,255,0.07)', flex: 1 }}>
+                        <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.5rem' }}>
+                          <i className="bi bi-cpu-fill" style={{ color: '#fb7185' }} /> AI Predictions
+                        </div>
+                        {[
+                          { label: 'Academic Score', pct: 87, color: '#60a5fa' },
+                          { label: 'Health Risk', pct: 12, color: '#4ade80' },
+                          { label: 'Growth Rate', pct: 74, color: '#fbbf24' },
+                        ].map(p => (
+                          <div key={p.label} style={{ marginBottom: '0.4rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.58rem', color: '#94a3b8', marginBottom: '0.15rem' }}>
+                              <span>{p.label}</span><span style={{ color: p.color, fontWeight: 700 }}>{p.pct}%</span>
+                            </div>
+                            <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: '999px', overflow: 'hidden' }}>
+                              <div style={{ width: `${p.pct}%`, height: '100%', background: p.color, borderRadius: '999px', transition: 'width 1s ease' }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div style={{ background: 'rgba(30,41,59,0.8)', borderRadius: '12px', padding: '0.65rem', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.4rem' }}>
+                          <i className="bi bi-bell-fill" style={{ color: '#22d3ee' }} /> Recent Alerts
+                        </div>
+                        {[
+                          { msg: 'BMI check needed - Ravi', color: '#fbbf24' },
+                          { msg: 'New donation: ₹5,000', color: '#4ade80' },
+                          { msg: 'Attendance drop: Class 5', color: '#fb7185' },
+                        ].map((a, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.58rem', color: '#94a3b8', marginBottom: '0.25rem' }}>
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: a.color, flexShrink: 0 }} />
+                            {a.msg}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom: Monthly Donation Bar Chart */}
+                  <div style={{ background: 'rgba(30,41,59,0.8)', borderRadius: '12px', padding: '0.65rem', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        <i className="bi bi-bar-chart-fill" style={{ color: '#fbbf24' }} /> Monthly Donations
+                      </span>
+                      <span style={{ fontSize: '0.6rem', color: '#4ade80', fontWeight: 700 }}>↑ 23% this month</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.35rem', height: 40 }}>
+                      {[40, 55, 35, 70, 60, 80, 65, 90, 75, 85, 95, 100].map((h, i) => (
+                        <div key={i} style={{ flex: 1, background: i === 11 ? 'linear-gradient(180deg,#2563eb,#7c3aed)' : 'rgba(96,165,250,0.25)', height: `${h}%`, borderRadius: '3px 3px 0 0', transition: 'height 0.5s ease' }} />
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
+                      {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => (
+                        <span key={m} style={{ fontSize: '0.48rem', color: '#475569', flex: 1, textAlign: 'center' }}>{m}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating AI Badge */}
                 <div style={{
                   position: 'absolute',
-                  bottom: '1.5rem',
+                  bottom: '-1rem',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  padding: '0.65rem 1.25rem',
-                  background: 'rgba(15, 23, 42, 0.85)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 'var(--radius-full)',
+                  padding: '0.55rem 1.1rem',
+                  background: 'rgba(15, 23, 42, 0.95)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: '999px',
                   display: 'flex', alignItems: 'center', gap: '0.5rem',
-                  fontSize: '0.85rem', color: '#fff',
+                  fontSize: '0.8rem', color: '#fff',
                   boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)',
                   whiteSpace: 'nowrap'
                 }}>
@@ -151,6 +276,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>

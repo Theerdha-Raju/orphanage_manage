@@ -19,6 +19,7 @@ export default function HealthManagementPage() {
   const [search, setSearch]       = useState('');
   const [form, setForm]           = useState(emptyForm);
   const [saving, setSaving]       = useState(false);
+  const [modalErr, setModalErr]   = useState('');
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -43,6 +44,7 @@ export default function HealthManagementPage() {
   const openAdd = () => {
     setEdit(null);
     setForm(emptyForm);
+    setModalErr('');
     setShowModal(true);
   };
 
@@ -56,6 +58,7 @@ export default function HealthManagementPage() {
       notes: r.notes || '',
       status: r.status || 'Healthy'
     });
+    setModalErr('');
     setShowModal(true);
   };
 
@@ -73,32 +76,44 @@ export default function HealthManagementPage() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setModalErr('');
 
     // --- FORM VALIDATION ---
     if (!form.child) {
-      alert('Validation Error: Please select a child for this health record.');
+      setModalErr('Validation Error: Please select a child for this health record.');
+      return;
+    }
+
+    if (!form.height_cm || form.height_cm === '') {
+      setModalErr('Validation Error: Height (cm) is required.');
+      return;
+    }
+    const h = parseFloat(form.height_cm);
+    if (isNaN(h) || h <= 0 || h > 250) {
+      setModalErr('Validation Error: Height must be a valid positive number up to 250 cm.');
+      return;
+    }
+
+    if (!form.weight_kg || form.weight_kg === '') {
+      setModalErr('Validation Error: Weight (kg) is required.');
+      return;
+    }
+    const w = parseFloat(form.weight_kg);
+    if (isNaN(w) || w <= 0 || w > 200) {
+      setModalErr('Validation Error: Weight must be a valid positive number up to 200 kg.');
       return;
     }
 
     if (!form.checkup_date) {
-      alert('Validation Error: Checkup date is required.');
+      setModalErr('Validation Error: Checkup date is required.');
       return;
     }
-
-    if (form.height_cm !== '' && form.height_cm !== null) {
-      const h = parseFloat(form.height_cm);
-      if (isNaN(h) || h <= 0 || h > 250) {
-        alert('Validation Error: Height must be a valid positive number up to 250 cm.');
-        return;
-      }
-    }
-
-    if (form.weight_kg !== '' && form.weight_kg !== null) {
-      const w = parseFloat(form.weight_kg);
-      if (isNaN(w) || w <= 0 || w > 200) {
-        alert('Validation Error: Weight must be a valid positive number up to 200 kg.');
-        return;
-      }
+    const checkDate = new Date(form.checkup_date);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (checkDate > today) {
+      setModalErr('Validation Error: Checkup date cannot be in the future.');
+      return;
     }
 
     setSaving(true);
@@ -228,6 +243,11 @@ export default function HealthManagementPage() {
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><i className="bi bi-x-lg" /></button>
             </div>
             <form onSubmit={handleSave}>
+              {modalErr && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '0.65rem 0.9rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <i className="bi bi-exclamation-triangle-fill" /> {modalErr}
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label">Child *</label>
                 <select className="form-control" value={form.child} onChange={e => set('child', e.target.value)} required>

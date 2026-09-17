@@ -3,7 +3,8 @@ import { NavLink, Link } from 'react-router-dom';
 
 export default function Sidebar({ isOpen, onClose }) {
   const userRole = localStorage.getItem('userRole') || 'admin';
-  const userName = localStorage.getItem('userName') || 'User';
+  const rawUserName = localStorage.getItem('userName') || 'User';
+  const userName = rawUserName === 'Admin User' ? 'Admin' : rawUserName;
   const userEmail = localStorage.getItem('userEmail') || '';
 
   const initials = userName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();

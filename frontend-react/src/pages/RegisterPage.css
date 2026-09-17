@@ -1,0 +1,534 @@
+/* ============================================================
+   Orphanage Management System - RegisterPage Styling (Light)
+   ============================================================ */
+
+.reg-page-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: var(--font-body, 'Inter', system-ui, -apple-system, sans-serif);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Left Hero Pane ── */
+.reg-left-pane {
+  flex: 1.1;
+  background: linear-gradient(145deg, #eff6ff 0%, #eef2ff 50%, #f5f3ff 100%);
+  padding: 3rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow-y: auto;
+  border-right: 1px solid #e2e8f0;
+}
+
+.reg-left-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+}
+
+.reg-left-orb-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+}
+
+.reg-left-orb-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+  bottom: -50px;
+  right: -50px;
+}
+
+.reg-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  margin-bottom: 2rem;
+}
+
+.reg-brand-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+}
+
+.reg-brand-title {
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.reg-hero-heading {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.reg-hero-heading span {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Stat Cards ── */
+.reg-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.reg-stat-card {
+  background: #ffffff;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.reg-stat-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.reg-stat-icon {
+  font-size: 1.25rem;
+}
+
+.reg-stat-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.reg-stat-lbl {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+}
+
+/* ── Feature Cards ── */
+.reg-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.reg-feature-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.85rem;
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.reg-feature-card:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.reg-feature-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+
+.reg-feature-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.15rem;
+}
+
+.reg-feature-desc {
+  font-size: 0.7rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+/* ── Right Form Pane ── */
+.reg-right-pane {
+  flex: 1;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2.5rem 2rem;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.reg-card {
+  width: 100%;
+  max-width: 540px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 2.25rem 2.25rem 2rem 2.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.reg-header {
+  margin-bottom: 1.75rem;
+}
+
+.reg-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.reg-subtitle {
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ── Role Selector Pills ── */
+.reg-role-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.6rem;
+}
+
+.reg-role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.reg-role-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.7rem 0.5rem;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.reg-role-btn i {
+  font-size: 1.1rem;
+}
+
+.reg-role-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.reg-role-btn.active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(124, 58, 237, 0.1));
+  border-color: #3b82f6;
+  color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  font-weight: 700;
+}
+
+/* ── Form Fields ── */
+.reg-form-group {
+  margin-bottom: 1.1rem;
+  position: relative;
+}
+
+.reg-input-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.4rem;
+}
+
+.reg-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.reg-input-icon {
+  position: absolute;
+  left: 0.9rem;
+  color: #94a3b8;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.reg-input {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem 0.75rem 2.6rem;
+  color: #0f172a;
+  font-size: 0.88rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.reg-input::placeholder {
+  color: #94a3b8;
+}
+
+.reg-input:focus {
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.reg-input:focus + .reg-input-icon,
+.reg-input-wrapper:focus-within .reg-input-icon {
+  color: #2563eb;
+}
+
+.reg-input.error-border {
+  border-color: #f87171 !important;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15) !important;
+}
+
+.reg-input.success-border {
+  border-color: #4ade80 !important;
+}
+
+.reg-toggle-pwd {
+  position: absolute;
+  right: 0.85rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.reg-toggle-pwd:hover {
+  color: #475569;
+}
+
+/* ── Gender Selector ── */
+.reg-gender-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.reg-gender-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.6rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.reg-gender-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.reg-gender-btn.active {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: #3b82f6;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* ── Field Error ── */
+.reg-field-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ── Password Strength Meter ── */
+.reg-pwd-strength-container {
+  margin-top: 0.4rem;
+}
+
+.reg-pwd-bars {
+  display: flex;
+  gap: 4px;
+  height: 4px;
+  margin-bottom: 0.3rem;
+}
+
+.reg-pwd-bar {
+  flex: 1;
+  height: 100%;
+  border-radius: 2px;
+  background: #e2e8f0;
+  transition: background-color 0.3s ease;
+}
+
+.reg-pwd-bar.weak   { background-color: #ef4444; }
+.reg-pwd-bar.medium { background-color: #f59e0b; }
+.reg-pwd-bar.strong { background-color: #10b981; }
+
+.reg-pwd-label {
+  font-size: 0.72rem;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ── Terms Checkbox ── */
+.reg-terms-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 1.2rem 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.reg-checkbox {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.reg-terms-text a {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Submit Button ── */
+.reg-submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s ease;
+}
+
+.reg-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+}
+
+.reg-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Alerts ── */
+.reg-alert {
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.reg-alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.reg-alert-success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .reg-left-pane {
+    display: none;
+  }
+
+  .reg-right-pane {
+    padding: 1.5rem 1rem;
+    background: #ffffff;
+  }
+
+  .reg-card {
+    border: none;
+    box-shadow: none;
+    padding: 1.5rem;
+  }
+}

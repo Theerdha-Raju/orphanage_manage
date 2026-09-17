@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import GoogleSignInButton from '../components/GoogleSignInButton';
+import { requestApi } from '../apiConfig';
+import './LoginPage.css';
 
 const roles = [
-  { value: 'admin',     label: 'Administrator',   icon: 'bi-shield-lock-fill',   color: '#60a5fa', email: 'admin@orphanage.com',     password: 'Admin@123' },
-  { value: 'staff',     label: 'Caregiver/Staff', icon: 'bi-person-workspace',   color: '#4ade80', email: '',                        password: '' },
-  { value: 'donor',     label: 'Donor/Sponsor',   icon: 'bi-heart-fill',         color: '#fbbf24', email: '',                        password: '' },
-  { value: 'volunteer', label: 'Volunteer',       icon: 'bi-people-fill',        color: '#a78bfa', email: '',                        password: '' },
-  { value: 'child',     label: 'Student',         icon: 'bi-star-fill',          color: '#22d3ee', email: '',                        password: '' },
+  { value: 'admin',     label: 'Administrator',   icon: 'bi-shield-lock-fill',   color: '#2563eb', email: 'admin@orphanage.com',     password: 'Admin@123', name: 'Alexander Wright' },
+  { value: 'staff',     label: 'Caregiver/Staff', icon: 'bi-person-workspace',   color: '#10b981', email: 'staff@orphanage.com',     password: 'Staff@123', name: 'Sarah Jenkins' },
+  { value: 'donor',     label: 'Donor/Sponsor',   icon: 'bi-heart-fill',         color: '#f59e0b', email: 'donor@orphanage.com',     password: 'Donor@123', name: 'Eleanor Vance' },
+  { value: 'volunteer', label: 'Volunteer',       icon: 'bi-people-fill',        color: '#8b5cf6', email: 'volunteer@orphanage.com', password: 'Volunteer@123', name: 'Marcus Brody' },
+  { value: 'child',     label: 'Student',         icon: 'bi-star-fill',          color: '#06b6d4', email: 'student@orphanage.com',   password: 'Student@123', name: 'Leo Carter' },
 ];
 
 export default function LoginPage() {
   const [role, setRole]         = useState('admin');
   const [email, setEmail]       = useState('admin@orphanage.com');
   const [password, setPassword] = useState('Admin@123');
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPwd, setShowPwd]   = useState(false);
+  const [hideFullName, setHideFullName] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
   const navigate  = useNavigate();
   const location  = useLocation();
+
+  const currentRoleObj = roles.find(r => r.value === role) || roles[0];
+
+  const maskName = (str) => {
+    if (!str) return '';
+    return str.split(' ').map(word => word[0] + '*'.repeat(Math.max(1, word.length - 1))).join(' ');
+  };
+
 
   // Already logged-in? Send to their dashboard immediately.
   const existingRole = localStorage.getItem('userRole');
@@ -42,7 +54,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res  = await fetch('http://localhost:8000/api/auth/login/', {
+      const res  = await requestApi('/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -55,17 +67,15 @@ export default function LoginPage() {
         localStorage.setItem('userName',  data.name);
         localStorage.setItem('userEmail', email);
 
-        // Tell the browser to save these credentials (triggers "Save password?" prompt)
         if (window.PasswordCredential) {
           try {
             const cred = new window.PasswordCredential({ id: email, password });
             await navigator.credentials.store(cred);
-          } catch (_) { /* silently ignore if browser doesn't support */ }
+          } catch (_) { /* browser fallback */ }
         }
 
         setTimeout(() => {
           setLoading(false);
-          // Go back to where they tried to visit, or fall back to their home
           const from = location.state?.from?.pathname;
           const routes = {
             admin: '/admin-dashboard',
@@ -78,13 +88,13 @@ export default function LoginPage() {
           };
           const defaultRoute = routes[data.role] || '/staff-dashboard';
           navigate(from || defaultRoute, { replace: true });
-        }, 700);
+        }, 600);
       } else {
         setError(data.error || 'Invalid email or password.');
         setLoading(false);
       }
     } catch {
-      setError('Unable to connect to server. Please try again.');
+      setError('Unable to connect to server. Please ensure the backend is running.');
       setLoading(false);
     }
   };
@@ -94,7 +104,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:8000/api/auth/google/', {
+      const res = await requestApi('/api/auth/google/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -121,7 +131,7 @@ export default function LoginPage() {
           };
           const defaultRoute = routes[data.role] || '/child-dashboard';
           navigate(from || defaultRoute, { replace: true });
-        }, 700);
+        }, 600);
       } else {
         setError(data.error || 'Google login failed.');
         setLoading(false);
@@ -133,177 +143,189 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-wrapper">
-      {/* Left */}
-      <div className="auth-left" style={{ justifyContent: 'space-between' }}>
-        <div className="auth-left-orb auth-left-orb-1" />
-        <div className="auth-left-orb auth-left-orb-2" />
+    <div className="orphanage-auth-wrapper">
+      {/* ──────────────── Left Visual Branding Pane ──────────────── */}
+      <div
+        className="orphanage-left-pane"
+        style={{ backgroundImage: `url('/orphanage_figma_bg.jpg')` }}
+      >
+        <div className="orphanage-left-overlay" />
+        <div className="orphanage-orb orphanage-orb-1" />
+        <div className="orphanage-orb orphanage-orb-2" />
 
-        {/* Logo — top section */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', position: 'relative', zIndex: 2 }}>
-          <div style={{ width: 42, height: 42, background: 'linear-gradient(135deg, #2563eb, #7c3aed)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', color: '#fff', flexShrink: 0, boxShadow: '0 4px 15px rgba(37,99,235,0.4)' }}>
-            <i className="bi bi-house-heart-fill" />
-          </div>
-          <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)', lineHeight: 1.2 }}>Orphanage Management</div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>Caring for Every Child</div>
-          </div>
-        </Link>
 
-        {/* Middle — Student Image Card */}
-        <div style={{ position: 'relative', zIndex: 1, flex: '0 0 auto' }}>
-          <div style={{
-            borderRadius: '1.5rem',
-            overflow: 'hidden',
-            boxShadow: '0 25px 70px rgba(0,0,0,0.5)',
-            border: '1.5px solid rgba(255,255,255,0.1)',
-            position: 'relative',
-            height: 240,
-          }}>
-            <img
-              src="/login-students.png"
-              alt="Happy orphanage children smiling together"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center 30%',
-                display: 'block',
-                filter: 'brightness(0.88) saturate(1.15) contrast(1.05)',
-              }}
-            />
-            {/* Top tint */}
-            <div style={{
-              position: 'absolute',
-              top: 0, left: 0, right: 0,
-              height: '35%',
-              background: 'linear-gradient(to bottom, rgba(10,14,26,0.55) 0%, transparent 100%)',
-            }} />
-            {/* Bottom gradient */}
-            <div style={{
-              position: 'absolute',
-              bottom: 0, left: 0, right: 0,
-              height: '50%',
-              background: 'linear-gradient(to top, rgba(10,14,26,0.85) 0%, transparent 100%)',
-            }} />
-            {/* Top-right floating badge */}
-            <div style={{
-              position: 'absolute',
-              top: '0.85rem',
-              right: '0.85rem',
-              background: 'rgba(16,185,129,0.92)',
-              backdropFilter: 'blur(8px)',
-              borderRadius: '2rem',
-              padding: '0.3rem 0.8rem',
-              fontSize: '0.68rem',
-              fontWeight: 700,
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-              Live Updates
+        {/* 1. Top Bar with Live Telemetry / Care Status Pills */}
+        <div className="orphanage-top-bar">
+          <div className="orphanage-telemetry-pills">
+            <div className="orphanage-pill">
+              <i className="bi bi-people-fill" style={{ color: '#60a5fa' }} />
+              <span>500+ Children</span>
             </div>
-            {/* Bottom badges */}
-            <div style={{
-              position: 'absolute',
-              bottom: '0.9rem',
-              left: '0.9rem',
-              right: '0.9rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-              <span style={{
-                background: 'rgba(34,197,94,0.88)',
-                backdropFilter: 'blur(6px)',
-                borderRadius: '2rem',
-                padding: '0.3rem 0.8rem',
-                fontSize: '0.7rem',
-                fontWeight: 700,
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                boxShadow: '0 3px 10px rgba(0,0,0,0.3)',
-              }}>
-                <i className="bi bi-heart-fill" style={{ fontSize: '0.6rem' }} />
-                Our Happy Students
-              </span>
-              <span style={{
-                background: 'rgba(37,99,235,0.88)',
-                backdropFilter: 'blur(6px)',
-                borderRadius: '2rem',
-                padding: '0.3rem 0.8rem',
-                fontSize: '0.7rem',
-                fontWeight: 700,
-                color: '#fff',
-                boxShadow: '0 3px 10px rgba(0,0,0,0.3)',
-              }}>
-                500+ Children
-              </span>
+            <div className="orphanage-pill">
+              <i className="bi bi-heart-pulse-fill" style={{ color: '#f87171' }} />
+              <span>98% Health Index</span>
+            </div>
+            <div className="orphanage-pill">
+              <i className="bi bi-mortarboard-fill" style={{ color: '#4ade80' }} />
+              <span>94% Academic</span>
+            </div>
+          </div>
+
+          <div className="orphanage-live-badge">
+            <span className="orphanage-live-dot" />
+            Shelter Active
+          </div>
+        </div>
+
+        {/* 2. Middle 3 Floating Glassmorphic Cards */}
+        <div className="orphanage-cards-grid">
+          {/* Card 1: Academic & Skills Progress */}
+          <div className="orphanage-glass-card">
+            <div className="orphanage-card-label">
+              <span>Academic Score</span>
+              <i className="bi bi-graph-up-arrow" style={{ color: '#60a5fa' }} />
+            </div>
+            <div className="orphanage-gauge-wrapper">
+              <svg width="74" height="74" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="#e2e8f0"
+                  strokeWidth="8"
+                  fill="none"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke="url(#blueVioletGrad)"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeDasharray="251.2"
+                  strokeDashoffset="35"
+                  strokeLinecap="round"
+                  transform="rotate(-90 50 50)"
+                />
+                <defs>
+                  <linearGradient id="blueVioletGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#2563eb" />
+                    <stop offset="100%" stopColor="#60a5fa" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="orphanage-gauge-val">94%</div>
+            </div>
+            <div className="orphanage-card-sub">
+              <span style={{ color: '#4ade80', fontWeight: 700 }}>● Optimal</span>
+              <span>• 120 Enrolled</span>
+            </div>
+          </div>
+
+          {/* Card 2: Essential Rations & Supplies */}
+          <div className="orphanage-glass-card">
+            <div className="orphanage-card-label">
+              <span>Monthly Rations</span>
+              <i className="bi bi-box-seam" style={{ color: '#fbbf24' }} />
+            </div>
+            <div className="orphanage-low-badge">LOW</div>
+            <div className="orphanage-sparkline">
+              <div className="orphanage-sparkline-bar" style={{ height: '70%' }} />
+              <div className="orphanage-sparkline-bar" style={{ height: '85%' }} />
+              <div className="orphanage-sparkline-bar" style={{ height: '60%' }} />
+              <div className="orphanage-sparkline-bar" style={{ height: '45%', background: '#fbbf24' }} />
+              <div className="orphanage-sparkline-bar" style={{ height: '30%', background: '#f87171' }} />
+              <div className="orphanage-sparkline-bar" style={{ height: '22%', background: '#ef4444' }} />
+            </div>
+            <div className="orphanage-card-sub">
+              <i className="bi bi-clock-history" style={{ color: '#fbbf24', fontSize: '0.65rem' }} />
+              <span>Restock in 2 days</span>
+            </div>
+          </div>
+
+          {/* Card 3: Healthcare & Wellness Monitoring */}
+          <div className="orphanage-glass-card">
+            <div className="orphanage-card-label">
+              <span>Health Tracking</span>
+              <i className="bi bi-shield-plus" style={{ color: '#4ade80' }} />
+            </div>
+            <div className="orphanage-active-badge">
+              <i className="bi bi-check-circle-fill" /> Active
+            </div>
+            <div className="orphanage-dot-meter">
+              <div className="orphanage-meter-dot on" />
+              <div className="orphanage-meter-dot on" />
+              <div className="orphanage-meter-dot on" />
+              <div className="orphanage-meter-dot on" />
+              <div className="orphanage-meter-dot green" />
+            </div>
+            <div className="orphanage-card-sub">
+              <i className="bi bi-shield-check" style={{ fontSize: '0.65rem', color: '#4ade80' }} />
+              <span>0 Critical Cases</span>
             </div>
           </div>
         </div>
 
-        {/* Bottom — Stats + Text */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          {/* Stats row */}
-          <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-            {[
-              { value: '500+', label: 'Children',    icon: 'bi-people-fill',    color: '#60a5fa' },
-              { value: '95%',  label: 'AI Accuracy', icon: 'bi-graph-up-arrow', color: '#4ade80' },
-              { value: '300+', label: 'Donors',      icon: 'bi-heart-fill',     color: '#f87171' },
-            ].map(s => (
-              <div key={s.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <i className={`bi ${s.icon}`} style={{ fontSize: '0.85rem', color: s.color }} />
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>{s.value}</span>
-                </div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: '1.35rem' }}>{s.label}</div>
-              </div>
-            ))}
+        {/* 3. Bottom Hero Branding */}
+        <div className="orphanage-bottom-meta">
+          <div className="orphanage-feature-row">
+            <div className="orphanage-feature-item">
+              <i className="bi bi-stars" />
+              <span>AI Health & Growth Tracking</span>
+            </div>
+            <div className="orphanage-feature-item">
+              <i className="bi bi-heart-fill" />
+              <span>Verified Donors & Sponsors</span>
+            </div>
+            <div className="orphanage-feature-item">
+              <i className="bi bi-mortarboard-fill" />
+              <span>Academic Mentorship</span>
+            </div>
           </div>
 
-          <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '0.35rem' }}>
-            Welcome Back
-          </div>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-            Empowering Every<br /><span className="gradient-text">Child's Future</span>
-          </h2>
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.65, maxWidth: 420 }}>
-            Login to access child profiles, health records, academic tracking, AI predictions, and more.
+          <h1 className="orphanage-hero-title">Welcome to HopeNest</h1>
+          <p className="orphanage-hero-desc">
+            Empowering every child with personalized care, education, healthcare tracking, and community support.
           </p>
-
-          {/* Feature pills */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '1rem' }}>
-            {['AI Predictions', 'Health Monitoring', 'Academic Tracking', 'Donations'].map(f => (
-              <span key={f} style={{ background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.25)', borderRadius: 'var(--radius-full)', padding: '0.25rem 0.7rem', fontSize: '0.7rem', fontWeight: 600, color: '#60a5fa' }}>
-                {f}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* Right */}
-      <div className="auth-right">
-        <div className="auth-card">
-          {/* Header */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h1 className="auth-title">Login</h1>
-            <p className="auth-sub">Select your role and enter your credentials to access your dashboard.</p>
+      {/* ──────────────── Right Login Form Pane ──────────────── */}
+      <div className="orphanage-right-pane">
+        <div className="orphanage-login-card">
+          {/* Header with App Logo */}
+          <div className="orphanage-card-header">
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <div className="orphanage-brand-badge">
+                <div className="orphanage-brand-icon">
+                  <i className="bi bi-house-heart-fill" />
+                </div>
+                <span>HopeNest</span>
+              </div>
+            </Link>
+            <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+              <i className="bi bi-patch-check-fill text-primary me-1" />Portal v2.4
+            </span>
           </div>
 
-          {/* Role Pills */}
-          <div className="role-pills">
+          {/* Central Login Avatar Badge */}
+          <div className="orphanage-login-avatar-wrap">
+            <div className="orphanage-avatar-box">
+              <i className="bi bi-shield-lock-fill" />
+            </div>
+            <h2 className="orphanage-title">Login</h2>
+            <p className="orphanage-subtitle">
+              Sign in with your credentials to access the child management portal.
+            </p>
+          </div>
+
+          {/* Role Preset Selector */}
+          <div className="orphanage-role-selector">
             {roles.map(r => (
               <button
                 key={r.value}
                 type="button"
-                className={`role-pill ${role === r.value ? 'active' : ''}`}
+                className={`orphanage-role-btn ${role === r.value ? 'active' : ''}`}
                 onClick={() => {
                   setRole(r.value);
                   setEmail(r.email);
@@ -311,97 +333,120 @@ export default function LoginPage() {
                   setError('');
                 }}
               >
-                <i className={`bi ${r.icon}`} style={{ color: role === r.value ? r.color : 'var(--text-muted)' }} />
-                {r.label}
+                <i className={`bi ${r.icon}`} style={{ color: role === r.value ? r.color : '#94a3b8' }} />
+                {r.label.split('/')[0]}
               </button>
             ))}
           </div>
 
 
-
-          {/* Error */}
+          {/* Error Message */}
           {error && (
-            <div className="alert alert-error">
-              <i className="bi bi-exclamation-triangle-fill" />
+            <div style={{
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#dc2626',
+              padding: '0.65rem 0.9rem',
+              borderRadius: '0.75rem',
+              fontSize: '0.8rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '1rem'
+            }}>
+              <i className="bi bi-exclamation-octagon-fill" />
               {error}
             </div>
           )}
 
-          {/* Form */}
+          {/* Login Form */}
           <form onSubmit={handleLogin} autoComplete="on">
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <div className="input-wrap">
-                <i className="bi bi-envelope input-icon" />
+            <div className="orphanage-form-group">
+              <label className="orphanage-form-label">Email Address</label>
+              <div className="orphanage-input-wrapper">
+                <i className="bi bi-envelope orphanage-input-icon" />
                 <input
                   type="email"
                   name="email"
                   autoComplete="username"
-                  className="form-control"
-                  placeholder="you@example.com"
+                  className="orphanage-input"
+                  placeholder="Enter your email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
                 />
               </div>
-
             </div>
 
-
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                <label className="form-label" style={{ margin: 0 }}>Password</label>
-                <Link to="/forgot-password" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Forgot password?</Link>
-              </div>
-              <div className="input-wrap">
-                <i className="bi bi-lock input-icon" />
-                {/* Hidden input always type="password" so browser saves credentials */}
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  style={{ display: 'none' }}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  readOnly={showPwd}
-                />
-                {/* Visible input for show/hide toggle */}
+            <div className="orphanage-form-group">
+              <label className="orphanage-form-label">Password</label>
+              <div className="orphanage-input-wrapper">
+                <i className="bi bi-lock orphanage-input-icon" />
                 <input
                   type={showPwd ? 'text' : 'password'}
-                  className="form-control"
+                  name="password"
+                  autoComplete="current-password"
+                  className="orphanage-input"
                   placeholder="Enter your password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                 />
-                <button type="button" className="input-action" onClick={() => setShowPwd(!showPwd)}>
+                <button
+                  type="button"
+                  className="orphanage-eye-btn"
+                  onClick={() => setShowPwd(!showPwd)}
+                  aria-label="Toggle password visibility"
+                >
                   <i className={`bi ${showPwd ? 'bi-eye-slash' : 'bi-eye'}`} />
                 </button>
               </div>
             </div>
 
+            {/* Remember Me & Forgot Password */}
+            <div className="orphanage-options-row">
+              <label className="orphanage-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  className="orphanage-checkbox"
+                />
+                Remember me
+              </label>
+              <Link to="/forgot-password" className="orphanage-forgot-link">
+                Forgot password?
+              </Link>
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="btn btn-primary w-full"
-              style={{ marginTop: '0.5rem', justifyContent: 'center' }}
+              className="orphanage-submit-btn"
               disabled={loading}
             >
               {loading ? (
-                <><span className="spinner spinner-sm" /> Authenticating...</>
+                <>
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                  <span>Authenticating...</span>
+                </>
               ) : (
-                <><i className="bi bi-box-arrow-in-right" /> Login to Dashboard</>
+                <>
+                  <span>Login to Dashboard</span>
+                  <i className="bi bi-arrow-right" />
+                </>
               )}
             </button>
           </form>
 
-          <div style={{ display: 'flex', alignItems: 'center', margin: '1.25rem 0', gap: '0.75rem' }}>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.12)' }} />
-            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Or continue with</span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.12)' }} />
+          {/* Social Divider */}
+          <div className="orphanage-divider">
+            <div className="orphanage-divider-line" />
+            <span className="orphanage-divider-text">Or continue with</span>
+            <div className="orphanage-divider-line" />
           </div>
 
+          {/* Google Sign In Button */}
           <GoogleSignInButton
             onSuccess={handleGoogleSuccess}
             onError={(err) => setError(err)}
@@ -409,18 +454,20 @@ export default function LoginPage() {
             disabled={loading}
           />
 
-          <div className="divider" />
-
-          <p style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-            Don't have an account?{' '}
-            <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 600 }}>Create one free →</Link>
-          </p>
-
-          <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
-            <Link to="/" style={{ color: 'var(--text-muted)' }}>
-              <i className="bi bi-arrow-left" style={{ marginRight: '0.25rem' }} />Back to Home
+          {/* Register Link */}
+          <div className="orphanage-footer-text">
+            <span>Don't have an account?</span>
+            <Link to="/register" className="orphanage-register-link">
+              Create an account
             </Link>
-          </p>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+            <Link to="/" className="orphanage-home-link">
+              <i className="bi bi-arrow-left" />
+              <span>Back to Home</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -20,6 +20,7 @@ export default function VolunteerProfile() {
     phone_number: '',
     address: '',
     skills: '',
+    areas_of_interest: '',
     availability: '',
     status: 'Active'
   });
@@ -40,6 +41,7 @@ export default function VolunteerProfile() {
             phone_number: data.phone_number || '',
             address: data.address || '',
             skills: data.skills || '',
+            areas_of_interest: data.areas_of_interest || '',
             availability: data.availability || 'Weekends',
             status: data.status || 'Active'
           });
@@ -52,8 +54,9 @@ export default function VolunteerProfile() {
           full_name: userName,
           email: userEmail || 'volunteer@orphanage.com',
           phone_number: '+91 98765 43210',
-          address: 'Block 4, City Center, NGO Quarters',
-          skills: 'Computer Science, Mathematics, First Aid',
+          address: 'Room 12, Volunteer Quarters, Orphanage Campus',
+          skills: 'Mathematics Tutoring, STEM Mentorship, Basic First Aid',
+          areas_of_interest: 'Education, Computer Learning, Extracurricular',
           availability: 'Weekends & Evenings',
           status: 'Active'
         };
@@ -82,6 +85,7 @@ export default function VolunteerProfile() {
         phone_number: profile.phone_number || '',
         address: profile.address || '',
         skills: profile.skills || '',
+        areas_of_interest: profile.areas_of_interest || '',
         availability: profile.availability || 'Weekends',
         status: profile.status || 'Active'
       });
@@ -90,6 +94,15 @@ export default function VolunteerProfile() {
 
   const handleSaveChanges = async (e) => {
     e.preventDefault();
+    if (!form.full_name.trim()) {
+      setError('Full Name is required.');
+      return;
+    }
+    if (!form.email.trim()) {
+      setError('Email address is required.');
+      return;
+    }
+
     setSaving(true);
     setMsg('');
     setError('');
@@ -112,17 +125,17 @@ export default function VolunteerProfile() {
         localStorage.setItem('userName', form.full_name);
         localStorage.setItem('userEmail', form.email);
         setIsEditing(false);
-        setMsg('Profile updated successfully.');
+        setMsg('Volunteer profile updated successfully.');
         setTimeout(() => setMsg(''), 4000);
       } else {
         setError(resData.error || 'Failed to update profile.');
       }
     } catch {
-      // Local state fallback update
+      // Local optimistic fallback
       setProfile(prev => ({ ...prev, ...form }));
       localStorage.setItem('userName', form.full_name);
       setIsEditing(false);
-      setMsg('Profile updated successfully.');
+      setMsg('Volunteer profile updated successfully.');
       setTimeout(() => setMsg(''), 4000);
     } finally {
       setSaving(false);
@@ -131,15 +144,15 @@ export default function VolunteerProfile() {
 
   return (
     <>
-      <TopHeader title="My Volunteer Profile" onToggleSidebar={toggleSidebar} />
+      <TopHeader title="Volunteer Profile" onToggleSidebar={toggleSidebar} />
 
       <div className="page-body">
         {/* Banner */}
         <div className="page-banner">
           <div>
             <div className="section-label">Volunteer Account</div>
-            <div className="page-banner-title">My Profile</div>
-            <div className="page-banner-sub">View and manage your personal volunteer information and availability</div>
+            <div className="page-banner-title">Volunteer Profile</div>
+            <div className="page-banner-sub">View and manage your personal details, skills, availability, and areas of interest</div>
           </div>
           {!isEditing && (
             <button className="btn btn-primary" onClick={handleEditClick}>
@@ -161,7 +174,7 @@ export default function VolunteerProfile() {
         )}
 
         {/* PROFILE CARD */}
-        <div className="chart-card" style={{ maxWidth: '800px' }}>
+        <div className="chart-card" style={{ maxWidth: '840px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '3rem' }}>
               <span className="spinner" style={{ margin: '0 auto' }} />
@@ -171,29 +184,33 @@ export default function VolunteerProfile() {
               {/* Header profile info */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', paddingBottom: '1.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
                 <div style={{
-                  width: 64,
-                  height: 64,
+                  width: 68,
+                  height: 68,
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, #2563eb, #16a34a)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.75rem',
+                  fontSize: '1.85rem',
                   fontWeight: 800,
                   color: '#ffffff',
                   boxShadow: '0 8px 20px rgba(37,99,235,0.3)'
                 }}>
                   {(profile?.full_name || 'V').charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.35rem' }}>
-                    {profile?.full_name || 'Volunteer User'}
-                  </h3>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem' }}>
-                    <span className="badge badge-accent">ID: VOL-#{profile?.volunteer_id || 1}</span>
-                    <span className={`badge ${profile?.status === 'Active' ? 'badge-green' : 'badge-muted'}`}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.35rem', fontWeight: 700 }}>
+                      {profile?.full_name || 'Volunteer User'}
+                    </h3>
+                    <span className={`badge ${profile?.status === 'Active' ? 'badge-green' : profile?.status === 'On Leave' ? 'badge-amber' : 'badge-muted'}`}>
                       {profile?.status || 'Active'}
                     </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.35rem', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                    <span><i className="bi bi-id-card" style={{ marginRight: '0.3rem' }} />ID: VOL-#{profile?.volunteer_id || 1}</span>
+                    <span>&bull;</span>
+                    <span><i className="bi bi-envelope" style={{ marginRight: '0.3rem' }} />{profile?.email || userEmail}</span>
                   </div>
                 </div>
               </div>
@@ -201,32 +218,21 @@ export default function VolunteerProfile() {
               {/* Profile Details Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                 
-                {/* Volunteer ID (Read-only) */}
+                {/* Volunteer Name */}
                 <div className="form-group">
-                  <label className="form-label">Volunteer ID</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={`VOL-${profile?.volunteer_id || 1}`}
-                    disabled
-                    style={{ opacity: 0.7, cursor: 'not-allowed' }}
-                  />
-                </div>
-
-                {/* Full Name */}
-                <div className="form-group">
-                  <label className="form-label">Full Name *</label>
+                  <label className="form-label">Volunteer Name *</label>
                   <input
                     type="text"
                     className="form-control"
                     required
                     disabled={!isEditing}
+                    placeholder="e.g. Rahul Singh"
                     value={form.full_name}
                     onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
                   />
                 </div>
 
-                {/* Email */}
+                {/* Email Address */}
                 <div className="form-group">
                   <label className="form-label">Email Address *</label>
                   <input
@@ -234,6 +240,7 @@ export default function VolunteerProfile() {
                     className="form-control"
                     required
                     disabled={!isEditing}
+                    placeholder="volunteer@orphanage.com"
                     value={form.email}
                     onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                   />
@@ -252,30 +259,60 @@ export default function VolunteerProfile() {
                   />
                 </div>
 
-                {/* Address */}
-                <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                  <label className="form-label">Address</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    disabled={!isEditing}
-                    placeholder="Enter street, city, state"
-                    value={form.address}
-                    onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                  />
+                {/* Profile Status */}
+                <div className="form-group">
+                  <label className="form-label">Profile Status</label>
+                  {isEditing ? (
+                    <select
+                      className="form-control"
+                      value={form.status}
+                      onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="On Leave">On Leave</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      className="form-control"
+                      disabled
+                      value={form.status || 'Active'}
+                      style={{ opacity: 0.85 }}
+                    />
+                  )}
                 </div>
 
                 {/* Skills */}
                 <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                  <label className="form-label">Skills / Specializations</label>
+                  <label className="form-label">Skills & Specializations</label>
                   <input
                     type="text"
                     className="form-control"
                     disabled={!isEditing}
-                    placeholder="e.g. Mathematics Tutoring, Sports Coaching, First Aid"
+                    placeholder="e.g. Mathematics Tutoring, English Fluency, Computer Coding, First Aid"
                     value={form.skills}
                     onChange={e => setForm(f => ({ ...f, skills: e.target.value }))}
                   />
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem', display: 'block' }}>
+                    Specific skills utilized for activity assignments and mentoring.
+                  </span>
+                </div>
+
+                {/* Areas of Interest */}
+                <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <label className="form-label">Areas of Interest</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    disabled={!isEditing}
+                    placeholder="e.g. Education, Sports, Arts and Crafts, Computer Learning, Extracurricular"
+                    value={form.areas_of_interest}
+                    onChange={e => setForm(f => ({ ...f, areas_of_interest: e.target.value }))}
+                  />
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem', display: 'block' }}>
+                    Child development areas and programs you are passionate about.
+                  </span>
                 </div>
 
                 {/* Availability */}
@@ -290,6 +327,7 @@ export default function VolunteerProfile() {
                       <option value="Weekends">Weekends</option>
                       <option value="Weekdays">Weekdays</option>
                       <option value="Evenings">Evenings</option>
+                      <option value="Weekends & Evenings">Weekends & Evenings</option>
                       <option value="Flexible">Flexible</option>
                     </select>
                   ) : (
@@ -297,24 +335,25 @@ export default function VolunteerProfile() {
                   )}
                 </div>
 
-                {/* Status */}
+                {/* Address */}
                 <div className="form-group">
-                  <label className="form-label">Account Status</label>
+                  <label className="form-label">Residential Address</label>
                   <input
                     type="text"
                     className="form-control"
-                    disabled
-                    value={form.status || 'Active'}
-                    style={{ opacity: 0.7 }}
+                    disabled={!isEditing}
+                    placeholder="Enter city, locality or campus quarters"
+                    value={form.address}
+                    onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                   />
                 </div>
 
               </div>
 
-              {/* Edit Mode Buttons */}
+              {/* Edit Mode Actions */}
               {isEditing && (
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }}>
-                  <button type="button" className="btn btn-secondary" onClick={handleCancelClick}>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }}>
+                  <button type="button" className="btn btn-secondary" onClick={handleCancelClick} disabled={saving}>
                     Cancel
                   </button>
                   <button type="submit" className="btn btn-primary" disabled={saving}>

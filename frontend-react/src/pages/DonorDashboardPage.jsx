@@ -78,9 +78,6 @@ export default function DonorDashboardPage() {
             <div className="page-banner-title">Welcome, {userName}</div>
             <div className="page-banner-sub">Track all payment details, view donor contributions, and download official receipts.</div>
           </div>
-          <button className="btn btn-primary" onClick={() => setShowPaymentModal(true)}>
-            <i className="bi bi-credit-card-2-front-fill" /> Make Online Payment / Donation
-          </button>
         </div>
 
         <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>

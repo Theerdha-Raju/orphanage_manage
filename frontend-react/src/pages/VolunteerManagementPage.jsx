@@ -178,19 +178,19 @@ export default function VolunteerManagementPage() {
           </div>
         </div>
 
-        <div className="table-wrap" style={{ borderRadius: '0.85rem', border: '1px solid rgba(255, 255, 255, 0.08)', overflowX: 'auto', background: 'var(--bg-card)' }}>
+        <div className="table-wrap" style={{ borderRadius: '0.85rem', border: '1px solid #e2e8f0', overflowX: 'auto', background: '#ffffff' }}>
           <table className="table" style={{ width: '100%', margin: 0, minWidth: '850px' }}>
             <thead>
-              <tr style={{ background: 'rgba(15, 23, 42, 0.95)' }}>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', width: '30px' }}>#</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>NAME</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>EMAIL</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>PASSWORD</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>PHONE</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', minWidth: '130px' }}>SKILLS</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>AVAILABILITY</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', minWidth: '85px', whiteSpace: 'nowrap' }}>STATUS</th>
-                <th style={{ padding: '0.6rem 0.4rem', color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', minWidth: '80px', whiteSpace: 'nowrap' }}>ACTIONS</th>
+              <tr style={{ background: '#f8fafc' }}>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', width: '30px' }}>#</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>NAME</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>EMAIL</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>PASSWORD</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>PHONE</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', minWidth: '130px' }}>SKILLS</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>AVAILABILITY</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', minWidth: '85px', whiteSpace: 'nowrap' }}>STATUS</th>
+                <th style={{ padding: '0.6rem 0.4rem', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center', minWidth: '80px', whiteSpace: 'nowrap' }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
@@ -206,7 +206,7 @@ export default function VolunteerManagementPage() {
               ) : filtered.map((v, i) => {
                 const avatarBg = ['#4f46e5', '#7c3aed', '#2563eb', '#059669', '#d97706'][i % 5];
                 return (
-                  <tr key={v.volunteer_id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  <tr key={v.volunteer_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ color: 'var(--text-muted)', fontSize: '0.78rem', fontWeight: 600, padding: '0.55rem 0.4rem', textAlign: 'center' }}>{i + 1}</td>
                     <td style={{ padding: '0.55rem 0.4rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
@@ -225,29 +225,29 @@ export default function VolunteerManagementPage() {
                         }}>
                           {v.full_name?.charAt(0)}
                         </div>
-                        <span style={{ fontWeight: 700, color: '#f8fafc', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>{v.full_name}</span>
+                        <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>{v.full_name}</span>
                       </div>
                     </td>
-                    <td style={{ padding: '0.55rem 0.4rem', fontSize: '0.78rem', color: '#cbd5e1', whiteSpace: 'nowrap', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.email}>
+                    <td style={{ padding: '0.55rem 0.4rem', fontSize: '0.78rem', color: '#2563eb', whiteSpace: 'nowrap', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={v.email}>
                       {v.email || '—'}
                     </td>
                     <td style={{ padding: '0.55rem 0.4rem' }}>
-                      <code style={{ background: 'rgba(167,139,250,0.15)', color: '#c4b5fd', padding: '0.12rem 0.35rem', borderRadius: 4, fontSize: '0.72rem', display: 'inline-block', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={v.password || 'Vol@123'}>
+                      <code style={{ background: 'rgba(124,58,237,0.1)', color: '#7c3aed', padding: '0.12rem 0.35rem', borderRadius: 4, fontSize: '0.72rem', display: 'inline-block', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={v.password || 'Vol@123'}>
                         {v.password || 'Vol@123'}
                       </code>
                     </td>
-                    <td style={{ padding: '0.55rem 0.4rem', fontSize: '0.78rem', color: '#cbd5e1', whiteSpace: 'nowrap' }}>{v.phone_number || '—'}</td>
+                    <td style={{ padding: '0.55rem 0.4rem', fontSize: '0.78rem', color: '#2563eb', whiteSpace: 'nowrap' }}>{v.phone_number || '—'}</td>
                     <td style={{ padding: '0.55rem 0.4rem', maxWidth: '160px' }}>
                       <div style={{
-                        background: 'rgba(30, 41, 59, 0.85)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: '#f1f5f9',
+                        border: '1px solid #e2e8f0',
                         borderRadius: '0.5rem',
                         padding: '0.2rem 0.45rem',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.25rem',
                         fontSize: '0.72rem',
-                        color: '#f1f5f9',
+                        color: '#334155',
                         fontWeight: 600,
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
@@ -258,7 +258,7 @@ export default function VolunteerManagementPage() {
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.skills || 'General'}</span>
                       </div>
                     </td>
-                    <td style={{ padding: '0.55rem 0.4rem', fontSize: '0.78rem', color: '#cbd5e1', whiteSpace: 'nowrap' }}>{v.availability || '—'}</td>
+                    <td style={{ padding: '0.55rem 0.4rem', fontSize: '0.78rem', color: '#2563eb', whiteSpace: 'nowrap' }}>{v.availability || '—'}</td>
                     <td style={{ padding: '0.55rem 0.4rem', textAlign: 'center', minWidth: '85px', whiteSpace: 'nowrap' }}>
                       <span className={`badge ${STATUS_BADGE[v.status] || 'badge-muted'}`} style={{ fontWeight: 700, padding: '0.2rem 0.55rem', fontSize: '0.72rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                         {v.status}
