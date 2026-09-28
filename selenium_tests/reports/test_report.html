@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HopeNest - Selenium Test Automation Report</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.12);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.12);
+            --radius-md: 10px;
+            --radius-lg: 16px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 2.5rem 1.5rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        /* Header */
+        .report-header {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .brand-icon {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #ffffff;
+            box-shadow: 0 8px 20px var(--accent-glow);
+        }
+        .report-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+        .report-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+        .meta-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.9rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        /* Summary Metrics Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.4rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+        .metric-card.total::before { background: var(--accent); }
+        .metric-card.passed::before { background: var(--success); }
+        .metric-card.failed::before { background: var(--danger); }
+        .metric-card.rate::before { background: #8b5cf6; }
+        .metric-card.duration::before { background: var(--warning); }
+
+        .metric-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .metric-val {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-top: 0.5rem;
+            color: #ffffff;
+        }
+        .metric-sub {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Filter Tabs */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-tabs {
+            display: flex;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.3rem;
+            gap: 0.3rem;
+        }
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .filter-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+        }
+        .search-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.5rem 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            min-width: 260px;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Test Cards */
+        .tests-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+        .test-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+        .test-card:hover {
+            border-color: var(--border-hover);
+        }
+        .test-card.status-pass {
+            border-left: 4px solid var(--success);
+        }
+        .test-card.status-fail {
+            border-left: 4px solid var(--danger);
+        }
+        .test-card.status-skip {
+            border-left: 4px solid var(--warning);
+        }
+
+        .test-header {
+            padding: 1.1rem 1.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .test-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .status-icon {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+
+        .test-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .test-category-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            padding: 0.1rem 0.45rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+        .test-meta-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .test-duration {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .badge-pass {
+            background: var(--success-bg);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-fail {
+            background: var(--danger-bg);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .badge-skip {
+            background: var(--warning-bg);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .chevron-icon {
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+        .chevron-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        .test-details {
+            display: none;
+            padding: 0 1.4rem 1.4rem 1.4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            margin-top: 0.4rem;
+        }
+        .test-details.open {
+            display: block;
+        }
+        .test-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0.8rem 0;
+        }
+        .detail-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .test-logs {
+            margin-top: 1rem;
+        }
+        .log-list {
+            list-style: none;
+            background: #090d16;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.8rem 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .log-list li {
+            padding: 0.2rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            gap: 0.75rem;
+        }
+        .log-time {
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .log-text {
+            color: #e5e7eb;
+        }
+        .test-error {
+            margin-top: 1rem;
+        }
+        .error-pre {
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            color: #fca5a5;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .test-screenshot-wrap {
+            margin-top: 1.25rem;
+        }
+        .test-thumbnail {
+            max-width: 320px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .test-thumbnail:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+        }
+
+        /* Environment details table */
+        .env-section {
+            margin-top: 2.5rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+        .env-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .env-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .env-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+        }
+        .env-key {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .env-val {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 0.2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="report-header">
+            <div class="brand-section">
+                <div class="brand-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div>
+                    <h1 class="report-title">HopeNest - Selenium Test Automation Suite</h1>
+                    <p class="report-subtitle">Automated End-to-End Regression & Acceptance Report</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                <span class="meta-pill"><i class="bi bi-calendar3"></i> 2026-09-27 19:05:44</span>
+                <span class="meta-pill"><i class="bi bi-browser-chrome"></i> Headless Chrome</span>
+                <span class="meta-pill"><i class="bi bi-hdd-network"></i> http://localhost:5173</span>
+            </div>
+        </header>
+
+        <!-- Metric Cards -->
+        <section class="metrics-grid">
+            <div class="metric-card total">
+                <div class="metric-label">Total Tests <i class="bi bi-collection"></i></div>
+                <div class="metric-val">26</div>
+                <div class="metric-sub">Executed scenarios</div>
+            </div>
+            <div class="metric-card passed">
+                <div class="metric-label">Passed Tests <i class="bi bi-check-circle text-success"></i></div>
+                <div class="metric-val" style="color: var(--success);">26</div>
+                <div class="metric-sub">Verified functional</div>
+            </div>
+            <div class="metric-card failed">
+                <div class="metric-label">Failed Tests <i class="bi bi-x-circle text-danger"></i></div>
+                <div class="metric-val" style="color: var(--text-secondary);">0</div>
+                <div class="metric-sub">Zero defects identified</div>
+            </div>
+            <div class="metric-card rate">
+                <div class="metric-label">Pass Rate <i class="bi bi-percent" style="color: #a78bfa;"></i></div>
+                <div class="metric-val" style="color: #c084fc;">100.0%</div>
+                <div class="metric-sub">Success index</div>
+            </div>
+            <div class="metric-card duration">
+                <div class="metric-label">Duration <i class="bi bi-clock-history text-warning"></i></div>
+                <div class="metric-val" style="font-size: 1.8rem; font-family: 'JetBrains Mono', monospace;">176.8s</div>
+                <div class="metric-sub">Total execution time</div>
+            </div>
+        </section>
+
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="filter-tabs">
+                <button class="filter-btn active" onclick="filterTests('all')">
+                    All Tests (26)
+                </button>
+                <button class="filter-btn" onclick="filterTests('pass')">
+                    <i class="bi bi-check-circle-fill text-success"></i> Passed (26)
+                </button>
+                <button class="filter-btn" onclick="filterTests('fail')">
+                    <i class="bi bi-x-circle-fill text-danger"></i> Failed (0)
+                </button>
+            </div>
+            <input type="text" class="search-box" id="testSearch" placeholder="Search test name or module..." onkeyup="searchFilter()" />
+        </div>
+
+        <!-- Tests List -->
+        <section class="tests-container">
+            
+        <div class="test-card status-pass" data-status="pass" data-category="Public & Landing">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-0')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Landing Page Branding & Hero</div>
+                        <div class="test-category-badge">Public & Landing</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.90s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-0"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-0">
+                <p class="test-desc">Validates page title, HopeNest branding, header navigation bar, and hero section.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:02:47</span> <span class='log-text'>Navigating to http://localhost:5173</span></li>
+<li><span class='log-time'>19:02:51</span> <span class='log-text'>Page title verified: HopeNest — Intelligent Orphanage Management System</span></li>
+<li><span class='log-time'>19:02:51</span> <span class='log-text'>Navbar brand / logo confirmed</span></li>
+<li><span class='log-time'>19:02:51</span> <span class='log-text'>Hero section title found: 'Empowering Every Child's Bright Future'</span></li>
+<li><span class='log-time'>19:02:51</span> <span class='log-text'>Captured screenshot: test_01_test_landing_page_branding_landing_page.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_01_test_landing_page_branding_landing_page.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_01_test_landing_page_branding_landing_page.png" class="test-thumbnail" alt="Screenshot for Landing Page Branding & Hero" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Public & Landing">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-1')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Landing Page Feature Modules & Metrics</div>
+                        <div class="test-category-badge">Public & Landing</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 1.87s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-1"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-1">
+                <p class="test-desc">Verifies the 6 key service feature cards, live counter metrics, and testimonials on the homepage.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:02:53</span> <span class='log-text'>Found 6 feature cards on landing page</span></li>
+<li><span class='log-time'>19:02:53</span> <span class='log-text'>Found 5 stat counters on landing page</span></li>
+<li><span class='log-time'>19:02:53</span> <span class='log-text'>Captured screenshot: test_02_test_landing_page_features_and_stats_features_and_stats.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_02_test_landing_page_features_and_stats_features_and_stats.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_02_test_landing_page_features_and_stats_features_and_stats.png" class="test-thumbnail" alt="Screenshot for Landing Page Feature Modules & Metrics" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Public & Landing">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-2')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Landing Page CTA Navigation to Login</div>
+                        <div class="test-category-badge">Public & Landing</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.80s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-2"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-2">
+                <p class="test-desc">Clicks navigation controls on the landing page and verifies redirection to /login.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:02:55</span> <span class='log-text'>Locating 'Login' button in navbar</span></li>
+<li><span class='log-time'>19:02:55</span> <span class='log-text'>Successfully redirected to login page: http://localhost:5173/login</span></li>
+<li><span class='log-time'>19:02:57</span> <span class='log-text'>Captured screenshot: test_03_test_landing_page_navigation_to_login_nav_to_login.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_03_test_landing_page_navigation_to_login_nav_to_login.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_03_test_landing_page_navigation_to_login_nav_to_login.png" class="test-thumbnail" alt="Screenshot for Landing Page CTA Navigation to Login" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Public & Landing">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-3')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Self-Service Password Reset Request</div>
+                        <div class="test-category-badge">Public & Landing</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.35s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-3"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-3">
+                <p class="test-desc">Submits an email for password recovery on /forgot-password and verifies the confirmation screen.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:02:58</span> <span class='log-text'>Forgot Password page rendered</span></li>
+<li><span class='log-time'>19:02:59</span> <span class='log-text'>Entered recovery email: recovery.test@orphanage.com</span></li>
+<li><span class='log-time'>19:03:00</span> <span class='log-text'>Password reset confirmation message displayed successfully</span></li>
+<li><span class='log-time'>19:03:00</span> <span class='log-text'>Captured screenshot: test_04_test_forgot_password_flow_forgot_password_success.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_04_test_forgot_password_flow_forgot_password_success.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_04_test_forgot_password_flow_forgot_password_success.png" class="test-thumbnail" alt="Screenshot for Self-Service Password Reset Request" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Public & Landing">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-4')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Account Registration Form & Validation</div>
+                        <div class="test-category-badge">Public & Landing</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 2.68s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-4"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-4">
+                <p class="test-desc">Verifies input controls, role selection, and client-side form validation on /register.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:02</span> <span class='log-text'>Register page opened</span></li>
+<li><span class='log-time'>19:03:02</span> <span class='log-text'>Verified presence of input fields</span></li>
+<li><span class='log-time'>19:03:03</span> <span class='log-text'>Form validation errors triggered and displayed as expected</span></li>
+<li><span class='log-time'>19:03:03</span> <span class='log-text'>Captured screenshot: test_05_test_register_page_elements_and_validation_register_validation.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_05_test_register_page_elements_and_validation_register_validation.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_05_test_register_page_elements_and_validation_register_validation.png" class="test-thumbnail" alt="Screenshot for Account Registration Form & Validation" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-5')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Login Role Preset Selector Auto-Fill</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 9.45s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-5"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-5">
+                <p class="test-desc">Tests clicking role selector pills (Caregiver, Donor, Volunteer, Student) to verify dynamic field population.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:03</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:06</span> <span class='log-text'>Caregiver preset clicked: Auto-filled staff@orphanage.com</span></li>
+<li><span class='log-time'>19:03:06</span> <span class='log-text'>Donor preset clicked: Auto-filled donor@orphanage.com</span></li>
+<li><span class='log-time'>19:03:07</span> <span class='log-text'>Volunteer preset clicked: Auto-filled volunteer@orphanage.com</span></li>
+<li><span class='log-time'>19:03:11</span> <span class='log-text'>Student preset clicked: Auto-filled student@orphanage.com</span></li>
+<li><span class='log-time'>19:03:12</span> <span class='log-text'>Captured screenshot: test_06_test_login_role_pills_auto_fill_role_pills_tested.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_06_test_login_role_pills_auto_fill_role_pills_tested.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_06_test_login_role_pills_auto_fill_role_pills_tested.png" class="test-thumbnail" alt="Screenshot for Login Role Preset Selector Auto-Fill" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-6')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Administrator Authentication</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.24s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-6"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-6">
+                <p class="test-desc">Authenticates as System Administrator and validates landing on /admin-dashboard.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:12</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:13</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:15</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:03:15</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:03:17</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:03:18</span> <span class='log-text'>Admin Dashboard verified</span></li>
+<li><span class='log-time'>19:03:19</span> <span class='log-text'>Captured screenshot: test_07_test_admin_login_success_admin_dashboard.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_07_test_admin_login_success_admin_dashboard.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_07_test_admin_login_success_admin_dashboard.png" class="test-thumbnail" alt="Screenshot for Administrator Authentication" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-7')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Caregiver / Staff Authentication</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.41s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-7"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-7">
+                <p class="test-desc">Authenticates with Caregiver credentials and verifies redirection to /staff-dashboard.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:19</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:20</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:22</span> <span class='log-text'>Clicked role preset pill: Caregiver</span></li>
+<li><span class='log-time'>19:03:22</span> <span class='log-text'>Submitting credentials for staff (staff@orphanage.com)</span></li>
+<li><span class='log-time'>19:03:24</span> <span class='log-text'>Successfully logged in as staff, navigated to: http://localhost:5173/staff-dashboard</span></li>
+<li><span class='log-time'>19:03:25</span> <span class='log-text'>Caregiver Staff Dashboard verified</span></li>
+<li><span class='log-time'>19:03:25</span> <span class='log-text'>Captured screenshot: test_08_test_staff_login_success_staff_dashboard.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_08_test_staff_login_success_staff_dashboard.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_08_test_staff_login_success_staff_dashboard.png" class="test-thumbnail" alt="Screenshot for Caregiver / Staff Authentication" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-8')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Donor / Sponsor Authentication</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 5.99s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-8"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-8">
+                <p class="test-desc">Authenticates as Donor and validates access to /donor-dashboard.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:25</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:26</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:28</span> <span class='log-text'>Clicked role preset pill: Donor</span></li>
+<li><span class='log-time'>19:03:28</span> <span class='log-text'>Submitting credentials for donor (donor@orphanage.com)</span></li>
+<li><span class='log-time'>19:03:30</span> <span class='log-text'>Successfully logged in as donor, navigated to: http://localhost:5173/donor-dashboard</span></li>
+<li><span class='log-time'>19:03:31</span> <span class='log-text'>Donor Dashboard verified</span></li>
+<li><span class='log-time'>19:03:31</span> <span class='log-text'>Captured screenshot: test_09_test_donor_login_success_donor_dashboard.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_09_test_donor_login_success_donor_dashboard.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_09_test_donor_login_success_donor_dashboard.png" class="test-thumbnail" alt="Screenshot for Donor / Sponsor Authentication" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-9')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Volunteer Authentication</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.44s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-9"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-9">
+                <p class="test-desc">Authenticates as Volunteer and verifies routing to Volunteer portal.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:31</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:32</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:34</span> <span class='log-text'>Clicked role preset pill: Volunteer</span></li>
+<li><span class='log-time'>19:03:34</span> <span class='log-text'>Submitting credentials for volunteer (volunteer@orphanage.com)</span></li>
+<li><span class='log-time'>19:03:36</span> <span class='log-text'>Successfully logged in as volunteer, navigated to: http://localhost:5173/volunteer-dashboard</span></li>
+<li><span class='log-time'>19:03:37</span> <span class='log-text'>Volunteer Dashboard verified</span></li>
+<li><span class='log-time'>19:03:38</span> <span class='log-text'>Captured screenshot: test_10_test_volunteer_login_success_volunteer_dashboard.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_10_test_volunteer_login_success_volunteer_dashboard.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_10_test_volunteer_login_success_volunteer_dashboard.png" class="test-thumbnail" alt="Screenshot for Volunteer Authentication" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-10')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Student / Child Authentication</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.76s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-10"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-10">
+                <p class="test-desc">Authenticates as Child/Student and validates access to the student dashboard.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:38</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:39</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:40</span> <span class='log-text'>Clicked role preset pill: Student</span></li>
+<li><span class='log-time'>19:03:41</span> <span class='log-text'>Submitting credentials for child (student@orphanage.com)</span></li>
+<li><span class='log-time'>19:03:43</span> <span class='log-text'>Successfully logged in as child, navigated to: http://localhost:5173/child-dashboard</span></li>
+<li><span class='log-time'>19:03:44</span> <span class='log-text'>Child Student Dashboard verified</span></li>
+<li><span class='log-time'>19:03:44</span> <span class='log-text'>Captured screenshot: test_11_test_child_student_login_success_child_dashboard.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_11_test_child_student_login_success_child_dashboard.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_11_test_child_student_login_success_child_dashboard.png" class="test-thumbnail" alt="Screenshot for Student / Child Authentication" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-11')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Invalid Credentials Rejection & Error Display</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 4.75s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-11"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-11">
+                <p class="test-desc">Submits invalid password and verifies presentation of authentication error banner.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:44</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:47</span> <span class='log-text'>Submitting incorrect credentials</span></li>
+<li><span class='log-time'>19:03:47</span> <span class='log-text'>Expected authentication error banner is visible</span></li>
+<li><span class='log-time'>19:03:49</span> <span class='log-text'>Captured screenshot: test_12_test_invalid_credentials_error_display_invalid_login_error.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_12_test_invalid_credentials_error_display_invalid_login_error.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_12_test_invalid_credentials_error_display_invalid_login_error.png" class="test-thumbnail" alt="Screenshot for Invalid Credentials Rejection & Error Display" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-12')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">User Session Logout & Cache Clearance</div>
+                        <div class="test-category-badge">Authentication</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 9.96s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-12"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-12">
+                <p class="test-desc">Executes logout from the dashboard sidebar and verifies session termination and redirect to /login.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:03:49</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:50</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:03:52</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:03:52</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:03:54</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:03:55</span> <span class='log-text'>Finding sidebar logout control</span></li>
+<li><span class='log-time'>19:03:57</span> <span class='log-text'>Successfully logged out and redirected to /login</span></li>
+<li><span class='log-time'>19:03:57</span> <span class='log-text'>Session storage verified clean</span></li>
+<li><span class='log-time'>19:03:59</span> <span class='log-text'>Captured screenshot: test_13_test_user_logout_flow_logout_success.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_13_test_user_logout_flow_logout_success.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_13_test_user_logout_flow_logout_success.png" class="test-thumbnail" alt="Screenshot for User Session Logout & Cache Clearance" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Security & RBAC">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-13')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Protected Route Guard (Unauthenticated Access)</div>
+                        <div class="test-category-badge">Security & RBAC</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 4.01s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-13"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-13">
+                <p class="test-desc">Attempts direct navigation to /admin-dashboard when logged out; verifies automatic bounce to /login.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:00</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:00</span> <span class='log-text'>Navigating to protected route /admin-dashboard without active session</span></li>
+<li><span class='log-time'>19:04:01</span> <span class='log-text'>Correctly redirected unauthorized user to: http://localhost:5173/login</span></li>
+<li><span class='log-time'>19:04:03</span> <span class='log-text'>Captured screenshot: test_14_test_unauthenticated_protected_route_unauth_protected_redirect.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_14_test_unauthenticated_protected_route_unauth_protected_redirect.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_14_test_unauthenticated_protected_route_unauth_protected_redirect.png" class="test-thumbnail" alt="Screenshot for Protected Route Guard (Unauthenticated Access)" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Security & RBAC">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-14')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Role Privilege Restriction (Child Access Guard)</div>
+                        <div class="test-category-badge">Security & RBAC</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 9.27s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-14"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-14">
+                <p class="test-desc">Authenticates as student and attempts access to /expense-management; verifies privilege containment.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:03</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:04</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:06</span> <span class='log-text'>Clicked role preset pill: Student</span></li>
+<li><span class='log-time'>19:04:06</span> <span class='log-text'>Submitting credentials for child (student@orphanage.com)</span></li>
+<li><span class='log-time'>19:04:08</span> <span class='log-text'>Successfully logged in as child, navigated to: http://localhost:5173/child-dashboard</span></li>
+<li><span class='log-time'>19:04:09</span> <span class='log-text'>Attempting access to restricted admin route: /expense-management</span></li>
+<li><span class='log-time'>19:04:11</span> <span class='log-text'>Access restriction verified. Final URL: http://localhost:5173/child-dashboard</span></li>
+<li><span class='log-time'>19:04:12</span> <span class='log-text'>Captured screenshot: test_15_test_child_rbac_restrictions_child_rbac_guard.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_15_test_child_rbac_restrictions_child_rbac_guard.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_15_test_child_rbac_restrictions_child_rbac_guard.png" class="test-thumbnail" alt="Screenshot for Role Privilege Restriction (Child Access Guard)" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Management Modules">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-15')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Admin Dashboard Metrics & Chart Visualizations</div>
+                        <div class="test-category-badge">Management Modules</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.44s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-15"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-15">
+                <p class="test-desc">Verifies key performance metric cards (Children, Staff, Volunteers, Donations) and Chart.js canvases.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:12</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:13</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:15</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:04:15</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:04:17</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:04:19</span> <span class='log-text'>Found 4 stat cards on Admin Dashboard</span></li>
+<li><span class='log-time'>19:04:19</span> <span class='log-text'>Found 3 Chart.js canvas elements</span></li>
+<li><span class='log-time'>19:04:20</span> <span class='log-text'>Captured screenshot: test_16_test_admin_dashboard_metrics_and_charts_admin_dashboard_charts.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_16_test_admin_dashboard_metrics_and_charts_admin_dashboard_charts.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_16_test_admin_dashboard_metrics_and_charts_admin_dashboard_charts.png" class="test-thumbnail" alt="Screenshot for Admin Dashboard Metrics & Chart Visualizations" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Management Modules">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-16')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Child Profiles Directory & Real-time Search</div>
+                        <div class="test-category-badge">Management Modules</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.39s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-16"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-16">
+                <p class="test-desc">Verifies child records table loading, avatar cards, and instant filtering via search input.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:20</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:21</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:22</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:04:22</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:04:24</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:04:27</span> <span class='log-text'>Child Profile page loaded</span></li>
+<li><span class='log-time'>19:04:27</span> <span class='log-text'>Found child search input</span></li>
+<li><span class='log-time'>19:04:27</span> <span class='log-text'>Total child profile rows loaded: 1</span></li>
+<li><span class='log-time'>19:04:28</span> <span class='log-text'>Rows after search query: 1</span></li>
+<li><span class='log-time'>19:04:28</span> <span class='log-text'>Captured screenshot: test_17_test_child_profiles_management_child_profiles_table.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_17_test_child_profiles_management_child_profiles_table.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_17_test_child_profiles_management_child_profiles_table.png" class="test-thumbnail" alt="Screenshot for Child Profiles Directory & Real-time Search" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Management Modules">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-17')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Donor Management & Directory Module</div>
+                        <div class="test-category-badge">Management Modules</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.60s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-17"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-17">
+                <p class="test-desc">Validates Donor directory listing, statistics cards, and contribution tracking interface.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:28</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:29</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:30</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:04:31</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:04:32</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:04:35</span> <span class='log-text'>Donor Management page and directory verified</span></li>
+<li><span class='log-time'>19:04:36</span> <span class='log-text'>Captured screenshot: test_18_test_donor_management_module_donor_management.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_18_test_donor_management_module_donor_management.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_18_test_donor_management_module_donor_management.png" class="test-thumbnail" alt="Screenshot for Donor Management & Directory Module" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Management Modules">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-18')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Volunteer Management & Task Assignment Module</div>
+                        <div class="test-category-badge">Management Modules</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.21s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-18"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-18">
+                <p class="test-desc">Verifies Volunteer directory, availability status, and assignment tools.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:36</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:37</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:39</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:04:39</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:04:41</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:04:44</span> <span class='log-text'>Volunteer Management page verified</span></li>
+<li><span class='log-time'>19:04:44</span> <span class='log-text'>Captured screenshot: test_19_test_volunteer_management_module_volunteer_management.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_19_test_volunteer_management_module_volunteer_management.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_19_test_volunteer_management_module_volunteer_management.png" class="test-thumbnail" alt="Screenshot for Volunteer Management & Task Assignment Module" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Management Modules">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-19')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Expense Ledger & Financial Module</div>
+                        <div class="test-category-badge">Management Modules</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.42s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-19"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-19">
+                <p class="test-desc">Verifies expense tracking ledger, category tags, and financial totals.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:44</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:45</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:47</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:04:47</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:04:49</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:04:52</span> <span class='log-text'>Expense Management page verified</span></li>
+<li><span class='log-time'>19:04:52</span> <span class='log-text'>Captured screenshot: test_20_test_expense_management_module_expense_management.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_20_test_expense_management_module_expense_management.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_20_test_expense_management_module_expense_management.png" class="test-thumbnail" alt="Screenshot for Expense Ledger & Financial Module" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Management Modules">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-20')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Analytics & Operational Reports Module</div>
+                        <div class="test-category-badge">Management Modules</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.61s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-20"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-20">
+                <p class="test-desc">Verifies system reports, aggregated statistics, and data visualization exports.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:04:52</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:54</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:04:55</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:04:55</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:04:57</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:05:00</span> <span class='log-text'>Reports & Analytics page verified</span></li>
+<li><span class='log-time'>19:05:00</span> <span class='log-text'>Captured screenshot: test_21_test_reports_analytics_module_reports_page.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_21_test_reports_analytics_module_reports_page.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_21_test_reports_analytics_module_reports_page.png" class="test-thumbnail" alt="Screenshot for Analytics & Operational Reports Module" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Management Modules">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-21')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">System Configuration & Settings Module</div>
+                        <div class="test-category-badge">Management Modules</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.66s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-21"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-21">
+                <p class="test-desc">Verifies application settings interface and security preferences.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:05:00</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:01</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:03</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:05:03</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:05:05</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:05:07</span> <span class='log-text'>Settings page verified</span></li>
+<li><span class='log-time'>19:05:08</span> <span class='log-text'>Captured screenshot: test_22_test_settings_module_settings_page.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_22_test_settings_module_settings_page.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_22_test_settings_module_settings_page.png" class="test-thumbnail" alt="Screenshot for System Configuration & Settings Module" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Intelligence & ML">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-22')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">AI Prediction Engine Model Switching</div>
+                        <div class="test-category-badge">Intelligence & ML</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 10.00s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-22"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-22">
+                <p class="test-desc">Navigates to AI Prediction Hub and tests tab switching across Academic, Health, Behavior, and Growth models.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:05:08</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:09</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:10</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:05:10</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:05:12</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:05:15</span> <span class='log-text'>Opened AI Predictions Hub</span></li>
+<li><span class='log-time'>19:05:16</span> <span class='log-text'>Switched to Health Risk Model (SVM) tab</span></li>
+<li><span class='log-time'>19:05:16</span> <span class='log-text'>Switched to Behavioral Pattern Model (KNN) tab</span></li>
+<li><span class='log-time'>19:05:17</span> <span class='log-text'>Switched to Growth Forecast Model tab</span></li>
+<li><span class='log-time'>19:05:17</span> <span class='log-text'>Switched back to Academic Model tab</span></li>
+<li><span class='log-time'>19:05:18</span> <span class='log-text'>Captured screenshot: test_23_test_ai_prediction_tabs_navigation_ai_prediction_tabs.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_23_test_ai_prediction_tabs_navigation_ai_prediction_tabs.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_23_test_ai_prediction_tabs_navigation_ai_prediction_tabs.png" class="test-thumbnail" alt="Screenshot for AI Prediction Engine Model Switching" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Intelligence & ML">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-23')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Live ML Model Inference & Results Card</div>
+                        <div class="test-category-badge">Intelligence & ML</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.83s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-23"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-23">
+                <p class="test-desc">Runs Academic Trajectory Random Forest model with input features and asserts predicted outcome display.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:05:18</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:19</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:20</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:05:20</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:05:22</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:05:25</span> <span class='log-text'>Clicking 'Generate Prediction' button</span></li>
+<li><span class='log-time'>19:05:26</span> <span class='log-text'>AI prediction inference result successfully displayed on screen</span></li>
+<li><span class='log-time'>19:05:26</span> <span class='log-text'>Captured screenshot: test_24_test_ai_prediction_academic_run_ai_prediction_results.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_24_test_ai_prediction_academic_run_ai_prediction_results.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_24_test_ai_prediction_academic_run_ai_prediction_results.png" class="test-thumbnail" alt="Screenshot for Live ML Model Inference & Results Card" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Intelligence & ML">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-24')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Health Records & Vitals Management</div>
+                        <div class="test-category-badge">Intelligence & ML</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.34s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-24"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-24">
+                <p class="test-desc">Verifies health records ledger, BMI tracking, and medical history cards.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:05:26</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:27</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:29</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:05:29</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:05:31</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:05:34</span> <span class='log-text'>Health Management page verified</span></li>
+<li><span class='log-time'>19:05:34</span> <span class='log-text'>Captured screenshot: test_25_test_health_management_module_health_management.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_25_test_health_management_module_health_management.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_25_test_health_management_module_health_management.png" class="test-thumbnail" alt="Screenshot for Health Records & Vitals Management" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="test-card status-pass" data-status="pass" data-category="Intelligence & ML">
+            <div class="test-header" onclick="toggleTestDetails('test-detail-25')">
+                <div class="test-meta-left">
+                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <div>
+                        <div class="test-title">Academic Progression & Examination Records</div>
+                        <div class="test-category-badge">Intelligence & ML</div>
+                    </div>
+                </div>
+                <div class="test-meta-right">
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.21s</span>
+                    <span class="status-badge badge-pass">PASS</span>
+                    <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-25"></i>
+                </div>
+            </div>
+            <div class="test-details" id="test-detail-25">
+                <p class="test-desc">Verifies academic performance history, subject grades, and marks tracking.</p>
+                
+            <div class="test-logs">
+                <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
+                <ul class="log-list">
+                    <li><span class='log-time'>19:05:34</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:35</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>19:05:36</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>19:05:36</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>19:05:38</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>19:05:41</span> <span class='log-text'>Academic Management page verified</span></li>
+<li><span class='log-time'>19:05:41</span> <span class='log-text'>Captured screenshot: test_26_test_academic_management_module_academic_management.png</span></li>
+                </ul>
+            </div>
+            
+                
+                
+            <div class="test-screenshot-wrap">
+                <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
+                <a href="screenshots/test_26_test_academic_management_module_academic_management.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_26_test_academic_management_module_academic_management.png" class="test-thumbnail" alt="Screenshot for Academic Progression & Examination Records" />
+                </a>
+            </div>
+            
+            </div>
+        </div>
+        
+        </section>
+
+        <!-- Environment Metadata -->
+        <section class="env-section">
+            <div class="env-title"><i class="bi bi-cpu"></i> Test Environment Configuration</div>
+            <div class="env-grid">
+                <div class="env-item">
+                    <div class="env-key">Operating System</div>
+                    <div class="env-val">NT (Windows 64-bit)</div>
+                </div>
+                <div class="env-item">
+                    <div class="env-key">Automation Engine</div>
+                    <div class="env-val">Selenium WebDriver (Python)</div>
+                </div>
+                <div class="env-item">
+                    <div class="env-key">Browser Driver</div>
+                    <div class="env-val">Google Chrome Headless (1920x1080)</div>
+                </div>
+                <div class="env-item">
+                    <div class="env-key">Application Frontend</div>
+                    <div class="env-val">http://localhost:5173</div>
+                </div>
+                <div class="env-item">
+                    <div class="env-key">Application Backend API</div>
+                    <div class="env-val">http://localhost:8000/api</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function toggleTestDetails(id) {
+            const el = document.getElementById(id);
+            const chevron = document.getElementById('chevron-' + id);
+            if (el) {
+                el.classList.toggle('open');
+                if (chevron) chevron.classList.toggle('rotate');
+            }
+        }
+
+        function filterTests(status) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.filter-btn').classList.add('active');
+
+            document.querySelectorAll('.test-card').forEach(card => {
+                if (status === 'all') {
+                    card.style.display = 'block';
+                } else if (card.getAttribute('data-status') === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function searchFilter() {
+            const query = document.getElementById('testSearch').value.toLowerCase();
+            document.querySelectorAll('.test-card').forEach(card => {
+                const title = card.querySelector('.test-title').textContent.toLowerCase();
+                const category = card.getAttribute('data-category').toLowerCase();
+                if (title.includes(query) || category.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

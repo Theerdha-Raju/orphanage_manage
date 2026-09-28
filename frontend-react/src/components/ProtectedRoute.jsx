@@ -13,6 +13,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 export default function ProtectedRoute({ allowedRoles = [], children }) {
   const location = useLocation();
   const userRole = localStorage.getItem('userRole');
+  const userDesignation = (localStorage.getItem('userDesignation') || '').toLowerCase();
   const userId   = localStorage.getItem('userId');
 
   // Not logged in → redirect to /login, remembering where they wanted to go
@@ -20,18 +21,22 @@ export default function ProtectedRoute({ allowedRoles = [], children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Wrong role → redirect to the dashboard that belongs to this user
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    const roleHome = {
-      admin:     '/admin-dashboard',
-      staff:     '/staff-dashboard',
-      teacher:   '/staff-dashboard',
-      doctor:    '/staff-dashboard',
-      donor:     '/donor-dashboard',
-      volunteer: '/volunteer-dashboard',
-      child:     '/child-dashboard',
-    };
-    return <Navigate to={roleHome[userRole] || '/login'} replace />;
+  // Check role or designation against allowedRoles
+  if (allowedRoles.length > 0) {
+    const hasRoleAccess = allowedRoles.includes(userRole) || allowedRoles.includes(userDesignation);
+    if (!hasRoleAccess) {
+      const roleHome = {
+        admin:     '/admin-dashboard',
+        staff:     '/staff-dashboard',
+        caregiver: '/staff-dashboard',
+        teacher:   '/staff-dashboard',
+        doctor:    '/staff-dashboard',
+        donor:     '/donor-dashboard',
+        volunteer: '/volunteer-dashboard',
+        child:     '/child-dashboard',
+      };
+      return <Navigate to={roleHome[userRole] || '/login'} replace />;
+    }
   }
 
   return children;

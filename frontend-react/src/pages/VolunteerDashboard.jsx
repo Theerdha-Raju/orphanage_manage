@@ -164,9 +164,6 @@ export default function VolunteerDashboard() {
           gap: '1rem'
         }}>
           <div>
-            <div className="section-label" style={{ color: '#3b82f6', fontWeight: 700 }}>
-              Phase 1 &bull; Module 3: Volunteer Management
-            </div>
             <div className="page-banner-title" style={{ color: 'var(--text-primary)', fontSize: '1.6rem' }}>
               Welcome back, {profile?.full_name || userName}!
             </div>

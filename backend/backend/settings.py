@@ -47,7 +47,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # CSRF disabled for API-first project
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -116,6 +117,12 @@ CORS_ALLOW_HEADERS = ['*']
 CORS_EXPOSE_HEADERS = ['*']
 
 X_FRAME_OPTIONS = 'ALLOWALL'
+
+# DRF: disable authentication/permission requirements for open API
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

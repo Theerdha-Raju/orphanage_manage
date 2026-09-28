@@ -1,34 +1,241 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import { requestApi } from '../apiConfig';
 import './LoginPage.css';
 
+const roleAccounts = {
+  admin: [
+    {
+      name: 'Alexander Wright',
+      designation: 'Principal Administrator',
+      email: 'alexander.wright@orphanage.com',
+      password: 'Admin@123',
+    },
+    {
+      name: 'Neha Sharma',
+      designation: 'Deputy Administrator',
+      email: 'neha.sharma@orphanage.com',
+      password: 'Admin@123',
+    },
+    {
+      name: 'Ravi Kumar',
+      designation: 'Operations Manager',
+      email: 'ravi.kumar@orphanage.com',
+      password: 'Admin@123',
+    },
+    {
+      name: 'Sonia Mathew',
+      designation: 'Finance Administrator',
+      email: 'sonia.mathew@orphanage.com',
+      password: 'Admin@123',
+    },
+    {
+      name: 'David Thomas',
+      designation: 'Program Coordinator',
+      email: 'david.thomas@orphanage.com',
+      password: 'Admin@123',
+    },
+  ],
+  staff: [
+    {
+      name: 'Sarah Jenkins',
+      designation: 'Caregiver Lead',
+      email: 'sarah.jenkins@orphanage.com',
+      password: 'Staff@123',
+    },
+    {
+      name: 'Priya Nair',
+      designation: 'Senior Caregiver',
+      email: 'priya.nair@orphanage.com',
+      password: 'Priya@Staff123',
+    },
+    {
+      name: 'Heena Kausar',
+      designation: 'Care Coordinator',
+      email: 'heena.kausar@orphanage.com',
+      password: 'Staff@123',
+    },
+    {
+      name: 'Veena Kumari',
+      designation: 'Resident Caregiver',
+      email: 'veena.kumari@orphanage.com',
+      password: 'Staff@123',
+    },
+    {
+      name: 'Suresh Menon',
+      designation: 'Youth Supervisor',
+      email: 'suresh.menon@orphanage.com',
+      password: 'Staff@123',
+    },
+  ],
+  donor: [
+    {
+      name: 'Eleanor Vance',
+      designation: 'Benefactor Sponsor',
+      email: 'eleanor.vance@orphanage.com',
+      password: 'Donor@123',
+    },
+    {
+      name: 'Rajesh Mehta',
+      designation: 'Mehta Family Foundation',
+      email: 'rajesh.mehta@mehta-foundation.org',
+      password: 'Donor@123',
+    },
+    {
+      name: 'TechCorp CSR',
+      designation: 'TechCorp Inc. CSR Initiative',
+      email: 'techcorp.csr@techcorp.com',
+      password: 'Donor@123',
+    },
+    {
+      name: 'Anita Desai',
+      designation: 'Anita Desai & Friends',
+      email: 'anita.desai@gmail.com',
+      password: 'Donor@123',
+    },
+    {
+      name: 'Dr. K. S. Malhotra',
+      designation: 'HealthPlus Healthcare Partner',
+      email: 'dr.malhotra@healthplus.in',
+      password: 'Donor@123',
+    },
+    {
+      name: 'Sunita Kapoor',
+      designation: 'Sunita Kapoor Welfare Trust',
+      email: 'sunita.kapoor@trust.org',
+      password: 'Donor@123',
+    },
+  ],
+  volunteer: [
+    {
+      name: 'Rahul Singh',
+      designation: 'Lead Volunteer Coordinator',
+      email: 'rahul.singh@orphanage.com',
+      password: 'Volunteer@123',
+    },
+    {
+      name: 'Anita Desai',
+      designation: 'Community Youth Mentor',
+      email: 'anita.desai@yahoo.com',
+      password: 'Vol@123',
+    },
+    {
+      name: 'Vikram Patel',
+      designation: 'Weekend Academic Tutor',
+      email: 'vikram.patel@outlook.com',
+      password: 'Vikram@Vol123',
+    },
+    {
+      name: 'Priya Verma',
+      designation: 'Arts & Activities Specialist',
+      email: 'priya.verma@gmail.com',
+      password: 'Vol@123',
+    },
+    {
+      name: 'Siddharth Roy',
+      designation: 'Sports & Fitness Coach',
+      email: 'siddharth.roy@gmail.com',
+      password: 'Siddharth@Vol123',
+    },
+    {
+      name: 'Deepa S',
+      designation: 'Field Volunteer',
+      email: 'deepa.s@orphanage.com',
+      password: 'Deepa@Vol123',
+    },
+  ],
+  child: [
+    {
+      name: 'Leo Carter',
+      designation: 'Senior Student (Grade 10)',
+      email: 'leo.carter@student.org',
+      password: 'Student@123',
+    },
+    {
+      name: 'Aarav Sharma',
+      designation: 'Student (Grade 8)',
+      email: 'aarav.sharma@student.org',
+      password: 'Student@123',
+    },
+    {
+      name: 'Ananya Patel',
+      designation: 'Student (Grade 7)',
+      email: 'ananya.patel@student.org',
+      password: 'Student@123',
+    },
+    {
+      name: 'Rohan Verma',
+      designation: 'Student (Grade 9)',
+      email: 'rohan.verma@student.org',
+      password: 'Student@123',
+    },
+    {
+      name: 'Diya Iyer',
+      designation: 'Student (Grade 6)',
+      email: 'diya.iyer@student.org',
+      password: 'Student@123',
+    },
+    {
+      name: 'Kabir Singh',
+      designation: 'Student (Grade 10)',
+      email: 'kabir.singh@student.org',
+      password: 'Student@123',
+    },
+  ],
+};
+
 const roles = [
-  { value: 'admin',     label: 'Administrator',   icon: 'bi-shield-lock-fill',   color: '#2563eb', email: 'admin@orphanage.com',     password: 'Admin@123', name: 'Alexander Wright' },
-  { value: 'staff',     label: 'Caregiver/Staff', icon: 'bi-person-workspace',   color: '#10b981', email: 'staff@orphanage.com',     password: 'Staff@123', name: 'Sarah Jenkins' },
-  { value: 'donor',     label: 'Donor/Sponsor',   icon: 'bi-heart-fill',         color: '#f59e0b', email: 'donor@orphanage.com',     password: 'Donor@123', name: 'Eleanor Vance' },
-  { value: 'volunteer', label: 'Volunteer',       icon: 'bi-people-fill',        color: '#8b5cf6', email: 'volunteer@orphanage.com', password: 'Volunteer@123', name: 'Marcus Brody' },
-  { value: 'child',     label: 'Student',         icon: 'bi-star-fill',          color: '#06b6d4', email: 'student@orphanage.com',   password: 'Student@123', name: 'Leo Carter' },
+  { value: 'admin',     label: 'Administrator',   icon: 'bi-shield-lock-fill',   color: '#2563eb', email: 'alexander.wright@orphanage.com', password: 'Admin@123',     name: 'Alexander Wright' },
+  { value: 'staff',     label: 'Caregiver',       icon: 'bi-person-workspace',   color: '#10b981', email: 'sarah.jenkins@orphanage.com',   password: 'Staff@123',     name: 'Sarah Jenkins'   },
+  { value: 'donor',     label: 'Donor',           icon: 'bi-heart-fill',         color: '#f59e0b', email: 'eleanor.vance@orphanage.com',   password: 'Donor@123',     name: 'Eleanor Vance'   },
+  { value: 'volunteer', label: 'Volunteer',       icon: 'bi-people-fill',        color: '#8b5cf6', email: 'rahul.singh@orphanage.com',     password: 'Volunteer@123', name: 'Rahul Singh'     },
+  { value: 'child',     label: 'Student',         icon: 'bi-star-fill',          color: '#06b6d4', email: 'leo.carter@student.org',        password: 'Student@123',   name: 'Leo Carter'      },
 ];
 
 export default function LoginPage() {
   const [role, setRole]         = useState('admin');
-  const [email, setEmail]       = useState('admin@orphanage.com');
+  const [email, setEmail]       = useState('alexander.wright@orphanage.com');
   const [password, setPassword] = useState('Admin@123');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPwd, setShowPwd]   = useState(false);
-  const [hideFullName, setHideFullName] = useState(false);
+  const [showEmailDropdown, setShowEmailDropdown] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
+  const emailDropdownRef        = useRef(null);
   const navigate  = useNavigate();
   const location  = useLocation();
 
   const currentRoleObj = roles.find(r => r.value === role) || roles[0];
+  const currentRoleAccounts = roleAccounts[role] || [];
+  const selectedAccount = currentRoleAccounts.find(a => a.email.toLowerCase() === email.toLowerCase());
 
-  const maskName = (str) => {
-    if (!str) return '';
-    return str.split(' ').map(word => word[0] + '*'.repeat(Math.max(1, word.length - 1))).join(' ');
+  // Close dropdown on outside click — use pointerdown so it fires BEFORE
+  // the submit button's click/mouseup, preventing the dropdown from intercepting it
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
+        setShowEmailDropdown(false);
+      }
+    }
+    document.addEventListener('pointerdown', handleClickOutside);
+    return () => document.removeEventListener('pointerdown', handleClickOutside);
+  }, []);
+
+  const handleSelectRole = (r) => {
+    setRole(r.value);
+    const primaryAcc = (roleAccounts[r.value] && roleAccounts[r.value][0]) || { email: r.email, password: r.password };
+    setEmail(primaryAcc.email);
+    setPassword(primaryAcc.password);
+    setShowEmailDropdown(false);
+    setError('');
+  };
+
+  const handleSelectAccount = (acc) => {
+    setEmail(acc.email);
+    setPassword(acc.password);
+    setShowEmailDropdown(false);
+    setError('');
   };
 
 
@@ -50,22 +257,28 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setShowEmailDropdown(false); // always close dropdown before submitting
     setLoading(true);
     setError('');
+
+    // Use entered credentials or fall back to preset account/role credentials
+    const effectiveEmail = (email || selectedAccount?.email || currentRoleObj?.email || 'admin@orphanage.com').trim();
+    const effectivePassword = (password || selectedAccount?.password || currentRoleObj?.password || 'Admin@123').trim();
 
     try {
       const res  = await requestApi('/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: effectiveEmail, password: effectivePassword, role }),
       });
       const data = await res.json();
 
       if (res.ok && data.success) {
-        localStorage.setItem('userRole',  data.role);
-        localStorage.setItem('userId',    data.user_id);
-        localStorage.setItem('userName',  data.name);
-        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userRole',        data.role);
+        localStorage.setItem('userDesignation', data.designation || (data.role === 'staff' ? 'Caregiver' : data.role));
+        localStorage.setItem('userId',          data.user_id);
+        localStorage.setItem('userName',        data.name);
+        localStorage.setItem('userEmail',       data.email || effectiveEmail);
 
         if (window.PasswordCredential) {
           try {
@@ -326,19 +539,13 @@ export default function LoginPage() {
                 key={r.value}
                 type="button"
                 className={`orphanage-role-btn ${role === r.value ? 'active' : ''}`}
-                onClick={() => {
-                  setRole(r.value);
-                  setEmail(r.email);
-                  setPassword(r.password);
-                  setError('');
-                }}
+                onClick={() => handleSelectRole(r)}
               >
                 <i className={`bi ${r.icon}`} style={{ color: role === r.value ? r.color : '#94a3b8' }} />
                 {r.label.split('/')[0]}
               </button>
             ))}
           </div>
-
 
           {/* Error Message */}
           {error && (
@@ -361,21 +568,135 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <form onSubmit={handleLogin} autoComplete="on">
-            <div className="orphanage-form-group">
-              <label className="orphanage-form-label">Email Address</label>
+            <div className="orphanage-form-group" ref={emailDropdownRef}>
+              <label className="orphanage-form-label" htmlFor="login-email-input">
+                Email Address
+              </label>
+
               <div className="orphanage-input-wrapper">
                 <i className="bi bi-envelope orphanage-input-icon" />
                 <input
+                  id="login-email-input"
                   type="email"
                   name="email"
                   autoComplete="username"
                   className="orphanage-input"
-                  placeholder="Enter your email"
+                  placeholder={`Select or type ${currentRoleObj.label.split('/')[0]} email`}
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setEmail(val);
+                    setError('');
+                    let match = currentRoleAccounts.find(a => a.email.toLowerCase() === val.toLowerCase());
+                    if (!match) {
+                      for (const [rKey, accs] of Object.entries(roleAccounts)) {
+                        const m = accs.find(a => a.email.toLowerCase() === val.toLowerCase());
+                        if (m) {
+                          match = m;
+                          setRole(rKey);
+                          break;
+                        }
+                      }
+                    }
+                    if (match) {
+                      setPassword(match.password);
+                    }
+                  }}
+                  onClick={() => setShowEmailDropdown(true)}
                   required
                 />
+                <button
+                  type="button"
+                  id="email-dropdown-toggle-btn"
+                  className={`orphanage-dropdown-toggle-btn ${showEmailDropdown ? 'open' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowEmailDropdown(!showEmailDropdown);
+                  }}
+                  title={`View at least 5 email addresses of ${currentRoleObj.label.split('/')[0]}`}
+                  aria-label="Toggle profile email list"
+                >
+                  <i className="bi bi-chevron-down" />
+                </button>
+
+                {/* Dropdown Menu showing all 5+ accounts for selected role */}
+                {showEmailDropdown && (
+                  <div className="orphanage-accounts-dropdown" id="preset-accounts-dropdown">
+                    <div className="orphanage-dropdown-header">
+                      <div className="orphanage-dropdown-header-title">
+                        <i className={`bi ${currentRoleObj.icon}`} style={{ color: currentRoleObj.color }} />
+                        <span>Select {currentRoleObj.label.split('/')[0]} Email</span>
+                      </div>
+                      <span className="orphanage-dropdown-header-count">
+                        {currentRoleAccounts.length} Available
+                      </span>
+                    </div>
+
+                    <div className="orphanage-dropdown-scroll">
+                      {currentRoleAccounts.map((acc, idx) => {
+                        const isSelected = acc.email.toLowerCase() === email.toLowerCase();
+                        return (
+                          <div
+                            key={acc.email}
+                            id={`account-option-${idx}`}
+                            className={`orphanage-dropdown-item ${isSelected ? 'active' : ''}`}
+                            onClick={() => handleSelectAccount(acc)}
+                          >
+                            <div
+                              className="orphanage-acc-avatar"
+                              style={{
+                                background: `${currentRoleObj.color}15`,
+                                color: currentRoleObj.color,
+                                border: `1.5px solid ${currentRoleObj.color}35`,
+                              }}
+                            >
+                              {acc.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                            </div>
+                            <div className="orphanage-acc-details">
+                              <div className="orphanage-acc-row">
+                                <span className="orphanage-acc-name">{acc.name}</span>
+                                <span className="orphanage-acc-designation">{acc.designation}</span>
+                              </div>
+                              <div className="orphanage-acc-email-text">{acc.email}</div>
+                            </div>
+                            <div className="orphanage-acc-action">
+                              {isSelected ? (
+                                <i className="bi bi-check-circle-fill text-primary" style={{ fontSize: '1.1rem' }} />
+                              ) : (
+                                <i className="bi bi-arrow-right-short text-muted orphanage-acc-select-hint" />
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="orphanage-dropdown-footer">
+                      <i className="bi bi-shield-check text-success me-1" />
+                      Auto-fills password &amp; credentials for one-click login
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Active Profile Info Banner */}
+              {selectedAccount && (
+                <div className="orphanage-selected-profile-pill">
+                  <div className="orphanage-selected-profile-left">
+                    <i className="bi bi-person-check-fill" style={{ color: currentRoleObj.color }} />
+                    <span className="orphanage-selected-name">{selectedAccount.name}</span>
+                    <span className="orphanage-selected-sep">•</span>
+                    <span className="orphanage-selected-des">{selectedAccount.designation}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="orphanage-change-profile-btn"
+                    onClick={() => setShowEmailDropdown(!showEmailDropdown)}
+                  >
+                    Change profile <i className="bi bi-chevron-down ms-1" />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="orphanage-form-group">

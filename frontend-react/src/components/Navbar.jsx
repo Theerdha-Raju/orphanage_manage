@@ -45,6 +45,9 @@ export default function Navbar() {
 
         {/* CTA */}
         <div className="nav-actions">
+          <Link to="/test-results" className="btn btn-ghost btn-sm" style={{ border: '1px solid rgba(16, 185, 129, 0.4)', color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <i className="bi bi-shield-check" /> Test Results
+          </Link>
           <Link to="/login" className="btn btn-ghost btn-sm">Login</Link>
           <Link to="/register" className="btn btn-primary btn-sm">Sign Up</Link>
           {/* Mobile menu toggle */}

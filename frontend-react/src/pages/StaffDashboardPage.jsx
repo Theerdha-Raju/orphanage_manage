@@ -4,107 +4,213 @@ import TopHeader from '../components/TopHeader';
 
 const API = 'http://localhost:8000/api';
 
-const emptyForm = { name: '', email: '', password: '', phone: '', role: 'staff' };
+const DESIGNATION_OPTIONS = ['Caregiver', 'Teacher', 'Doctor'];
+
+const DESIGNATION_STYLES = {
+  Caregiver: {
+    bg: 'rgba(59, 130, 246, 0.12)',
+    text: '#2563eb',
+    border: 'rgba(59, 130, 246, 0.28)',
+    icon: 'bi-person-heart',
+    badgeClass: 'badge-blue'
+  },
+  Teacher: {
+    bg: 'rgba(245, 158, 11, 0.12)',
+    text: '#d97706',
+    border: 'rgba(245, 158, 11, 0.28)',
+    icon: 'bi-journal-bookmark-fill',
+    badgeClass: 'badge-amber'
+  },
+  Doctor: {
+    bg: 'rgba(16, 185, 129, 0.12)',
+    text: '#059669',
+    border: 'rgba(16, 185, 129, 0.28)',
+    icon: 'bi-heart-pulse-fill',
+    badgeClass: 'badge-emerald'
+  }
+};
+
+const DESIGNATION_RESPONSIBILITIES = {
+  Caregiver: [
+    'Daily child care',
+    'Attendance recording',
+    'Daily activity monitoring',
+    'Nutrition checks',
+    'General child development monitoring'
+  ],
+  Teacher: [
+    'Education-related activities',
+    'Academic progress monitoring',
+    'Learning support',
+    'Educational records'
+  ],
+  Doctor: [
+    'Child health checks',
+    'Health observations',
+    'Medical-related tasks',
+    'Health records'
+  ]
+};
+
+const TASK_TEMPLATES = {
+  Caregiver: [
+    'Morning Attendance',
+    'Nutrition Check',
+    'Daily Child Care',
+    'General Health Observation'
+  ],
+  Teacher: [
+    'Mathematics Learning Support',
+    'Academic Progress Review',
+    'Reading Activity'
+  ],
+  Doctor: [
+    'Morning Health Check',
+    'Medical Observation',
+    'Medication Administration'
+  ]
+};
+
+function formatDesignation(val) {
+  if (!val) return 'Caregiver';
+  const clean = val.trim().toLowerCase();
+  if (clean === 'teacher') return 'Teacher';
+  if (clean === 'doctor') return 'Doctor';
+  return 'Caregiver';
+}
+
+const emptyStaffForm = {
+  name: '',
+  phone: '',
+  email: '',
+  designation: 'Caregiver',
+  ward: 'Wing B Care Ward',
+  joiningDate: new Date().toISOString().split('T')[0],
+  salary: '',
+  status: 'Active',
+  username: '',
+  password: ''
+};
 
 const initialTasks = [
   {
     id: 1,
-    task: 'Administer Wing B Morning Medication',
+    task: 'Medication Administration',
     time: '08:00 AM',
     status: 'Completed',
     category: 'Health',
-    detail: 'Medication administered to all 14 children in Wing B ward. Vital signs normal.',
-    assignedStaff: 'Anita Sharma',
-    staffRole: 'Caregiver / Senior Nurse',
-    staffPhone: '+91 98765 43210',
-    staffEmail: 'anita.sharma@orphanage.com',
+    detail: 'Administered prescribed morning medications to children in Care Ward B. Vital signs recorded.',
+    assignedStaff: 'Priya Nair',
+    designation: 'Caregiver',
+    staffPhone: '+91 98765 43211',
+    staffEmail: 'priya.nair@orphanage.com',
     completedAt: 'Today at 08:25 AM',
-    verifiedBy: 'Anita Sharma (Staff ID #101)',
+    verifiedBy: 'Priya Nair (Caregiver Verified)',
     wing: 'Wing B Care Ward'
   },
   {
     id: 2,
-    task: 'Record BMI for new child admissions',
-    time: '11:30 AM',
-    status: 'Pending',
-    category: 'Health Check',
-    detail: 'Anthropometric measurements (height & weight) for 3 newly admitted children.',
-    assignedStaff: 'Sunita Devi',
-    staffRole: 'Caregiver / Health Staff',
-    staffPhone: '+91 95432 10987',
-    staffEmail: 'sunita.devi@orphanage.com',
-    completedAt: 'Awaiting execution during 11:30 AM shift',
-    verifiedBy: 'Pending Caregiver Verification',
-    wing: 'Medical Examination Room'
+    task: 'Morning Attendance',
+    time: '09:00 AM',
+    status: 'In Progress',
+    category: 'Child Care',
+    detail: 'Daily morning attendance recording and roll-call across dormitory care units.',
+    assignedStaff: 'Heena Kausar',
+    designation: 'Caregiver',
+    staffPhone: '+91 79079 49368',
+    staffEmail: 'heena.kausar@orphanage.com',
+    completedAt: 'In Progress (Active Shift)',
+    verifiedBy: 'Heena Kausar (Caregiver)',
+    wing: 'Main Dormitory Ward'
   },
   {
     id: 3,
-    task: 'Update Term 2 Academic Scores',
-    time: '02:00 PM',
+    task: 'Mathematics Learning Support',
+    time: '11:00 AM',
     status: 'Pending',
     category: 'Education',
-    detail: 'Upload midterm subject scores into academic management module.',
-    assignedStaff: 'Priya Nair',
-    staffRole: 'Teacher / Academic Coordinator',
-    staffPhone: '+91 97654 32109',
-    staffEmail: 'priya.nair@orphanage.com',
-    completedAt: 'Scheduled for 02:00 PM shift',
+    detail: 'Interactive mathematics and numeracy learning support session for primary school children.',
+    assignedStaff: 'Mr. Anand Rao',
+    designation: 'Teacher',
+    staffPhone: '+91 98765 43212',
+    staffEmail: 'anand.rao@orphanage.com',
+    completedAt: 'Scheduled for 11:00 AM shift',
     verifiedBy: 'Pending Teacher Verification',
-    wing: 'Education Center Block A'
+    wing: 'Education Block A'
   },
   {
     id: 4,
-    task: 'Review AI Health Alert for Aarav Sharma',
-    time: 'Urgent',
-    status: 'Action Needed',
-    category: 'AI Risk',
-    detail: 'SVM model flagged weight loss pattern over 3 weeks. Urgent clinical checkup required.',
-    assignedStaff: 'Dr. Rajesh Verma',
-    staffRole: 'Medical Officer / Doctor',
-    staffPhone: '+91 98123 45678',
-    staffEmail: 'dr.rajesh@orphanage.com',
-    completedAt: 'High Priority — Action Required Immediately',
-    verifiedBy: 'AI Telemetry Alert Engine',
+    task: 'Morning Health Check',
+    time: '10:30 AM',
+    status: 'Completed',
+    category: 'Health',
+    detail: 'Clinical health assessment, biometric measurements, and physical wellness evaluation.',
+    assignedStaff: 'Dr. Rajesh Sharma',
+    designation: 'Doctor',
+    staffPhone: '+91 98765 43210',
+    staffEmail: 'sharma@orphanage.com',
+    completedAt: 'Today at 10:45 AM',
+    verifiedBy: 'Dr. Rajesh Sharma (Medical Signature)',
     wing: 'Clinical Health Hub'
   },
+  {
+    id: 5,
+    task: 'Nutrition Check',
+    time: '01:30 PM',
+    status: 'Pending',
+    category: 'Child Care',
+    detail: 'Midday meal dietary inspection and balanced nutritional intake record for all wards.',
+    assignedStaff: 'Sarah Jenkins',
+    designation: 'Caregiver',
+    staffPhone: '+91 98000 00002',
+    staffEmail: 'staff@orphanage.com',
+    completedAt: 'Scheduled for lunch shift',
+    verifiedBy: 'Pending Caregiver Verification',
+    wing: 'Central Dining Hall'
+  }
 ];
 
 export default function StaffDashboardPage() {
   const { toggleSidebar } = useOutletContext();
-  const userName = localStorage.getItem('userName') || 'Staff';
+  const userName = localStorage.getItem('userName') || 'Caregiver Staff';
+  const userRole = localStorage.getItem('userRole') || 'staff';
+  const userDesignation = localStorage.getItem('userDesignation') || (userRole === 'admin' ? 'Administrator' : 'Caregiver');
 
   const [staffList, setStaffList] = useState([]);
   const [totalStaffs, setTotalStaffs] = useState(0);
-  const [caregiverStaffs, setCaregiverStaffs] = useState(0);
+  const [caregiverCount, setCaregiverCount] = useState(0);
+  const [teacherCount, setTeacherCount] = useState(0);
+  const [doctorCount, setDoctorCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Staff Modal (Add / Edit)
   const [showModal, setShowModal] = useState(false);
   const [editStaff, setEditStaff] = useState(null);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(emptyStaffForm);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
   const [modalErr, setModalErr] = useState('');
 
-  // Selected Staff Profile Modal
+  // Selected Staff Profile Modal (Details)
   const [selectedStaffProfile, setSelectedStaffProfile] = useState(null);
 
   // Caregiver Tasks state & filters
   const [caregiverTasks, setCaregiverTasks] = useState(initialTasks);
   const [taskFilter, setTaskFilter] = useState('All');
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTaskDetail, setSelectedTaskDetail] = useState(null);
+
   const [newTaskForm, setNewTaskForm] = useState({
     task: '',
     time: '10:00 AM',
-    category: 'Health Check',
+    category: 'Child Care',
     status: 'Pending',
     detail: '',
-    assignedStaff: 'Anita Sharma',
-    wing: 'Wing A Ward'
+    assignedStaff: '',
+    wing: 'Wing B Care Ward'
   });
-  const [selectedTaskDetail, setSelectedTaskDetail] = useState(null);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const setFormField = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const loadData = () => {
     setLoading(true);
@@ -112,38 +218,99 @@ export default function StaffDashboardPage() {
       .then(r => r.json())
       .then(usersData => {
         if (Array.isArray(usersData)) {
-          const staffs = usersData.filter(u => ['staff', 'teacher', 'doctor', 'caregiver'].includes((u.designation || '').toLowerCase()));
+          // Identify staff members by designation or role
+          const staffs = usersData
+            .filter(u => ['caregiver', 'teacher', 'doctor', 'staff'].includes((u.designation || u.role || '').toLowerCase()))
+            .map(u => ({
+              ...u,
+              designation: formatDesignation(u.designation || u.role),
+              status: u.status || 'Active',
+              ward: u.address || 'Wing B Care Ward',
+              joiningDate: u.created_at ? u.created_at.split('T')[0] : '2026-08-15'
+            }));
+
           setStaffList(staffs);
-          setTotalStaffs(usersData.length > 0 ? usersData.length : staffs.length);
-          
-          const caregivers = usersData.filter(u => {
-            const des = (u.designation || '').toLowerCase();
-            return des.includes('staff') || des.includes('caregiver');
-          });
-          setCaregiverStaffs(caregivers.length > 0 ? caregivers.length : staffs.length);
+          setTotalStaffs(staffs.length);
+
+          const cCount = staffs.filter(s => s.designation === 'Caregiver').length;
+          const tCount = staffs.filter(s => s.designation === 'Teacher').length;
+          const dCount = staffs.filter(s => s.designation === 'Doctor').length;
+
+          setCaregiverCount(cCount);
+          setTeacherCount(tCount);
+          setDoctorCount(dCount);
+
+          if (staffs.length > 0 && !newTaskForm.assignedStaff) {
+            setNewTaskForm(prev => ({ ...prev, assignedStaff: staffs[0].full_name }));
+          }
         }
       })
       .catch(() => {
-        setStaffList([
-          { user_id: 1, full_name: 'Anita Sharma', phone_number: '+91 98765 43210', email: 'anita.sharma@orphanage.com', designation: 'staff', status: 'Active', wing: 'Wing B Care Ward' },
-          { user_id: 2, full_name: 'Dr. Rajesh Verma', phone_number: '+91 98123 45678', email: 'dr.rajesh@orphanage.com', designation: 'doctor', status: 'Active', wing: 'Clinical Health Hub' },
-          { user_id: 3, full_name: 'Priya Nair', phone_number: '+91 97654 32109', email: 'priya.nair@orphanage.com', designation: 'teacher', status: 'Active', wing: 'Education Block A' },
-          { user_id: 4, full_name: 'Sunita Devi', phone_number: '+91 95432 10987', email: 'sunita.devi@orphanage.com', designation: 'staff', status: 'Active', wing: 'Medical Exam Room' },
-        ]);
-        setTotalStaffs(6);
-        setCaregiverStaffs(4);
+        const defaultStaff = [
+          { user_id: 2, full_name: 'Priya Nair', phone_number: '+91 98765 43211', email: 'priya.nair@orphanage.com', designation: 'Caregiver', status: 'Active', ward: 'Wing B Care Ward', joiningDate: '2026-08-13', salary: 22000 },
+          { user_id: 3, full_name: 'Heena Kausar', phone_number: '+91 79079 49368', email: 'heena.kausar@orphanage.com', designation: 'Caregiver', status: 'Active', ward: 'Main Dormitory Ward', joiningDate: '2026-08-14', salary: 21000 },
+          { user_id: 5, full_name: 'Mr. Anand Rao', phone_number: '+91 98765 43212', email: 'anand.rao@orphanage.com', designation: 'Teacher', status: 'Active', ward: 'Education Center Block A', joiningDate: '2026-08-14', salary: 28000 },
+          { user_id: 6, full_name: 'Ms. Lakshmi Iyer', phone_number: '+91 98765 43213', email: 'lakshmi.iyer@orphanage.com', designation: 'Teacher', status: 'Active', ward: 'Education Block A', joiningDate: '2026-08-14', salary: 27000 },
+          { user_id: 81, full_name: 'Dr. Rajesh Sharma', phone_number: '+91 98765 43210', email: 'sharma@orphanage.com', designation: 'Doctor', status: 'Active', ward: 'Clinical Health Hub', joiningDate: '2026-09-11', salary: 45000 },
+          { user_id: 83, full_name: 'Sarah Jenkins', phone_number: '+91 98000 00002', email: 'staff@orphanage.com', designation: 'Caregiver', status: 'Active', ward: 'Central Dining Hall', joiningDate: '2026-09-14', salary: 20000 },
+        ];
+        setStaffList(defaultStaff);
+        setTotalStaffs(defaultStaff.length);
+        setCaregiverCount(3);
+        setTeacherCount(2);
+        setDoctorCount(1);
+        if (!newTaskForm.assignedStaff) {
+          setNewTaskForm(prev => ({ ...prev, assignedStaff: 'Priya Nair' }));
+        }
       })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { loadData(); }, []);
 
-  // Task Status Update Handler
+  // Cycle task status: Pending -> In Progress -> Completed
+  const advanceTaskStatus = (taskId) => {
+    setCaregiverTasks(prev => prev.map(t => {
+      if (t.id === taskId) {
+        let nextStatus = 'In Progress';
+        if (t.status === 'Pending') nextStatus = 'In Progress';
+        else if (t.status === 'In Progress') nextStatus = 'Completed';
+        else nextStatus = 'Pending';
+
+        const updatedCompletedAt = nextStatus === 'Completed'
+          ? `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+          : nextStatus === 'In Progress'
+          ? 'In Progress (Active Shift)'
+          : 'Scheduled for shift';
+
+        const updatedVerifiedBy = nextStatus === 'Completed'
+          ? `${t.assignedStaff || userName} (Signature Verified)`
+          : 'Pending Verification';
+
+        return {
+          ...t,
+          status: nextStatus,
+          completedAt: updatedCompletedAt,
+          verifiedBy: updatedVerifiedBy
+        };
+      }
+      return t;
+    }));
+  };
+
   const handleTaskStatusChange = (taskId, newStatus) => {
     setCaregiverTasks(prev => prev.map(t => {
       if (t.id === taskId) {
-        const updatedCompletedAt = newStatus === 'Completed' ? `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : newStatus === 'Pending' ? 'Scheduled for today shift' : 'High Priority — Action Required';
-        const updatedVerifiedBy = newStatus === 'Completed' ? `${t.assignedStaff || userName} (Staff Signature Verified)` : 'Pending Verification';
+        const updatedCompletedAt = newStatus === 'Completed'
+          ? `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+          : newStatus === 'In Progress'
+          ? 'In Progress (Active Shift)'
+          : 'Scheduled for shift';
+
+        const updatedVerifiedBy = newStatus === 'Completed'
+          ? `${t.assignedStaff || userName} (Signature Verified)`
+          : 'Pending Verification';
+
         return {
           ...t,
           status: newStatus,
@@ -154,17 +321,22 @@ export default function StaffDashboardPage() {
       return t;
     }));
 
-    // If modal is open, also update selectedTaskDetail
     if (selectedTaskDetail && selectedTaskDetail.id === taskId) {
       setSelectedTaskDetail(prev => ({
         ...prev,
         status: newStatus,
-        completedAt: newStatus === 'Completed' ? `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : newStatus === 'Pending' ? 'Scheduled for today shift' : 'High Priority — Action Required',
-        verifiedBy: newStatus === 'Completed' ? `${prev.assignedStaff || userName} (Staff Signature Verified)` : 'Pending Verification'
+        completedAt: newStatus === 'Completed'
+          ? `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+          : newStatus === 'In Progress'
+          ? 'In Progress (Active Shift)'
+          : 'Scheduled for shift',
+        verifiedBy: newStatus === 'Completed'
+          ? `${prev.assignedStaff || userName} (Signature Verified)`
+          : 'Pending Verification'
       }));
     }
 
-    setMsg(`Task status updated to "${newStatus}"`);
+    setMsg(`Task status set to "${newStatus}".`);
     setTimeout(() => setMsg(''), 3000);
   };
 
@@ -172,29 +344,43 @@ export default function StaffDashboardPage() {
     e.preventDefault();
     if (!newTaskForm.task.trim()) return;
 
-    // Lookup staff info if available
     const matchedStaff = staffList.find(s => s.full_name === newTaskForm.assignedStaff);
+    const assignedDesignation = matchedStaff?.designation || 'Caregiver';
 
     const created = {
       id: Date.now(),
       task: newTaskForm.task,
-      time: newTaskForm.time || '12:00 PM',
+      time: newTaskForm.time || '10:00 AM',
       category: newTaskForm.category,
       status: newTaskForm.status,
-      detail: newTaskForm.detail || 'Manual task entered by staff.',
-      assignedStaff: newTaskForm.assignedStaff || 'Anita Sharma',
-      staffRole: matchedStaff?.designation ? `${matchedStaff.designation.toUpperCase()} / Caregiver` : 'Caregiver Staff',
+      detail: newTaskForm.detail || `Assigned to ${assignedDesignation} for routine shift operations.`,
+      assignedStaff: newTaskForm.assignedStaff || 'Priya Nair',
+      designation: assignedDesignation,
       staffPhone: matchedStaff?.phone_number || '+91 98765 43210',
-      staffEmail: matchedStaff?.email || `${(newTaskForm.assignedStaff || 'staff').toLowerCase().replace(' ', '.')}@orphanage.com`,
-      completedAt: newTaskForm.status === 'Completed' ? `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Scheduled for today',
-      verifiedBy: newTaskForm.status === 'Completed' ? `${newTaskForm.assignedStaff} (Verified)` : 'Pending Verification',
-      wing: newTaskForm.wing || 'Main Care Ward'
+      staffEmail: matchedStaff?.email || `${(newTaskForm.assignedStaff || 'staff').toLowerCase().replace(/\s+/g, '.')}@orphanage.com`,
+      completedAt: newTaskForm.status === 'Completed'
+        ? `Today at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+        : newTaskForm.status === 'In Progress'
+        ? 'In Progress (Active Shift)'
+        : 'Scheduled for shift',
+      verifiedBy: newTaskForm.status === 'Completed'
+        ? `${newTaskForm.assignedStaff} (${assignedDesignation} Verified)`
+        : 'Pending Verification',
+      wing: newTaskForm.wing || matchedStaff?.ward || 'Wing B Care Ward'
     };
 
     setCaregiverTasks(prev => [created, ...prev]);
     setShowTaskModal(false);
-    setNewTaskForm({ task: '', time: '10:00 AM', category: 'Health Check', status: 'Pending', detail: '', assignedStaff: 'Anita Sharma', wing: 'Wing A Ward' });
-    setMsg('New Caregiver task added successfully.');
+    setNewTaskForm({
+      task: '',
+      time: '10:00 AM',
+      category: 'Child Care',
+      status: 'Pending',
+      detail: '',
+      assignedStaff: staffList[0]?.full_name || 'Priya Nair',
+      wing: 'Wing B Care Ward'
+    });
+    setMsg('New task assigned successfully.');
     setTimeout(() => setMsg(''), 3000);
   };
 
@@ -205,20 +391,10 @@ export default function StaffDashboardPage() {
     setTimeout(() => setMsg(''), 3000);
   };
 
-  // Counts calculation
-  const completedCount = caregiverTasks.filter(t => t.status === 'Completed').length;
-  const pendingCount = caregiverTasks.filter(t => t.status === 'Pending').length;
-  const actionNeededCount = caregiverTasks.filter(t => t.status === 'Action Needed').length;
-
-  const filteredTasks = caregiverTasks.filter(t => {
-    if (taskFilter === 'All') return true;
-    return t.status === taskFilter;
-  });
-
   // Staff Modal Handlers
   const openAdd = () => {
     setEditStaff(null);
-    setForm(emptyForm);
+    setForm(emptyStaffForm);
     setModalErr('');
     setShowModal(true);
   };
@@ -226,11 +402,16 @@ export default function StaffDashboardPage() {
   const openEdit = (staff) => {
     setEditStaff(staff);
     setForm({
-      name: staff.full_name,
-      email: staff.email || '',
-      password: '',
+      name: staff.full_name || '',
       phone: staff.phone_number || '',
-      role: staff.designation || 'staff'
+      email: staff.email || '',
+      designation: staff.designation || 'Caregiver',
+      ward: staff.ward || staff.address || 'Wing B Care Ward',
+      joiningDate: staff.joiningDate || (staff.created_at ? staff.created_at.split('T')[0] : '2026-08-15'),
+      salary: staff.salary !== undefined && staff.salary !== null ? String(staff.salary) : '',
+      status: staff.status || 'Active',
+      username: staff.email ? staff.email.split('@')[0] : '',
+      password: ''
     });
     setModalErr('');
     setShowModal(true);
@@ -241,9 +422,13 @@ export default function StaffDashboardPage() {
     try {
       const r = await fetch(`${API}/users/${userId}/`, { method: 'DELETE' });
       if (r.ok || r.status === 204) {
-        setMsg('Staff member removed.');
+        setMsg('Staff member removed successfully.');
         setTimeout(() => setMsg(''), 3000);
         loadData();
+      } else {
+        setStaffList(prev => prev.filter(s => s.user_id !== userId));
+        setMsg('Staff member removed.');
+        setTimeout(() => setMsg(''), 3000);
       }
     } catch {
       setStaffList(prev => prev.filter(s => s.user_id !== userId));
@@ -256,95 +441,161 @@ export default function StaffDashboardPage() {
     e.preventDefault();
     setModalErr('');
 
-    // --- FORM VALIDATION ---
+    // --- FRONTEND VALIDATION ---
     if (!form.name || form.name.trim().length < 2) {
       setModalErr('Validation Error: Full Name is required and must be at least 2 characters.');
       return;
     }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!editStaff && (!form.email || !emailRegex.test(form.email.trim()))) {
+    if (!form.email || !emailRegex.test(form.email.trim())) {
       setModalErr('Validation Error: Please enter a valid email address.');
       return;
     }
+
     if (form.phone && form.phone.trim()) {
-      const cleanPhone = form.phone.trim().replace(/[\s\-]/g, '');
+      const cleanPhone = form.phone.trim().replace(/[\s-]/g, '');
       if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
-        setModalErr('Validation Error: Please enter a valid phone number (at least 10 digits).');
+        setModalErr('Validation Error: Phone number must be between 10 and 15 digits.');
         return;
       }
     }
-    if (!editStaff && (!form.password || form.password.length < 6)) {
-      setModalErr('Validation Error: Password must be at least 6 characters.');
-      return;
+
+    if (!editStaff) {
+      if (!form.username || form.username.trim().length < 3) {
+        setModalErr('Validation Error: Username is required and must be at least 3 characters.');
+        return;
+      }
+      if (!form.password || form.password.length < 6) {
+        setModalErr('Validation Error: Password must be at least 6 characters long.');
+        return;
+      }
     }
 
     setSaving(true);
     try {
       if (editStaff) {
+        // Update existing staff
         const r = await fetch(`${API}/users/${editStaff.user_id}/`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            full_name: form.name,
-            phone_number: form.phone,
-            designation: form.role
+            full_name: form.name.trim(),
+            phone_number: form.phone.trim(),
+            email: form.email.trim(),
+            designation: form.designation,
+            address: form.ward.trim(),
+            salary: form.salary ? parseFloat(form.salary) : null,
+            status: form.status
           })
         });
+
         if (r.ok) {
           setShowModal(false);
-          setMsg('Staff member updated successfully.');
+          setMsg(`Staff member ${form.name} updated successfully.`);
           setTimeout(() => setMsg(''), 3000);
           loadData();
         } else {
-          setStaffList(prev => prev.map(s => s.user_id === editStaff.user_id ? { ...s, full_name: form.name, phone_number: form.phone, designation: form.role } : s));
+          const errData = await r.json().catch(() => ({}));
+          setModalErr(errData.error || 'Failed to update staff member.');
+          setStaffList(prev => prev.map(s => s.user_id === editStaff.user_id ? {
+            ...s,
+            full_name: form.name,
+            phone_number: form.phone,
+            email: form.email,
+            designation: form.designation,
+            ward: form.ward,
+            status: form.status
+          } : s));
           setShowModal(false);
           setMsg('Staff member updated.');
           setTimeout(() => setMsg(''), 3000);
         }
       } else {
+        // Create new staff via registration endpoint
         const r = await fetch(`${API}/auth/register/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form)
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            password: form.password,
+            designation: form.designation,
+            phone: form.phone.trim(),
+            address: form.ward.trim(),
+            ward: form.ward.trim(),
+            salary: form.salary ? parseFloat(form.salary) : null,
+            status: form.status,
+            username: form.username.trim(),
+            role: form.designation === 'Caregiver' ? 'staff' : form.designation.toLowerCase()
+          })
         });
-        if (r.ok) {
+
+        const resData = await r.json().catch(() => ({}));
+        if (r.ok && resData.success) {
           setShowModal(false);
-          setMsg('Staff member added successfully.');
-          setForm(emptyForm);
+          setMsg(`New ${form.designation} "${form.name}" added successfully.`);
+          setForm(emptyStaffForm);
           setTimeout(() => setMsg(''), 3000);
           loadData();
         } else {
-          const newStaff = { user_id: Date.now(), full_name: form.name, phone_number: form.phone, email: form.email, designation: form.role, status: 'Active' };
-          setStaffList(prev => [...prev, newStaff]);
-          setTotalStaffs(prev => prev + 1);
-          if (form.role === 'staff') setCaregiverStaffs(prev => prev + 1);
-          setShowModal(false);
-          setMsg('Staff member added.');
-          setTimeout(() => setMsg(''), 3000);
+          setModalErr(resData.error || 'Failed to save staff member. Please check details.');
         }
       }
     } catch {
-      setShowModal(false);
+      setModalErr('Network error: Unable to connect to server. Please ensure backend is running.');
     } finally {
       setSaving(false);
     }
   };
 
+  // Counts calculation
+  const completedCount = caregiverTasks.filter(t => t.status === 'Completed').length;
+  const inProgressCount = caregiverTasks.filter(t => t.status === 'In Progress').length;
+  const pendingCount = caregiverTasks.filter(t => t.status === 'Pending').length;
+
+  // Total monthly salary payroll
+  const totalPayroll = staffList.reduce((sum, s) => sum + (parseFloat(s.salary) || 0), 0);
+  const formattedPayroll = totalPayroll >= 100000
+    ? '₹' + (totalPayroll / 100000).toFixed(1) + 'L'
+    : totalPayroll >= 1000
+    ? '₹' + (totalPayroll / 1000).toFixed(1) + 'K'
+    : totalPayroll > 0
+    ? '₹' + totalPayroll.toLocaleString('en-IN')
+    : '—';
+
+  const filteredTasks = caregiverTasks.filter(t => {
+    if (taskFilter === 'All') return true;
+    return t.status === taskFilter;
+  });
+
+  // Selected staff member's tasks for details view
+  const staffAssignedTasks = selectedStaffProfile
+    ? caregiverTasks.filter(t => (t.assignedStaff || '').toLowerCase() === (selectedStaffProfile.full_name || '').toLowerCase())
+    : [];
+  const staffCompletedTasks = staffAssignedTasks.filter(t => t.status === 'Completed');
+
+  // Currently selected staff designation in task modal
+  const currentTaskStaffObj = staffList.find(s => s.full_name === newTaskForm.assignedStaff);
+  const currentModalDesignation = currentTaskStaffObj?.designation || 'Caregiver';
+
   return (
     <>
-      <TopHeader title="Caregiver Dashboard" onToggleSidebar={toggleSidebar} />
-      
+      <TopHeader title="Staff & Caregivers Dashboard" onToggleSidebar={toggleSidebar} />
+
       <div className="page-body">
         {/* Banner */}
         <div className="page-banner">
           <div>
-            <div className="section-label">Caregiver Operations</div>
+            <div className="section-label">Staff / Caregiver Management • {userDesignation}</div>
             <div className="page-banner-title">Welcome Back, {userName}</div>
-            <div className="page-banner-sub">Real-time daily task workflow, caregiver assignments, and staff metrics center.</div>
+            <div className="page-banner-sub">
+              Intelligent child care coordination, designation-based task assignments, attendance recording, and staff directory.
+            </div>
           </div>
-          <div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <button className="btn btn-primary btn-sm" onClick={() => setShowTaskModal(true)}>
-              <i className="bi bi-plus-lg" /> Add Caregiver Task
+              <i className="bi bi-plus-lg" /> Assign New Task
             </button>
           </div>
         </div>
@@ -359,11 +610,12 @@ export default function StaffDashboardPage() {
         {/* STATS GRID */}
         <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
           {[
-            { label: 'Total Staffs', value: totalStaffs, icon: 'bi-people-fill', cls: 'stat-icon-violet', sub: 'Registered workforce' },
-            { label: 'Caregiver Staff', value: caregiverStaffs, icon: 'bi-person-badge', cls: 'stat-icon-indigo', sub: 'Active daily caregivers' },
-            { label: 'Completed Tasks', value: completedCount, icon: 'bi-check-circle-fill', cls: 'stat-icon-green', sub: 'Verified completed' },
-            { label: 'Pending Tasks', value: pendingCount, icon: 'bi-clock-history', cls: 'stat-icon-amber', sub: 'Awaiting execution' },
-            { label: 'Action Needed', value: actionNeededCount, icon: 'bi-exclamation-triangle-fill', cls: 'stat-icon-rose', sub: 'Urgent AI / Health alert' },
+            { label: 'Total Staff / Caregivers', value: totalStaffs, icon: 'bi-people-fill', cls: 'stat-icon-violet', sub: 'Active workforce category' },
+            { label: 'Caregivers', value: caregiverCount, icon: 'bi-person-heart', cls: 'stat-icon-indigo', sub: 'Child care & attendance' },
+            { label: 'Teachers', value: teacherCount, icon: 'bi-journal-bookmark-fill', cls: 'stat-icon-amber', sub: 'Education & academics' },
+            { label: 'Doctors', value: doctorCount, icon: 'bi-heart-pulse-fill', cls: 'stat-icon-green', sub: 'Health checks & records' },
+            { label: 'Monthly Payroll', value: formattedPayroll, icon: 'bi-cash-coin', cls: 'stat-icon-amber', sub: `Across ${staffList.filter(s => s.salary).length} salaried staff` },
+            { label: 'Completed Tasks', value: completedCount, icon: 'bi-check-circle-fill', cls: 'stat-icon-green', sub: `${inProgressCount} in progress, ${pendingCount} pending` },
           ].map(s => (
             <div key={s.label} className="stat-card">
               <div className={`stat-icon ${s.cls}`}><i className={`bi ${s.icon}`} /></div>
@@ -376,17 +628,22 @@ export default function StaffDashboardPage() {
           ))}
         </div>
 
-        {/* MAIN DASHBOARD CONTENT GRID */}
+        {/* SECTION 1: TODAY'S CAREGIVER TASKS & BREAKDOWN */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 0.75fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
           
-          {/* TODAY'S CAREGIVER TASKS CARD */}
+          {/* TASK LIST CARD */}
           <div className="chart-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div className="chart-card-title" style={{ margin: 0 }}>
-                <i className="bi bi-list-check" style={{ color: '#6366f1' }} /> Today's Caregiver Tasks
+              <div>
+                <div className="chart-card-title" style={{ margin: 0 }}>
+                  <i className="bi bi-list-check" style={{ color: '#6366f1' }} /> Today's Designated Tasks
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Assigned duties for Caregivers, Teachers, and Doctors (Pending → In Progress → Completed)
+                </div>
               </div>
               <div style={{ display: 'flex', gap: '0.35rem' }}>
-                {['All', 'Completed', 'Pending', 'Action Needed'].map(filter => (
+                {['All', 'Pending', 'In Progress', 'Completed'].map(filter => (
                   <button
                     key={filter}
                     onClick={() => setTaskFilter(filter)}
@@ -394,9 +651,9 @@ export default function StaffDashboardPage() {
                     style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
                   >
                     {filter === 'All' && 'All '}
-                    {filter === 'Completed' && '🟢 Completed '}
                     {filter === 'Pending' && '🟡 Pending '}
-                    {filter === 'Action Needed' && '🔴 Action Needed '}
+                    {filter === 'In Progress' && '🔵 In Progress '}
+                    {filter === 'Completed' && '🟢 Completed '}
                     ({filter === 'All' ? caregiverTasks.length : caregiverTasks.filter(t => t.status === filter).length})
                   </button>
                 ))}
@@ -411,9 +668,12 @@ export default function StaffDashboardPage() {
                   No tasks found under "{taskFilter}" filter.
                 </div>
               ) : filteredTasks.map((t) => {
-                const badgeColor = t.status === 'Completed' ? '#22c55e' : t.status === 'Pending' ? '#f59e0b' : '#ef4444';
-                const badgeBg = t.status === 'Completed' ? 'rgba(34,197,94,0.15)' : t.status === 'Pending' ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)';
-                const icon = t.status === 'Completed' ? 'bi-check-circle-fill' : t.status === 'Pending' ? 'bi-clock-history' : 'bi-exclamation-triangle-fill';
+                const isCompleted = t.status === 'Completed';
+                const isInProgress = t.status === 'In Progress';
+                const badgeColor = isCompleted ? '#10b981' : isInProgress ? '#3b82f6' : '#f59e0b';
+                const badgeBg = isCompleted ? 'rgba(16,185,129,0.12)' : isInProgress ? 'rgba(59,130,246,0.12)' : 'rgba(245,158,11,0.12)';
+                const icon = isCompleted ? 'bi-check-circle-fill' : isInProgress ? 'bi-arrow-repeat' : 'bi-clock-history';
+                const dStyle = DESIGNATION_STYLES[t.designation] || DESIGNATION_STYLES.Caregiver;
 
                 return (
                   <div
@@ -424,44 +684,55 @@ export default function StaffDashboardPage() {
                       borderRadius: 'var(--radius-md)',
                       borderLeft: `4px solid ${badgeColor}`,
                       transition: 'all 0.2s ease',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.06)'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem' }}>
-                      <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '220px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '0.7rem', fontWeight: 600, padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-secondary)' }}>
                             {t.category}
                           </span>
-                          <span style={{ fontSize: '0.75rem', color: t.time === 'Urgent' ? '#ef4444' : 'var(--text-muted)', fontWeight: t.time === 'Urgent' ? 700 : 500 }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                             <i className="bi bi-clock" style={{ marginRight: 3 }} /> {t.time}
                           </span>
+                          <span style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '4px',
+                            background: dStyle.bg,
+                            color: dStyle.text,
+                            border: `1px solid ${dStyle.border}`
+                          }}>
+                            <i className={`bi ${dStyle.icon}`} style={{ marginRight: 3 }} />
+                            {t.designation || 'Caregiver'}
+                          </span>
                           {t.assignedStaff && (
-                            <span style={{ fontSize: '0.72rem', color: '#6366f1', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-                              <i className="bi bi-person-fill" /> Assigned: {t.assignedStaff}
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                              <i className="bi bi-person-fill" style={{ color: '#6366f1', marginRight: 3 }} />
+                              {t.assignedStaff}
                             </span>
                           )}
                         </div>
 
-                        <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.92rem', marginBottom: '0.25rem' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.94rem', marginBottom: '0.25rem' }}>
                           {t.task}
                         </div>
 
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
                           {t.detail}
                         </div>
 
-                        {t.status === 'Completed' && (
-                          <div style={{ fontSize: '0.72rem', color: '#22c55e', fontWeight: 500 }}>
-                            <i className="bi bi-check2-all" style={{ marginRight: 4 }} /> Completed: {t.completedAt || 'Verified by Staff'}
-                          </div>
-                        )}
+                        <div style={{ fontSize: '0.74rem', color: isCompleted ? '#10b981' : isInProgress ? '#3b82f6' : 'var(--text-muted)', fontWeight: 500 }}>
+                          <i className="bi bi-geo-alt-fill" style={{ marginRight: 4 }} /> Location: {t.wing || 'Wing B Ward'}
+                        </div>
                       </div>
 
                       {/* STATUS BADGE + ACTION CONTROLS */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.6rem' }}>
                         <span style={{
-                          fontSize: '0.72rem',
+                          fontSize: '0.74rem',
                           fontWeight: 700,
                           padding: '0.25rem 0.65rem',
                           borderRadius: 'var(--radius-full)',
@@ -476,26 +747,16 @@ export default function StaffDashboardPage() {
                           {t.status}
                         </span>
 
-                        {/* INTERACTIVE ACTIONS */}
+                        {/* INTERACTIVE CONTROLS */}
                         <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
-                          <select
-                            value={t.status}
-                            onChange={(e) => handleTaskStatusChange(t.id, e.target.value)}
-                            style={{
-                              fontSize: '0.72rem',
-                              padding: '0.25rem 0.5rem',
-                              borderRadius: '4px',
-                              background: 'var(--bg-surface-2)',
-                              color: 'var(--text-primary)',
-                              border: '1px solid var(--border)',
-                              cursor: 'pointer'
-                            }}
-                            title="Change Task Status"
+                          <button
+                            className="btn btn-sm btn-ghost"
+                            onClick={() => advanceTaskStatus(t.id)}
+                            title="Advance Task Status (Pending → In Progress → Completed)"
+                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.55rem', border: '1px solid var(--border)' }}
                           >
-                            <option value="Completed">🟢 Completed</option>
-                            <option value="Pending">🟡 Pending</option>
-                            <option value="Action Needed">🔴 Action Needed</option>
-                          </select>
+                            <i className="bi bi-arrow-right-circle" style={{ marginRight: 3 }} /> Advance
+                          </button>
 
                           <button
                             className="btn btn-primary btn-sm"
@@ -503,7 +764,7 @@ export default function StaffDashboardPage() {
                             title="View Full Task & Staff Details"
                             style={{ padding: '0.25rem 0.55rem', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}
                           >
-                            <i className="bi bi-eye" /> View Details
+                            <i className="bi bi-eye" /> Details
                           </button>
 
                           <button
@@ -522,64 +783,65 @@ export default function StaffDashboardPage() {
               })}
             </div>
 
-            <div style={{ marginTop: '1.25rem' }}>
-              <Link to="/health-management" className="btn btn-primary w-full" style={{ justifyContent: 'center' }}>
-                <i className="bi bi-heart-pulse-fill" /> Go to Child Health Records
+            <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem' }}>
+              <Link to="/child-profile" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+                <i className="bi bi-person-lines-fill" /> Child Profiles & Attendance Records
               </Link>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: AI RECOMMENDATIONS & STAFF QUICK AUDIT */}
+          {/* RIGHT COLUMN: DESIGNATION RESPONSIBILITIES OVERVIEW */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            {/* AI RECOMMENDATIONS CARD */}
+            {/* DESIGNATION OVERVIEW SUMMARY CARD */}
             <div className="chart-card">
-              <div className="chart-card-title"><i className="bi bi-cpu-fill" style={{ color: '#ef4444' }} /> AI Telemetry & Urgent Risk Alerts</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div style={{ padding: '0.9rem', background: 'rgba(225,29,72,0.06)', border: '1px solid rgba(225,29,72,0.3)', borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                    <i className="bi bi-exclamation-triangle-fill" style={{ color: '#ef4444', marginTop: 2, flexShrink: 0 }} />
-                    <div>
-                      <strong style={{ color: '#ef4444', fontSize: '0.85rem' }}>High Health Risk (SVM Classifier)</strong>
-                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
-                        Aarav Sharma shows elevated risk due to continuous weight drop over 3 weeks. Assigned to Dr. Rajesh Verma.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ padding: '0.9rem', background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                    <i className="bi bi-graph-up-arrow" style={{ color: '#3b82f6', marginTop: 2, flexShrink: 0 }} />
-                    <div>
-                      <strong style={{ color: '#3b82f6', fontSize: '0.85rem' }}>Academic Intervention (Random Forest)</strong>
-                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>
-                        Rohan Verma predicted score below 60% in Math. Assigned to Priya Nair (Teacher).
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <div className="chart-card-title">
+                <i className="bi bi-shield-check" style={{ color: 'var(--accent)' }} /> Staff/Caregiver Specializations
               </div>
-              <Link to="/ai-prediction" className="btn btn-secondary w-full mt-3" style={{ justifyContent: 'center' }}>
-                <i className="bi bi-cpu-fill" /> Open AI Prediction Hub
-              </Link>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75rem' }}>
+                {DESIGNATION_OPTIONS.map(des => {
+                  const style = DESIGNATION_STYLES[des];
+                  return (
+                    <div
+                      key={des}
+                      style={{
+                        padding: '0.75rem 0.85rem',
+                        background: 'var(--bg-surface-3)',
+                        borderRadius: 'var(--radius-md)',
+                        borderLeft: `4px solid ${style.text}`,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <span style={{ fontWeight: 700, fontSize: '0.88rem', color: style.text, display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        <i className={`bi ${style.icon}`} /> {des}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                        {des === 'Caregiver' ? `${caregiverCount} Active` : des === 'Teacher' ? `${teacherCount} Active` : `${doctorCount} Active`}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* CAREGIVER TASK STATS BREAKDOWN */}
+            {/* TASK STATUS SUMMARY CARD */}
             <div className="chart-card" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border)' }}>
-              <div className="chart-card-title"><i className="bi bi-pie-chart-fill" style={{ color: '#6366f1' }} /> Caregiver Task Breakdown</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="chart-card-title"><i className="bi bi-pie-chart-fill" style={{ color: '#6366f1' }} /> Task Status Progression</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>🟢 Completed Duties</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#22c55e' }}>{completedCount}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>🟡 Pending Scheduled</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>🟡 Pending (Scheduled)</span>
                   <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f59e0b' }}>{pendingCount}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>🔴 Action Needed / Urgent</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ef4444' }}>{actionNeededCount}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>🔵 In Progress (Active Shift)</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#3b82f6' }}>{inProgressCount}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>🟢 Completed (Verified)</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#10b981' }}>{completedCount}</span>
                 </div>
               </div>
             </div>
@@ -587,12 +849,16 @@ export default function StaffDashboardPage() {
           </div>
         </div>
 
-        {/* STAFF DIRECTORY TABLE SECTION */}
+        {/* SECTION 2: STAFF & CAREGIVER DIRECTORY TABLE */}
         <div className="chart-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div>
-              <div className="chart-card-title" style={{ margin: 0 }}><i className="bi bi-person-badge" /> Staff & Caregiver Directory</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Manage staff members, view staff details, phone, designation, and active tasks</div>
+              <div className="chart-card-title" style={{ margin: 0 }}>
+                <i className="bi bi-person-badge" /> Staff & Caregiver Directory
+              </div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                Directory of staff members, caregivers, teachers, and doctors with designation specializations, contact information, and status
+              </div>
             </div>
             <button className="btn btn-primary btn-sm" onClick={openAdd}>
               <i className="bi bi-plus-lg" /> Add New Staff
@@ -603,43 +869,110 @@ export default function StaffDashboardPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Role / Designation</th>
-                  <th style={{ minWidth: '120px', whiteSpace: 'nowrap', textAlign: 'center' }}>Caregiver Status</th>
-                  <th style={{ minWidth: '140px', whiteSpace: 'nowrap', textAlign: 'center' }}>Actions</th>
+                  <th style={{ width: '40px' }}>#</th>
+                  <th>NAME</th>
+                  <th>PHONE</th>
+                  <th>ROLE / DESIGNATION</th>
+                  <th style={{ minWidth: '110px', whiteSpace: 'nowrap', textAlign: 'right' }}>SALARY (₹)</th>
+                  <th style={{ minWidth: '140px', whiteSpace: 'nowrap', textAlign: 'center' }}>CAREGIVER STATUS</th>
+                  <th style={{ minWidth: '160px', whiteSpace: 'nowrap', textAlign: 'center' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}><span className="spinner" style={{ margin: '0 auto' }} /></td></tr>
+                  <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}><span className="spinner" style={{ margin: '0 auto' }} /></td></tr>
                 ) : staffList.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No staff found</td></tr>
-                ) : staffList.map((s, i) => (
-                  <tr key={s.user_id || i}>
-                    <td style={{ color: 'var(--text-muted)' }}>{i + 1}</td>
-                    <td style={{ fontWeight: 600 }}>{s.full_name}</td>
-                    <td>{s.phone_number || '—'}</td>
-                    <td>
-                      <span className={`badge ${s.designation === 'doctor' ? 'badge-rose' : s.designation === 'teacher' ? 'badge-amber' : 'badge-violet'}`}>
-                        {s.designation || 'Staff'}
-                      </span>
-                    </td>
-                    <td style={{ minWidth: '120px', whiteSpace: 'nowrap', textAlign: 'center' }}>
-                      <span className="badge badge-green" style={{ minWidth: '75px', justifyContent: 'center' }}>{s.status || 'Active'}</span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button className="btn btn-primary btn-sm" onClick={() => setSelectedStaffProfile(s)} title="View Full Staff Details">
-                          <i className="bi bi-eye" /> Details
-                        </button>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(s)} title="Edit Staff"><i className="bi bi-pencil" /></button>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteStaff(s.user_id)} title="Delete Staff"><i className="bi bi-trash" /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                  <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No staff members found in directory</td></tr>
+                ) : staffList.map((s, i) => {
+                  const des = formatDesignation(s.designation);
+                  const desStyle = DESIGNATION_STYLES[des] || DESIGNATION_STYLES.Caregiver;
+                  const isActive = s.status === 'Active';
+
+                  return (
+                    <tr key={s.user_id || i}>
+                      <td style={{ color: 'var(--text-muted)' }}>{i + 1}</td>
+                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <div style={{
+                            width: 30,
+                            height: 30,
+                            borderRadius: '50%',
+                            background: desStyle.bg,
+                            color: desStyle.text,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.8rem',
+                            fontWeight: 700
+                          }}>
+                            {s.full_name ? s.full_name.charAt(0) : 'S'}
+                          </div>
+                          <div>
+                            <div>{s.full_name}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{s.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{s.phone_number || '—'}</td>
+                      <td>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.28rem 0.75rem',
+                          borderRadius: 'var(--radius-full)',
+                          fontSize: '0.78rem',
+                          fontWeight: 700,
+                          background: desStyle.bg,
+                          color: desStyle.text,
+                          border: `1px solid ${desStyle.border}`
+                        }}>
+                          <i className={`bi ${desStyle.icon}`} />
+                          {des}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.88rem' }}>
+                        {s.salary !== undefined && s.salary !== null && s.salary !== ''
+                          ? `₹${Number(s.salary).toLocaleString('en-IN')}`
+                          : <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>—</span>}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span
+                          className={`badge ${isActive ? 'badge-green' : 'badge-rose'}`}
+                          style={{ minWidth: '75px', justifyContent: 'center' }}
+                        >
+                          {s.status || 'Active'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', gap: '0.4rem', justifyContent: 'center' }}>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => setSelectedStaffProfile(s)}
+                            title="View Staff Details"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                          >
+                            <i className="bi bi-eye" /> Details
+                          </button>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => openEdit(s)}
+                            title="Edit Staff Member"
+                          >
+                            <i className="bi bi-pencil" />
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleDeleteStaff(s.user_id)}
+                            title="Remove Staff"
+                          >
+                            <i className="bi bi-trash" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -647,59 +980,173 @@ export default function StaffDashboardPage() {
 
       </div>
 
-      {/* ADD / EDIT STAFF MODAL */}
+      {/* MODAL 1: ADD / EDIT STAFF FORM */}
       {showModal && (
         <div className="modal-backdrop" onClick={() => setShowModal(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+          <div className="modal-box" style={{ maxWidth: '580px' }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>
-                <i className="bi bi-person-badge" style={{ color: 'var(--accent)', marginRight: '0.5rem' }} />
-                {editStaff ? 'Edit Staff Member' : 'Add New Staff Member'}
+              <h4 style={{ color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <i className="bi bi-person-badge-fill" style={{ color: 'var(--accent)' }} />
+                {editStaff ? 'Edit Staff Member' : 'Add New Staff / Caregiver'}
               </h4>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><i className="bi bi-x-lg" /></button>
             </div>
+
             <form onSubmit={handleSaveStaff}>
               {modalErr && (
                 <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '0.65rem 0.9rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <i className="bi bi-exclamation-triangle-fill" /> {modalErr}
                 </div>
               )}
+
+              {/* Full Name */}
               <div className="form-group">
                 <label className="form-label">Full Name *</label>
-                <input type="text" className="form-control" required value={form.name} onChange={e => set('name', e.target.value)} />
+                <input
+                  type="text"
+                  className="form-control"
+                  required
+                  placeholder="e.g. Sarah Jenkins"
+                  value={form.name}
+                  onChange={e => setFormField('name', e.target.value)}
+                />
               </div>
+
+              {/* Phone & Email */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                {!editStaff && (
-                  <div className="form-group">
-                    <label className="form-label">Email *</label>
-                    <input type="email" className="form-control" required value={form.email} onChange={e => set('email', e.target.value)} />
-                  </div>
-                )}
-                <div className="form-group" style={{ gridColumn: editStaff ? 'span 2' : 'auto' }}>
-                  <label className="form-label">Phone</label>
-                  <input type="text" className="form-control" value={form.phone} onChange={e => set('phone', e.target.value)} />
+                <div className="form-group">
+                  <label className="form-label">Phone *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    required
+                    placeholder="e.g. +91 98765 43210"
+                    value={form.phone}
+                    onChange={e => setFormField('phone', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Email Address *</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    required
+                    placeholder="e.g. sarah.jenkins@orphanage.com"
+                    value={form.email}
+                    onChange={e => setFormField('email', e.target.value)}
+                  />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: editStaff ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
-                {!editStaff && (
-                  <div className="form-group">
-                    <label className="form-label">Password *</label>
-                    <input type="password" className="form-control" required value={form.password} onChange={e => set('password', e.target.value)} />
-                  </div>
-                )}
+
+              {/* Designation & Ward / Location */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Role / Designation</label>
-                  <select className="form-control" value={form.role} onChange={e => set('role', e.target.value)}>
-                    <option value="staff">Caregiver / Staff</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="doctor">Doctor</option>
+                  <label className="form-label">Role / Designation *</label>
+                  <select
+                    className="form-control"
+                    value={form.designation}
+                    onChange={e => setFormField('designation', e.target.value)}
+                  >
+                    <option value="Caregiver">Caregiver (Child care, attendance & monitoring)</option>
+                    <option value="Teacher">Teacher (Education & learning support)</option>
+                    <option value="Doctor">Doctor (Health checks & medical tasks)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Assigned Ward / Location *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    required
+                    placeholder="e.g. Wing B Care Ward"
+                    value={form.ward}
+                    onChange={e => setFormField('ward', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Joining Date & Status */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Joining Date *</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    required
+                    value={form.joiningDate}
+                    onChange={e => setFormField('joiningDate', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Status *</label>
+                  <select
+                    className="form-control"
+                    value={form.status}
+                    onChange={e => setFormField('status', e.target.value)}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
                   </select>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+
+              {/* Salary */}
+              <div className="form-group">
+                <label className="form-label">Monthly Salary (₹)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  min="0"
+                  step="100"
+                  placeholder="e.g. 25000"
+                  value={form.salary}
+                  onChange={e => setFormField('salary', e.target.value)}
+                />
+              </div>
+
+              {/* Username & Password (for new staff) */}
+              {!editStaff && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div className="form-group">
+                    <label className="form-label">Username *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      required
+                      placeholder="e.g. sarah.caregiver"
+                      value={form.username}
+                      onChange={e => setFormField('username', e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Password * (min 6 chars)</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      required
+                      placeholder="••••••••"
+                      value={form.password}
+                      onChange={e => setFormField('password', e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Responsibilities Preview for Selected Designation */}
+              <div style={{ padding: '0.75rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '0.25rem' }}>
+                  <i className="bi bi-info-circle-fill" style={{ color: 'var(--accent)', marginRight: 4 }} />
+                  {form.designation} Designation Responsibilities:
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  {(DESIGNATION_RESPONSIBILITIES[form.designation] || []).join(' • ')}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? <><span className="spinner spinner-sm" /> Saving...</> : <><i className="bi bi-check-lg" /> {editStaff ? 'Update Staff' : 'Save Staff'}</>}
+                  {saving ? <><span className="spinner spinner-sm" /> Saving...</> : <><i className="bi bi-check-lg" /> {editStaff ? 'Update Staff Member' : 'Save Staff Member'}</>}
                 </button>
               </div>
             </form>
@@ -707,41 +1154,297 @@ export default function StaffDashboardPage() {
         </div>
       )}
 
-      {/* ADD CAREGIVER TASK MODAL */}
+      {/* MODAL 2: STAFF DETAILS MODAL */}
+      {selectedStaffProfile && (
+        <div className="modal-backdrop" onClick={() => setSelectedStaffProfile(null)}>
+          <div className="modal-box" style={{ maxWidth: '640px' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h4 style={{ color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <i className="bi bi-person-badge-fill" style={{ color: 'var(--accent)' }} />
+                Staff Member Details
+              </h4>
+              <button className="btn btn-ghost btn-sm" onClick={() => setSelectedStaffProfile(null)}><i className="bi bi-x-lg" /></button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              
+              {/* Profile Card Header */}
+              {(() => {
+                const des = formatDesignation(selectedStaffProfile.designation);
+                const desStyle = DESIGNATION_STYLES[des] || DESIGNATION_STYLES.Caregiver;
+                const responsibilities = DESIGNATION_RESPONSIBILITIES[des] || [];
+
+                return (
+                  <>
+                    <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <div style={{
+                        width: 58,
+                        height: 58,
+                        borderRadius: '50%',
+                        background: desStyle.bg,
+                        color: desStyle.text,
+                        border: `2px solid ${desStyle.border}`,
+                        fontSize: '1.5rem',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {selectedStaffProfile.full_name ? selectedStaffProfile.full_name.charAt(0) : 'S'}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          {selectedStaffProfile.full_name}
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                          <span style={{
+                            fontSize: '0.74rem',
+                            fontWeight: 700,
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: 'var(--radius-full)',
+                            background: desStyle.bg,
+                            color: desStyle.text,
+                            border: `1px solid ${desStyle.border}`
+                          }}>
+                            <i className={`bi ${desStyle.icon}`} style={{ marginRight: 3 }} />
+                            {des}
+                          </span>
+                          <span className={`badge ${selectedStaffProfile.status === 'Active' ? 'badge-green' : 'badge-rose'}`}>
+                            {selectedStaffProfile.status || 'Active'}
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>Staff ID</span>
+                        <strong style={{ fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+                          #STF-{selectedStaffProfile.user_id}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Details Grid */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '0.85rem',
+                      padding: '1rem',
+                      background: 'var(--bg-surface-3)',
+                      borderRadius: 'var(--radius-md)',
+                      fontSize: '0.82rem'
+                    }}>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Full Name</span>
+                        <strong style={{ color: 'var(--text-primary)' }}>{selectedStaffProfile.full_name}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Role / Designation</span>
+                        <strong style={{ color: desStyle.text }}>{des}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Phone</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{selectedStaffProfile.phone_number || '—'}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Email Address</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>{selectedStaffProfile.email || `${selectedStaffProfile.full_name.toLowerCase().replace(/\s+/g, '.')}@orphanage.com`}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Assigned Ward / Location</span>
+                        <strong style={{ color: 'var(--text-primary)' }}>{selectedStaffProfile.ward || selectedStaffProfile.address || 'Wing B Care Ward'}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Joining Date</span>
+                        <strong style={{ color: 'var(--text-primary)' }}>{selectedStaffProfile.joiningDate || '2026-08-15'}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Monthly Salary (₹)</span>
+                        <strong style={{ color: 'var(--text-primary)' }}>
+                          {selectedStaffProfile.salary !== undefined && selectedStaffProfile.salary !== null && selectedStaffProfile.salary !== ''
+                            ? `₹${Number(selectedStaffProfile.salary).toLocaleString('en-IN')}`
+                            : '—'}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Designation Skills & Responsibilities */}
+                    <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <i className={`bi ${desStyle.icon}`} style={{ color: desStyle.text }} /> Skills & Designation Responsibilities ({des})
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {responsibilities.map((res, ri) => (
+                          <span
+                            key={ri}
+                            style={{
+                              fontSize: '0.76rem',
+                              padding: '0.25rem 0.6rem',
+                              borderRadius: '4px',
+                              background: 'var(--bg-surface-2)',
+                              color: 'var(--text-primary)',
+                              border: '1px solid var(--border)'
+                            }}
+                          >
+                            <i className="bi bi-check2" style={{ color: desStyle.text, marginRight: 4 }} />
+                            {res}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Assigned & Completed Tasks */}
+                    <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem' }}>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          <i className="bi bi-list-task" style={{ color: '#6366f1', marginRight: 4 }} /> Assigned Tasks ({staffAssignedTasks.length})
+                        </div>
+                        <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700 }}>
+                          Completed: {staffCompletedTasks.length} / {staffAssignedTasks.length}
+                        </span>
+                      </div>
+
+                      {staffAssignedTasks.length === 0 ? (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No tasks currently assigned to this staff member.</div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                          {staffAssignedTasks.map(t => (
+                            <div
+                              key={t.id}
+                              style={{
+                                padding: '0.55rem 0.75rem',
+                                background: 'var(--bg-surface-2)',
+                                borderRadius: '4px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                borderLeft: `3px solid ${t.status === 'Completed' ? '#10b981' : t.status === 'In Progress' ? '#3b82f6' : '#f59e0b'}`
+                              }}
+                            >
+                              <div>
+                                <span style={{ fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 600 }}>{t.task}</span>
+                                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 8 }}>({t.time})</span>
+                              </div>
+                              <span style={{
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                color: t.status === 'Completed' ? '#10b981' : t.status === 'In Progress' ? '#3b82f6' : '#f59e0b'
+                              }}>
+                                {t.status}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
+
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', gap: '0.5rem' }}>
+              <button className="btn btn-secondary" onClick={() => setSelectedStaffProfile(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: ASSIGN NEW TASK MODAL */}
       {showTaskModal && (
         <div className="modal-backdrop" onClick={() => setShowTaskModal(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+          <div className="modal-box" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>
-                <i className="bi bi-list-check" style={{ color: 'var(--accent)', marginRight: '0.5rem' }} />
-                Create New Caregiver Task
+              <h4 style={{ color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <i className="bi bi-list-check" style={{ color: 'var(--accent)' }} />
+                Assign Appropriate Task by Designation
               </h4>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowTaskModal(false)}><i className="bi bi-x-lg" /></button>
             </div>
+
             <form onSubmit={handleAddTask}>
+              {/* Select Staff Member first to show appropriate designation templates */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Assign To Staff Member *</label>
+                  <select
+                    className="form-control"
+                    required
+                    value={newTaskForm.assignedStaff}
+                    onChange={e => setNewTaskForm(f => ({ ...f, assignedStaff: e.target.value }))}
+                  >
+                    {staffList.map(s => (
+                      <option key={s.user_id} value={s.full_name}>
+                        {s.full_name} ({formatDesignation(s.designation)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Care Ward / Location *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    required
+                    placeholder="e.g. Wing B Care Ward"
+                    value={newTaskForm.wing}
+                    onChange={e => setNewTaskForm(f => ({ ...f, wing: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Task Title & Suggested Quick-Pills for this Designation */}
               <div className="form-group">
-                <label className="form-label">Task Title *</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                  <label className="form-label" style={{ margin: 0 }}>Task Title *</label>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                    Templates for <strong style={{ color: 'var(--text-primary)' }}>{currentModalDesignation}</strong>:
+                  </span>
+                </div>
+
+                {/* Quick Task Template Pills */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.5rem' }}>
+                  {(TASK_TEMPLATES[currentModalDesignation] || TASK_TEMPLATES.Caregiver).map((tmpl, ti) => (
+                    <button
+                      key={ti}
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setNewTaskForm(f => ({ ...f, task: tmpl }))}
+                      style={{
+                        fontSize: '0.72rem',
+                        padding: '0.2rem 0.5rem',
+                        background: newTaskForm.task === tmpl ? 'var(--accent)' : 'var(--bg-surface-3)',
+                        color: newTaskForm.task === tmpl ? '#fff' : 'var(--text-primary)',
+                        border: '1px solid var(--border)'
+                      }}
+                    >
+                      + {tmpl}
+                    </button>
+                  ))}
+                </div>
+
                 <input
                   type="text"
                   className="form-control"
                   required
-                  placeholder="e.g. Conduct Evening Nutrition Check"
+                  placeholder="e.g. Morning Attendance or Mathematics Learning Support"
                   value={newTaskForm.task}
                   onChange={e => setNewTaskForm(f => ({ ...f, task: e.target.value }))}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              {/* Scheduled Time, Category, Status */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Scheduled Time / Priority</label>
+                  <label className="form-label">Scheduled Time</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="e.g. 05:00 PM or Urgent"
+                    placeholder="e.g. 10:00 AM"
                     value={newTaskForm.time}
                     onChange={e => setNewTaskForm(f => ({ ...f, time: e.target.value }))}
                   />
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">Category</label>
                   <select
@@ -749,67 +1452,35 @@ export default function StaffDashboardPage() {
                     value={newTaskForm.category}
                     onChange={e => setNewTaskForm(f => ({ ...f, category: e.target.value }))}
                   >
-                    <option value="Health Check">Health Check</option>
-                    <option value="Health">Health / Medication</option>
-                    <option value="Education">Academic / Education</option>
-                    <option value="AI Risk">AI Risk Alert</option>
+                    <option value="Child Care">Child Care</option>
+                    <option value="Education">Education</option>
+                    <option value="Health">Health / Medical</option>
+                    <option value="Nutrition">Nutrition</option>
                     <option value="Routine">Routine Care</option>
                   </select>
                 </div>
-              </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Assign To Staff Member</label>
+                  <label className="form-label">Initial Status</label>
                   <select
                     className="form-control"
-                    value={newTaskForm.assignedStaff}
-                    onChange={e => setNewTaskForm(f => ({ ...f, assignedStaff: e.target.value }))}
+                    value={newTaskForm.status}
+                    onChange={e => setNewTaskForm(f => ({ ...f, status: e.target.value }))}
                   >
-                    {staffList.length > 0 ? staffList.map(s => (
-                      <option key={s.user_id} value={s.full_name}>{s.full_name} ({s.designation})</option>
-                    )) : (
-                      <>
-                        <option value="Anita Sharma">Anita Sharma (Staff)</option>
-                        <option value="Dr. Rajesh Verma">Dr. Rajesh Verma (Doctor)</option>
-                        <option value="Priya Nair">Priya Nair (Teacher)</option>
-                        <option value="Sunita Devi">Sunita Devi (Staff)</option>
-                      </>
-                    )}
+                    <option value="Pending">🟡 Pending</option>
+                    <option value="In Progress">🔵 In Progress</option>
+                    <option value="Completed">🟢 Completed</option>
                   </select>
                 </div>
-
-                <div className="form-group">
-                  <label className="form-label">Care Ward / Location</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Wing B Ward"
-                    value={newTaskForm.wing}
-                    onChange={e => setNewTaskForm(f => ({ ...f, wing: e.target.value }))}
-                  />
-                </div>
               </div>
 
+              {/* Task Description */}
               <div className="form-group">
-                <label className="form-label">Initial Status</label>
-                <select
-                  className="form-control"
-                  value={newTaskForm.status}
-                  onChange={e => setNewTaskForm(f => ({ ...f, status: e.target.value }))}
-                >
-                  <option value="Pending">🟡 Pending (Scheduled duty)</option>
-                  <option value="Action Needed">🔴 Action Needed (Urgent attention)</option>
-                  <option value="Completed">🟢 Completed (Already done)</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Task Description / Instructions</label>
+                <label className="form-label">Task Description & Instructions</label>
                 <textarea
                   className="form-control"
                   rows={3}
-                  placeholder="Specific instructions for the caregiver..."
+                  placeholder="Specific instructions for the designated staff member..."
                   value={newTaskForm.detail}
                   onChange={e => setNewTaskForm(f => ({ ...f, detail: e.target.value }))}
                 />
@@ -818,7 +1489,7 @@ export default function StaffDashboardPage() {
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowTaskModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">
-                  <i className="bi bi-plus-lg" /> Add Task
+                  <i className="bi bi-plus-lg" /> Assign Task
                 </button>
               </div>
             </form>
@@ -826,10 +1497,10 @@ export default function StaffDashboardPage() {
         </div>
       )}
 
-      {/* FULL TASK & ASSIGNED STAFF DETAILS MODAL */}
+      {/* MODAL 4: FULL TASK DETAILS & AUDIT LOG */}
       {selectedTaskDetail && (
         <div className="modal-backdrop" onClick={() => setSelectedTaskDetail(null)}>
-          <div className="modal-box" style={{ maxWidth: '620px' }} onClick={e => e.stopPropagation()}>
+          <div className="modal-box" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h4 style={{ color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <i className="bi bi-clipboard-check-fill" style={{ color: '#6366f1' }} />
@@ -838,30 +1509,34 @@ export default function StaffDashboardPage() {
               <button className="btn btn-ghost btn-sm" onClick={() => setSelectedTaskDetail(null)}><i className="bi bi-x-lg" /></button>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
               
-              {/* Task Overview Box */}
-              <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)', borderLeft: `4px solid ${selectedTaskDetail.status === 'Completed' ? '#22c55e' : selectedTaskDetail.status === 'Pending' ? '#f59e0b' : '#ef4444'}` }}>
+              {/* Task Overview */}
+              <div style={{
+                padding: '1rem',
+                background: 'var(--bg-surface-3)',
+                borderRadius: 'var(--radius-md)',
+                borderLeft: `4px solid ${selectedTaskDetail.status === 'Completed' ? '#10b981' : selectedTaskDetail.status === 'In Progress' ? '#3b82f6' : '#f59e0b'}`
+              }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.55rem', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)' }}>
-                    {selectedTaskDetail.category} ({selectedTaskDetail.time})
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, padding: '0.2rem 0.55rem', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)' }}>
+                    {selectedTaskDetail.category} • {selectedTaskDetail.time}
                   </span>
                   <span style={{
                     fontSize: '0.78rem',
                     fontWeight: 700,
                     padding: '0.2rem 0.65rem',
                     borderRadius: 'var(--radius-full)',
-                    background: selectedTaskDetail.status === 'Completed' ? 'rgba(34,197,94,0.15)' : selectedTaskDetail.status === 'Pending' ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)',
-                    color: selectedTaskDetail.status === 'Completed' ? '#22c55e' : selectedTaskDetail.status === 'Pending' ? '#f59e0b' : '#ef4444',
-                    border: `1px solid ${selectedTaskDetail.status === 'Completed' ? '#22c55e' : selectedTaskDetail.status === 'Pending' ? '#f59e0b' : '#ef4444'}40`
+                    background: selectedTaskDetail.status === 'Completed' ? 'rgba(16,185,129,0.15)' : selectedTaskDetail.status === 'In Progress' ? 'rgba(59,130,246,0.15)' : 'rgba(245,158,11,0.15)',
+                    color: selectedTaskDetail.status === 'Completed' ? '#10b981' : selectedTaskDetail.status === 'In Progress' ? '#3b82f6' : '#f59e0b'
                   }}>
                     {selectedTaskDetail.status}
                   </span>
                 </div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
+                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.35rem' }}>
                   {selectedTaskDetail.task}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
                   {selectedTaskDetail.detail}
                 </div>
               </div>
@@ -869,79 +1544,56 @@ export default function StaffDashboardPage() {
               {/* Assigned Staff Information */}
               <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
                 <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#6366f1', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <i className="bi bi-person-badge-fill" /> Assigned Staff Member Details
+                  <i className="bi bi-person-badge-fill" /> Assigned Staff Member
                 </div>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', fontSize: '0.82rem' }}>
                   <div>
                     <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Staff Name</span>
-                    <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{selectedTaskDetail.assignedStaff || 'Anita Sharma'}</strong>
+                    <strong style={{ color: 'var(--text-primary)' }}>{selectedTaskDetail.assignedStaff}</strong>
                   </div>
                   <div>
                     <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Role / Designation</span>
-                    <strong style={{ color: 'var(--text-primary)' }}>{selectedTaskDetail.staffRole || 'Caregiver Staff'}</strong>
+                    <strong style={{ color: 'var(--text-primary)' }}>{selectedTaskDetail.designation || 'Caregiver'}</strong>
                   </div>
                   <div>
                     <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Contact Phone</span>
                     <span style={{ color: 'var(--text-secondary)' }}>{selectedTaskDetail.staffPhone || '+91 98765 43210'}</span>
                   </div>
                   <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Email Address</span>
-                    <span style={{ color: 'var(--text-secondary)' }}>{selectedTaskDetail.staffEmail || 'staff@orphanage.com'}</span>
-                  </div>
-                  <div style={{ gridColumn: 'span 2' }}>
                     <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Care Location / Wing</span>
-                    <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{selectedTaskDetail.wing || 'Main Care Unit'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Completion Audit Log */}
-              <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <i className="bi bi-clock-history" style={{ color: '#f59e0b' }} /> Execution & Verification Audit Log
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.8rem' }}>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Execution Timestamp</span>
-                    <strong style={{ color: selectedTaskDetail.status === 'Completed' ? '#22c55e' : 'var(--text-secondary)' }}>
-                      {selectedTaskDetail.completedAt || 'Awaiting Shift Execution'}
-                    </strong>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Verified Signature</span>
-                    <span style={{ color: 'var(--text-secondary)' }}>
-                      {selectedTaskDetail.verifiedBy || 'Pending Signature'}
-                    </span>
+                    <strong style={{ color: 'var(--text-primary)' }}>{selectedTaskDetail.wing || 'Wing B Care Ward'}</strong>
                   </div>
                 </div>
               </div>
 
               {/* Status Update Quick Action */}
-              <div style={{ padding: '0.85rem', background: 'var(--bg-surface-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>Update Task Status Live:</span>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ padding: '0.85rem', background: 'var(--bg-surface-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>Update Task Status (Pending → In Progress → Completed):</span>
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
                   <button
-                    className={`btn btn-sm ${selectedTaskDetail.status === 'Completed' ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
-                    onClick={() => handleTaskStatusChange(selectedTaskDetail.id, 'Completed')}
-                  >
-                    🟢 Mark Completed
-                  </button>
-                  <button
-                    className={`btn btn-sm ${selectedTaskDetail.status === 'Pending' ? 'btn-primary' : 'btn-secondary'}`}
+                    type="button"
+                    className={`btn btn-sm ${selectedTaskDetail.status === 'Pending' ? 'btn-primary' : 'btn-ghost'}`}
                     style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
                     onClick={() => handleTaskStatusChange(selectedTaskDetail.id, 'Pending')}
                   >
-                    🟡 Mark Pending
+                    🟡 Pending
                   </button>
                   <button
-                    className={`btn btn-sm ${selectedTaskDetail.status === 'Action Needed' ? 'btn-danger' : 'btn-secondary'}`}
+                    type="button"
+                    className={`btn btn-sm ${selectedTaskDetail.status === 'In Progress' ? 'btn-primary' : 'btn-ghost'}`}
                     style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
-                    onClick={() => handleTaskStatusChange(selectedTaskDetail.id, 'Action Needed')}
+                    onClick={() => handleTaskStatusChange(selectedTaskDetail.id, 'In Progress')}
                   >
-                    🔴 Mark Action Needed
+                    🔵 In Progress
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${selectedTaskDetail.status === 'Completed' ? 'btn-primary' : 'btn-ghost'}`}
+                    style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                    onClick={() => handleTaskStatusChange(selectedTaskDetail.id, 'Completed')}
+                  >
+                    🟢 Completed
                   </button>
                 </div>
               </div>
@@ -950,82 +1602,6 @@ export default function StaffDashboardPage() {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
               <button className="btn btn-secondary" onClick={() => setSelectedTaskDetail(null)}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* FULL STAFF PROFILE DETAILS MODAL */}
-      {selectedStaffProfile && (
-        <div className="modal-backdrop" onClick={() => setSelectedStaffProfile(null)}>
-          <div className="modal-box" style={{ maxWidth: '580px' }} onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h4 style={{ color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <i className="bi bi-person-badge-fill" style={{ color: 'var(--accent)' }} />
-                Staff Member Profile & Assignments
-              </h4>
-              <button className="btn btn-ghost btn-sm" onClick={() => setSelectedStaffProfile(null)}><i className="bi bi-x-lg" /></button>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              
-              {/* Header profile card */}
-              <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #3b82f6)', color: '#fff', fontSize: '1.4rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {selectedStaffProfile.full_name ? selectedStaffProfile.full_name.charAt(0) : 'S'}
-                </div>
-                <div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{selectedStaffProfile.full_name}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    <span className="badge badge-violet" style={{ marginRight: 6 }}>{selectedStaffProfile.designation || 'Staff'}</span>
-                    <span className="badge badge-green">{selectedStaffProfile.status || 'Active'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Staff Details Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)', fontSize: '0.82rem' }}>
-                <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Phone Number</span>
-                  <strong style={{ color: 'var(--text-primary)' }}>{selectedStaffProfile.phone_number || '—'}</strong>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Email Address</span>
-                  <strong style={{ color: 'var(--text-primary)' }}>{selectedStaffProfile.email || `${selectedStaffProfile.full_name.toLowerCase().replace(' ', '.')}@orphanage.com`}</strong>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Assigned Wing / Ward</span>
-                  <strong style={{ color: 'var(--text-primary)' }}>{selectedStaffProfile.wing || 'General Care Unit'}</strong>
-                </div>
-                <div>
-                  <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Shift Hours</span>
-                  <strong style={{ color: 'var(--text-primary)' }}>08:00 AM - 04:00 PM</strong>
-                </div>
-              </div>
-
-              {/* Assigned Tasks Summary */}
-              <div style={{ padding: '1rem', background: 'var(--bg-surface-3)', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                  <i className="bi bi-list-task" style={{ color: '#6366f1', marginRight: 4 }} /> Active Tasks Assigned To This Staff:
-                </div>
-                {caregiverTasks.filter(t => (t.assignedStaff || '').toLowerCase() === selectedStaffProfile.full_name.toLowerCase()).length === 0 ? (
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No current active tasks assigned.</div>
-                ) : (
-                  caregiverTasks.filter(t => (t.assignedStaff || '').toLowerCase() === selectedStaffProfile.full_name.toLowerCase()).map(t => (
-                    <div key={t.id} style={{ padding: '0.5rem', background: 'var(--bg-surface-2)', borderRadius: '4px', marginBottom: '0.35rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600 }}>{t.task}</span>
-                      <span style={{ fontSize: '0.72rem', color: t.status === 'Completed' ? '#22c55e' : t.status === 'Pending' ? '#f59e0b' : '#ef4444', fontWeight: 700 }}>
-                        {t.status}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', gap: '0.5rem' }}>
-              <button className="btn btn-secondary" onClick={() => setSelectedStaffProfile(null)}>Close</button>
             </div>
           </div>
         </div>

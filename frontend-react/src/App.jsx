@@ -33,6 +33,8 @@ import VolunteerDashboard from './pages/VolunteerDashboard';
 import VolunteerProfile from './pages/VolunteerProfile';
 import AssignedActivities from './pages/AssignedActivities';
 
+import TestResultsPage from './pages/TestResultsPage';
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -40,6 +42,7 @@ export default function App() {
         {/* Public Routes with Navbar & Footer */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/test-results" element={<TestResultsPage />} />
         </Route>
 
         {/* Auth Routes (Fullscreen) */}
@@ -59,9 +62,9 @@ export default function App() {
             </ProtectedRoute>
           } />
 
-          {/* Staff / Teacher / Doctor / Admin */}
+          {/* Staff / Caregiver / Teacher / Doctor / Admin */}
           <Route path="/staff-dashboard" element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'teacher', 'doctor']}>
+            <ProtectedRoute allowedRoles={['admin', 'staff', 'caregiver', 'teacher', 'doctor']}>
               <StaffDashboardPage />
             </ProtectedRoute>
           } />
@@ -104,7 +107,7 @@ export default function App() {
 
           {/* Shared routes — restricted by role */}
           <Route path="/child-profile" element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'teacher', 'doctor', 'child']}>
+            <ProtectedRoute allowedRoles={['admin', 'staff', 'caregiver', 'teacher', 'doctor', 'child']}>
               <ChildProfilePage />
             </ProtectedRoute>
           } />
@@ -129,17 +132,17 @@ export default function App() {
             </ProtectedRoute>
           } />
           <Route path="/health-management" element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'teacher', 'doctor', 'child']}>
+            <ProtectedRoute allowedRoles={['admin', 'doctor', 'child']}>
               <HealthManagementPage />
             </ProtectedRoute>
           } />
           <Route path="/academic-management" element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'teacher', 'doctor', 'child']}>
+            <ProtectedRoute allowedRoles={['admin', 'teacher', 'child']}>
               <AcademicManagementPage />
             </ProtectedRoute>
           } />
           <Route path="/ai-prediction" element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'teacher', 'doctor', 'child']}>
+            <ProtectedRoute allowedRoles={['admin', 'staff', 'caregiver', 'teacher', 'doctor', 'child']}>
               <AIPredictionPage />
             </ProtectedRoute>
           } />

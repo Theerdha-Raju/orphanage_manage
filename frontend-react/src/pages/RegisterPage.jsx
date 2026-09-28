@@ -225,7 +225,7 @@ export default function RegisterPage() {
   };
 
   const roles = [
-    { value: 'staff', label: 'Caregiver/Staff', icon: 'bi-person-workspace' },
+    { value: 'staff', label: 'Caregiver', icon: 'bi-person-workspace' },
     { value: 'donor', label: 'Donor/Sponsor', icon: 'bi-heart-fill' },
     { value: 'volunteer', label: 'Volunteer', icon: 'bi-people-fill' },
   ];

@@ -3,6 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 
 export default function Sidebar({ isOpen, onClose }) {
   const userRole = localStorage.getItem('userRole') || 'admin';
+  const userDesignation = (localStorage.getItem('userDesignation') || '').toLowerCase();
   const rawUserName = localStorage.getItem('userName') || 'User';
   const userName = rawUserName === 'Admin User' ? 'Admin' : rawUserName;
   const userEmail = localStorage.getItem('userEmail') || '';
@@ -16,7 +17,7 @@ export default function Sidebar({ isOpen, onClose }) {
       ]},
       { section: 'Management', items: [
         { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
-        { path: '/staff-dashboard',         icon: 'bi-person-workspace',       label: 'Staff' },
+        { path: '/staff-dashboard',         icon: 'bi-person-workspace',      label: 'Staff & Caregivers' },
         { path: '/volunteer-management',    icon: 'bi-people-fill',            label: 'Volunteers' },
         { path: '/donor-management',        icon: 'bi-heart-fill',             label: 'Donors' },
       ]},
@@ -35,15 +36,36 @@ export default function Sidebar({ isOpen, onClose }) {
         { path: '/settings',               icon: 'bi-gear-fill',              label: 'Settings' },
       ]},
     ],
-    staff: [
+    caregiver: [
       { section: 'Overview', items: [
-        { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Dashboard' },
+        { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Caregiver Dashboard' },
       ]},
-      { section: 'Care', items: [
+      { section: 'Child Care Operations', items: [
+        { path: '/child-profile',           icon: 'bi-person-lines-fill',      label: 'Child Care & Attendance' },
+      ]},
+      { section: 'Account', items: [
+        { path: '/profile',                 icon: 'bi-person-circle',          label: 'My Profile' },
+      ]},
+    ],
+    teacher: [
+      { section: 'Overview', items: [
+        { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Teacher Dashboard' },
+      ]},
+      { section: 'Educational Activities', items: [
         { path: '/child-profile',           icon: 'bi-person-lines-fill',      label: 'Child Records' },
-        { path: '/health-management',       icon: 'bi-heart-pulse-fill',       label: 'Health Care' },
-        { path: '/academic-management',     icon: 'bi-journal-bookmark-fill',  label: 'Academics' },
-        { path: '/ai-prediction',           icon: 'bi-cpu-fill',               label: 'AI Hub' },
+        { path: '/academic-management',     icon: 'bi-journal-bookmark-fill',  label: 'Academics & Progress' },
+      ]},
+      { section: 'Account', items: [
+        { path: '/profile',                 icon: 'bi-person-circle',          label: 'My Profile' },
+      ]},
+    ],
+    doctor: [
+      { section: 'Overview', items: [
+        { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Doctor Dashboard' },
+      ]},
+      { section: 'Health & Observations', items: [
+        { path: '/child-profile',           icon: 'bi-person-lines-fill',      label: 'Child Records' },
+        { path: '/health-management',       icon: 'bi-heart-pulse-fill',       label: 'Health & Medical Tasks' },
       ]},
       { section: 'Account', items: [
         { path: '/profile',                 icon: 'bi-person-circle',          label: 'My Profile' },
@@ -83,8 +105,15 @@ export default function Sidebar({ isOpen, onClose }) {
     ],
   };
 
-  const sections = roleMenus[userRole] ||
-                   (['teacher', 'doctor'].includes(userRole) ? roleMenus.staff : roleMenus.admin);
+  const getStaffSection = () => {
+    if (userDesignation === 'teacher' || userRole === 'teacher') return roleMenus.teacher;
+    if (userDesignation === 'doctor' || userRole === 'doctor') return roleMenus.doctor;
+    return roleMenus.caregiver;
+  };
+
+  const sections = userRole === 'admin' ? roleMenus.admin :
+                   ['staff', 'teacher', 'doctor', 'caregiver'].includes(userRole) ? getStaffSection() :
+                   (roleMenus[userRole] || roleMenus.admin);
 
   return (
     <>

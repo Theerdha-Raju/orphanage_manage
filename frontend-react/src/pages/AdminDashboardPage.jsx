@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const count = data.filter(u => ['staff', 'teacher', 'doctor'].includes((u.designation || '').toLowerCase())).length;
+          const count = data.filter(u => ['staff', 'caregiver', 'teacher', 'doctor'].includes((u.designation || '').toLowerCase())).length;
           setStaffCount(count.toString());
         }
       }).catch(() => {});

@@ -2,9 +2,28 @@ from rest_framework import serializers
 from .models import Users, Login, Child, Donor, Donation, Volunteer, VolunteerAssignment, Attendance, Education, Health, Achievement, Alert, Expense
 
 class UsersSerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+    login_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Users
         fields = '__all__'
+
+    def get_email(self, obj):
+        login_obj = Login.objects.filter(user=obj).first()
+        if login_obj and login_obj.email:
+            return login_obj.email
+        clean_name = ''.join(c.lower() for c in (obj.full_name or 'staff') if c.isalnum() or c == ' ').replace(' ', '.')
+        return f"{clean_name}@orphanage.com"
+
+    def get_role(self, obj):
+        login_obj = Login.objects.filter(user=obj).first()
+        return login_obj.role if login_obj else obj.designation
+
+    def get_login_id(self, obj):
+        login_obj = Login.objects.filter(user=obj).first()
+        return login_obj.login_id if login_obj else None
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
