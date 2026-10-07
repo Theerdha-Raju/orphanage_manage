@@ -375,6 +375,69 @@ input, select, textarea { font-family: var(--font-body); }
   transform: none !important;
 }
 
+/* ── Table Row Action Buttons (Edit Pencil & Rounded Pink Delete) ── */
+.action-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
+.btn-icon-pencil {
+  background: transparent;
+  border: none;
+  color: #475569;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.btn-icon-pencil:hover {
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.08);
+  transform: scale(1.12);
+}
+
+.btn-box-delete {
+  min-width: 44px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+  color: #e11d48;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(244, 63, 94, 0.05);
+}
+
+.btn-box-delete i {
+  font-size: 1.05rem;
+  color: #e11d48;
+  transition: transform 0.15s ease;
+}
+
+.btn-box-delete:hover {
+  background: #fce7f3;
+  border-color: #f43f5e;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(244, 63, 94, 0.15);
+}
+
+.btn-box-delete:hover i {
+  transform: scale(1.08);
+}
+
+
 /* ── Form Elements ── */
 .form-group { margin-bottom: 1.25rem; }
 

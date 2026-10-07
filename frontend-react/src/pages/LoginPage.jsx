@@ -279,6 +279,11 @@ export default function LoginPage() {
         localStorage.setItem('userId',          data.user_id);
         localStorage.setItem('userName',        data.name);
         localStorage.setItem('userEmail',       data.email || effectiveEmail);
+        if (data.child_id) {
+          localStorage.setItem('childId',       String(data.child_id));
+        } else {
+          localStorage.removeItem('childId');
+        }
 
         if (window.PasswordCredential) {
           try {

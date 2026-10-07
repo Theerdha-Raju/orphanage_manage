@@ -54,14 +54,21 @@ SCREENSHOT_DIR = os.path.abspath(
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 
 
-def get_chrome_driver(headless: bool = True) -> webdriver.Chrome:
+def get_chrome_driver(headless: bool = None) -> webdriver.Chrome:
     """Creates and configures a Chrome WebDriver instance."""
+    if headless is None:
+        env_val = os.environ.get("HEADLESS", os.environ.get("SELENIUM_HEADLESS", "true")).lower()
+        headless = env_val not in ("false", "0", "no", "headed", "live")
+
     opts = Options()
     if headless:
         opts.add_argument("--headless=new")
+        opts.add_argument("--window-size=1920,1080")
+    else:
+        opts.add_argument("--start-maximized")
+
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
-    opts.add_argument("--window-size=1920,1080")
     opts.add_argument("--disable-gpu")
     opts.add_argument("--disable-extensions")
     opts.add_argument("--disable-notifications")

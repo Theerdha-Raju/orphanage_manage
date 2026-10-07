@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 const DESIGNATION_OPTIONS = ['Caregiver', 'Teacher', 'Doctor'];
 
@@ -783,9 +783,12 @@ export default function StaffDashboardPage() {
               })}
             </div>
 
-            <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem' }}>
-              <Link to="/child-profile" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
-                <i className="bi bi-person-lines-fill" /> Child Profiles & Attendance Records
+            <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Link to="/child-attendance" className="btn btn-primary" style={{ flex: 1, minWidth: 200, justifyContent: 'center' }}>
+                <i className="bi bi-calendar-check-fill" /> Child Care & Attendance
+              </Link>
+              <Link to="/child-profile" className="btn btn-secondary" style={{ flex: 1, minWidth: 200, justifyContent: 'center' }}>
+                <i className="bi bi-person-lines-fill" /> Child Profiles
               </Link>
             </div>
           </div>

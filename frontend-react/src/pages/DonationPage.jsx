@@ -7,7 +7,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 import DonorPaymentModal from '../components/DonorPaymentModal';
 
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 const emptyForm = { donor: '', donation_type: 'Money', amount: '', item_description: '', donation_date: new Date().toISOString().slice(0,10), status: 'Received' };
 
@@ -22,9 +22,9 @@ export default function DonationPage() {
   const [msg, setMsg]              = useState('');
   const [form, setForm]            = useState(emptyForm);
   const [saving, setSaving]        = useState(false);
+  const [filterType, setFilterType] = useState('All');
   const [chartLabels, setChartLabels] = useState([]);
   const [chartDataVals, setChartDataVals] = useState([]);
-
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -72,6 +72,16 @@ export default function DonationPage() {
   const openAdd = () => {
     setEdit(null);
     setForm(emptyForm);
+    setShowModal(true);
+  };
+
+  const openAddItem = () => {
+    setEdit(null);
+    setForm({
+      ...emptyForm,
+      donation_type: 'Item',
+      amount: '',
+    });
     setShowModal(true);
   };
 
@@ -135,9 +145,16 @@ export default function DonationPage() {
             <div className="page-banner-title">Donation Management ({donations.length})</div>
             <div className="page-banner-sub">Transparent tracking of all cash and item donations</div>
           </div>
-          <div style={{ display: 'flex', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
             <button className="btn btn-primary" onClick={() => setShowPaymentModal(true)}>
               <i className="bi bi-credit-card-2-front-fill" /> Make Online Payment
+            </button>
+            <button
+              className="btn btn-success"
+              onClick={openAddItem}
+              style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', border: 'none', color: '#fff', fontWeight: 600 }}
+            >
+              <i className="bi bi-box-seam-fill" /> Donate Items / In-Kind
             </button>
             <button className="btn btn-secondary" onClick={openAdd}>
               <i className="bi bi-plus-lg" /> Record Manual Entry
@@ -195,7 +212,27 @@ export default function DonationPage() {
 
         {/* All donations table with full CRUD */}
         <div className="chart-card">
-          <div className="chart-card-title"><i className="bi bi-table" /> All Donations</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div className="chart-card-title" style={{ margin: 0 }}><i className="bi bi-table" /> All Donations</div>
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+              {[
+                { key: 'All', label: `All (${donations.length})`, icon: 'bi-grid' },
+                { key: 'Money', label: `Cash (${donations.filter(d => d.donation_type === 'Money').length})`, icon: 'bi-cash-stack' },
+                { key: 'Item', label: `Items (${donations.filter(d => d.donation_type === 'Item').length})`, icon: 'bi-box-seam-fill' },
+              ].map(f => (
+                <button
+                  key={f.key}
+                  type="button"
+                  className={`btn btn-sm ${filterType === f.key ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                  onClick={() => setFilterType(f.key)}
+                >
+                  <i className={`bi ${f.icon} me-1`} /> {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -204,16 +241,16 @@ export default function DonationPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}><span className="spinner" style={{ margin: '0 auto' }} /></td></tr>
-                ) : donations.length === 0 ? (
+                ) : donations.filter(d => filterType === 'All' ? true : d.donation_type === filterType).length === 0 ? (
                   <tr><td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                    <i className="bi bi-gift" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }} />No donations found
+                    <i className="bi bi-gift" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }} />No {filterType !== 'All' ? filterType.toLowerCase() : ''} donations found
                   </td></tr>
-                ) : donations.map((d, i) => (
+                ) : donations.filter(d => filterType === 'All' ? true : d.donation_type === filterType).map((d, i) => (
                   <tr key={d.donation_id}>
                     <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{i+1}</td>
                     <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{d.donor_name || `Donor #${d.donor}`}</td>
                     <td><span className={`badge ${typeColors[d.donation_type] || 'badge-muted'}`}>{d.donation_type}</span></td>
-                    <td>{d.donation_type === 'Money' ? `₹${parseFloat(d.amount || 0).toLocaleString('en-IN')}` : (d.item_description || '—')}</td>
+                    <td style={{ fontWeight: 600 }}>{d.donation_type === 'Money' ? `₹${parseFloat(d.amount || 0).toLocaleString('en-IN')}` : (d.item_description || '—')}</td>
                     <td style={{ fontSize: '0.82rem' }}>{d.donation_date}</td>
                     <td><span className="badge badge-green">{d.status}</span></td>
                     <td>
@@ -231,16 +268,16 @@ export default function DonationPage() {
       </div>
 
       {showModal && (
-        <div className="modal-backdrop" onClick={() => setShowModal(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <div className="modal-backdrop">
+          <div className="modal-box">
             <div className="modal-header">
               <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>
-                <i className="bi bi-gift-fill" style={{ color: 'var(--accent)', marginRight: '0.5rem' }} />
-                {editDonation ? 'Edit Donation' : 'Record Donation'}
+                <i className={`bi ${form.donation_type === 'Item' ? 'bi-box-seam-fill' : 'bi-gift-fill'}`} style={{ color: form.donation_type === 'Item' ? '#d97706' : 'var(--accent)', marginRight: '0.5rem' }} />
+                {editDonation ? 'Edit Donation' : (form.donation_type === 'Item' ? 'Donate Items (In-Kind)' : 'Record Donation')}
               </h4>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><i className="bi bi-x-lg" /></button>
             </div>
-            <form onSubmit={handleSave}>
+            <form onSubmit={handleSave} onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault(); }}>
               <div className="form-group">
                 <label className="form-label">Donor *</label>
                 <select className="form-control" value={form.donor} onChange={e => set('donor', e.target.value)} required>
@@ -267,8 +304,42 @@ export default function DonationPage() {
                 </div>
               ) : (
                 <div className="form-group">
-                  <label className="form-label">Item Description *</label>
-                  <textarea className="form-control" placeholder="Describe the donated items..." value={form.item_description} onChange={e => set('item_description', e.target.value)} required style={{ minHeight: 70 }} />
+                  <label className="form-label">
+                    <i className="bi bi-box-seam-fill me-1" style={{ color: '#d97706' }} />
+                    Item Description &amp; Quantity *
+                  </label>
+                  
+                  {/* Preset Pills */}
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                    {[
+                      'School Bags & Stationery Kits',
+                      'Winter Blankets & Clothes',
+                      'School Uniforms & Shoes',
+                      'Ration, Rice & Nutrition Supplies',
+                      'Desktop Computers / Laptops',
+                      'Sports & Play Equipment',
+                      'Pediatric Medicines & First Aid'
+                    ].map(preset => (
+                      <button
+                        key={preset}
+                        type="button"
+                        className="btn btn-ghost btn-sm"
+                        style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem', border: '1px solid #cbd5e1', borderRadius: '1rem', background: '#f8fafc', color: '#475569' }}
+                        onClick={() => set('item_description', preset)}
+                      >
+                        + {preset}
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    className="form-control"
+                    placeholder="Describe the donated items and quantities (e.g. 50 Sets of Winter Blankets, 100 Notebooks)..."
+                    value={form.item_description}
+                    onChange={e => set('item_description', e.target.value)}
+                    required
+                    style={{ minHeight: 75 }}
+                  />
                 </div>
               )}
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>

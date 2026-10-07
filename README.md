@@ -6,7 +6,7 @@ A comprehensive, full-stack web application for managing orphanages, children's 
 
 ## 🚀 System Architecture
 
-- **Backend**: Python 3.x / Django 5.x REST API with SQLite database (`backend/`)
+- **Backend**: Python 3.x / Django 5.x REST API with PostgreSQL database (`backend/`)
 - **Frontend**: React 19 / Vite / Tailwind CSS / Lucide React (`frontend-react/`)
 - **AI/ML Engine**: Scikit-Learn predictive modeling engine for academic & behavioral tracking (`backend/api/ml_engine.py`)
 

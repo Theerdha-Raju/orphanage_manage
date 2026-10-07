@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
@@ -24,7 +24,25 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
   const [cardNumber, setCardNumber] = useState('4532 8910 4421 9087');
   const [cardExpiry, setCardExpiry] = useState('08/29');
   const [cardCvv, setCardCvv] = useState('892');
+  const [showCvv, setShowCvv] = useState(false);
+  const [cvvTouched, setCvvTouched] = useState(false);
+  const [showCvvHint, setShowCvvHint] = useState(false);
   const [cardHolder, setCardHolder] = useState(currentUserName || 'Rahul Sharma');
+
+  // Detect Amex (starts with 34 or 37) → needs 4-digit CVV; all others → 3-digit
+  const cleanCardNum = cardNumber.replace(/\s+/g, '');
+  const isAmex = /^3[47]/.test(cleanCardNum);
+  const cvvLength = isAmex ? 4 : 3;
+  const cvvLabel = isAmex ? 'CID (4-digit)' : 'CVV';
+
+  // CVV must match the LAST N digits of the card number
+  const expectedCvv = cleanCardNum.length >= cvvLength
+    ? cleanCardNum.slice(-cvvLength)
+    : '';
+
+  const isCvvValid = cardCvv.trim().length === cvvLength &&
+    /^\d+$/.test(cardCvv.trim()) &&
+    cardCvv.trim() === expectedCvv;
 
   // UPI details
   const [upiId, setUpiId] = useState('rahul@okaxis');
@@ -43,11 +61,14 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
     setAadharNumber(formatted);
   };
 
-  // Auto-format Card Number into 4-digit groups
+  // Auto-format Card Number into 4-digit groups; auto-clear CVV when card changes
   const handleCardNumberChange = (e) => {
     const rawVal = e.target.value.replace(/\D/g, '').slice(0, 16);
     const formatted = rawVal.replace(/(\d{4})(?=\d)/g, '$1 ');
     setCardNumber(formatted);
+    // Clear CVV when card number changes (security best practice)
+    setCardCvv('');
+    setCvvTouched(false);
   };
 
   // Auto-format Card Expiry (MM/YY)
@@ -60,10 +81,14 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
     }
   };
 
-  // Auto-format CVV (3 or 4 digits)
+  // Auto-format CVV — limit to correct length based on card type (Amex=4, others=3)
   const handleCvvChange = (e) => {
-    const rawVal = e.target.value.replace(/\D/g, '').slice(0, 4);
+    const rawVal = e.target.value.replace(/\D/g, '').slice(0, cvvLength);
     setCardCvv(rawVal);
+    setCvvTouched(true);
+    if (error && error.toLowerCase().includes('cvv')) {
+      setError('');
+    }
   };
 
   const handleSelectPreset = (val) => {
@@ -127,14 +152,23 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
         setError('Please enter a valid Card Expiry Date (MM/YY).');
         return;
       }
-      // CVV Validation (Mandatory 3 or 4 digits)
+      // CVV Validation — must match last N digits of the card number
       const cleanCvv = cardCvv.trim();
+      const expectedLen = isAmex ? 4 : 3;
+      const expectedCode = cleanCard.slice(-expectedLen);
       if (!cleanCvv) {
-        setError('CVV code is required for card verification.');
+        setCvvTouched(true);
+        setError(`${cvvLabel} code is required for card verification.`);
         return;
       }
-      if (!/^\d{3,4}$/.test(cleanCvv)) {
-        setError('Please enter a valid 3 or 4-digit CVV / CVC security code.');
+      if (cleanCvv.length !== expectedLen || !/^\d+$/.test(cleanCvv)) {
+        setCvvTouched(true);
+        setError(`${cvvLabel} must be exactly ${expectedLen} digits.`);
+        return;
+      }
+      if (cleanCvv !== expectedCode) {
+        setCvvTouched(true);
+        setError(`Incorrect ${cvvLabel}: it must match the last ${expectedLen} digits of your card number.`);
         return;
       }
     } else if (paymentMode === 'upi') {
@@ -224,8 +258,11 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 1050 }}>
-      <div className="modal-box" style={{ maxWidth: '640px', width: '95%' }} onClick={e => e.stopPropagation()}>
+    <div className="modal-backdrop" style={{ zIndex: 1050 }}>
+      <div
+        className="modal-box"
+        style={{ maxWidth: '640px', width: '95%' }}
+      >
         
         {/* Header */}
         <div className="modal-header" style={{ borderBottom: '1px solid #e2e8f0' }}>
@@ -245,7 +282,15 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
 
         {/* STEP 1: PAYMENT FORM */}
         {step === 1 && (
-          <form onSubmit={handleSubmitPayment} style={{ marginTop: '1rem' }}>
+          <form
+            onSubmit={handleSubmitPayment}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+                e.preventDefault(); // Prevent accidental form submit while typing in input fields
+              }
+            }}
+            style={{ marginTop: '1rem' }}
+          >
             
             {/* Cause & Preset Amounts */}
             <div style={{ padding: '1rem', background: 'var(--bg-surface-2)', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0', marginBottom: '1.25rem' }}>
@@ -382,7 +427,7 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
                       <label className="form-label">Cardholder Name *</label>
                       <input type="text" className="form-control" required value={cardHolder} onChange={e => setCardHolder(e.target.value)} />
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label">Expiry (MM/YY) *</label>
                         <input
@@ -396,21 +441,113 @@ export default function DonorPaymentModal({ onClose, onSuccess }) {
                         />
                       </div>
                       
-                      {/* CVV Field with Validation */}
-                      <div className="form-group" style={{ width: '90px' }}>
-                        <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                          <span>CVV *</span>
-                          <i className="bi bi-shield-lock-fill" style={{ fontSize: '0.75rem', color: '#2563eb' }} title="3 or 4 digits behind card" />
-                        </label>
-                        <input
-                          type="password"
-                          maxLength={4}
-                          className="form-control"
-                          required
-                          value={cardCvv}
-                          onChange={handleCvvChange}
-                          placeholder="892"
-                        />
+                      {/* CVV Field — fully enhanced */}
+                      <div className="form-group" style={{ width: '145px', flexShrink: 0 }}>
+
+                        {/* Label row: title + valid badge */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                          <label className="form-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8rem' }}>
+                            <span>{cvvLabel} *</span>
+                            {/* Tooltip trigger */}
+                            <i
+                              className="bi bi-question-circle-fill"
+                              style={{ fontSize: '0.72rem', color: '#2563eb', cursor: 'pointer' }}
+                              title={isAmex
+                                ? 'Amex: 4-digit CID printed on the FRONT of the card'
+                                : 'Visa/MC/RuPay: 3-digit CVV on the BACK of the card'
+                              }
+                              onClick={() => setShowCvvHint(h => !h)}
+                            />
+                          </label>
+                          {cvvTouched && cardCvv && !isCvvValid && (
+                            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#ef4444' }}>
+                              {`Need ${cvvLength} digits`}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Visual hint panel */}
+                        {showCvvHint && (
+                          <div style={{
+                            background: '#eff6ff',
+                            border: '1px solid #bfdbfe',
+                            borderRadius: 6,
+                            padding: '0.45rem 0.55rem',
+                            marginBottom: '0.4rem',
+                            fontSize: '0.7rem',
+                            color: '#1e40af',
+                            lineHeight: 1.5
+                          }}>
+                            {isAmex
+                              ? <><strong>Amex CID:</strong> 4 digits printed on the <em>front</em> of your card, above the card number.</>  
+                              : <><strong>CVV / CVC:</strong> Last 3 digits on the <em>signature strip</em> on the back of your card.</> 
+                            }
+                          </div>
+                        )}
+
+                        {/* Input + eye toggle */}
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type={showCvv ? 'text' : 'password'}
+                            inputMode="numeric"
+                            autoComplete="cc-csc"
+                            minLength={cvvLength}
+                            maxLength={cvvLength}
+                            pattern={`\\d{${cvvLength}}`}
+                            className="form-control"
+                            required
+                            value={cardCvv}
+                            onChange={handleCvvChange}
+                            onBlur={() => setCvvTouched(true)}
+                            placeholder={'•'.repeat(cvvLength)}
+                            title={`Please enter the ${cvvLength}-digit ${cvvLabel}`}
+                            style={{
+                              paddingRight: '2rem',
+                              letterSpacing: showCvv ? '1px' : '3px',
+                              borderColor: cvvTouched && cardCvv
+                                ? (isCvvValid ? '#16a34a' : '#ef4444')
+                                : undefined,
+                              boxShadow: cvvTouched && !isCvvValid && cardCvv
+                                ? '0 0 0 2px rgba(239,68,68,0.15)'
+                                : (cvvTouched && isCvvValid ? '0 0 0 2px rgba(22,163,74,0.15)' : undefined)
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowCvv(v => !v)}
+                            tabIndex={-1}
+                            title={showCvv ? 'Hide CVV' : 'Show CVV'}
+                            style={{
+                              position: 'absolute', right: '0.45rem', top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: 'transparent', border: 'none',
+                              cursor: 'pointer', padding: '0.2rem',
+                              color: '#64748b', display: 'flex',
+                              alignItems: 'center', fontSize: '0.85rem'
+                            }}
+                          >
+                            <i className={`bi ${showCvv ? 'bi-eye-slash-fill' : 'bi-eye-fill'}`} />
+                          </button>
+                        </div>
+
+                        {/* Inline error */}
+                        {cvvTouched && (!cardCvv || !isCvvValid) && (
+                          <div style={{ fontSize: '0.7rem', color: '#ef4444', marginTop: '0.25rem', lineHeight: 1.3 }}>
+                            {!cardCvv
+                              ? `${cvvLabel} is required`
+                              : (cardCvv === '000' || cardCvv === '0000')
+                                ? 'Invalid code'
+                                : `Must be exactly ${cvvLength} digits`
+                            }
+                          </div>
+                        )}
+
+                        {/* Security assurance note */}
+                        <div style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                          <i className="bi bi-lock-fill" style={{ fontSize: '0.6rem' }} />
+                          <span>Never stored</span>
+                        </div>
+
                       </div>
                     </div>
                   </div>

@@ -3,6 +3,7 @@ HTML and Markdown Test Report Generator for Selenium Test Results.
 Produces a rich, modern test report with metrics, charts, logs, and screenshots.
 """
 import os
+import re
 import json
 import base64
 import datetime
@@ -46,9 +47,13 @@ def generate_html_report(
             '''
 
         # Logs
+        def _strip_step_prefix(msg: str) -> str:
+            """Remove 'Step N:', 'Step N/M:', '[Step N/M]' prefixes from log messages."""
+            return re.sub(r'^\[?Step\s+\d+(?:/\d+)?[\]:]\s*', '', msg, flags=re.IGNORECASE).strip()
+
         logs_html = ""
         if test.get("logs"):
-            logs_items = "\n".join([f"<li><span class='log-time'>{l.get('time', '')}</span> <span class='log-text'>{l.get('msg', '')}</span></li>" for l in test["logs"]])
+            logs_items = "\n".join([f"<li><span class='log-time'>{l.get('time', '')}</span> <span class='log-text'>{_strip_step_prefix(l.get('msg', ''))}</span></li>" for l in test["logs"]])
             logs_html = f'''
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>

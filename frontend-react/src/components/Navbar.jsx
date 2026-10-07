@@ -12,7 +12,6 @@ export default function Navbar() {
   }, []);
 
   const links = [
-    { href: '#features',    label: 'Features' },
     { href: '#ai-services', label: 'AI Services' },
     { href: '#stats',       label: 'Impact' },
     { href: '#about-us',    label: 'About Us' },

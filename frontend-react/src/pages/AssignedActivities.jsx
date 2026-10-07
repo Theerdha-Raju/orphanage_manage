@@ -20,6 +20,7 @@ const PRIORITY_BADGE = {
 export default function AssignedActivities() {
   const { toggleSidebar } = useOutletContext() || {};
   const userEmail = localStorage.getItem('userEmail') || '';
+  const userId = localStorage.getItem('userId') || '';
 
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,24 +33,49 @@ export default function AssignedActivities() {
   const fetchActivities = () => {
     setLoading(true);
     const url = userEmail
-      ? `${API}/volunteer/activities/?email=${encodeURIComponent(userEmail)}`
+      ? `${API}/volunteer/activities/?email=${encodeURIComponent(userEmail)}&user_id=${userId}`
       : `${API}/volunteer/activities/`;
 
     fetch(url)
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setActivities(data);
-        } else {
-          fetch(`${API}/volunteer/activities/`)
-            .then(r => r.json())
-            .then(allData => setActivities(Array.isArray(allData) ? allData : []))
-            .catch(() => setActivities([]));
         }
       })
       .catch(() => {
         // Fallback default mock data
         setActivities([
+          {
+            assignment_id: 104,
+            event_name: 'AI & Robotics Hands-on Lab',
+            description: 'Hands-on AI concepts, interactive robotics demonstrations, and block coding for young learners.',
+            activity_type: 'Computer Learning',
+            priority: 'High',
+            assigned_date: '2026-10-06',
+            scheduled_date: '2026-10-06',
+            due_date: '2026-10-06',
+            assigned_children: '8 Children',
+            location: 'Computer Lab - Block A',
+            assigned_by: 'Academic Coordinator',
+            instructions: 'Demonstrate beginner robotics kit, guide children through block coding exercises, and ensure hands-on practice.',
+            status: 'In Progress'
+          },
+          {
+            assignment_id: 105,
+            event_name: 'Science & Logic Puzzle Workshop',
+            description: 'Afternoon logic games, static electricity experiments, and science trivia competition.',
+            activity_type: 'Extracurricular',
+            priority: 'Medium',
+            assigned_date: '2026-10-06',
+            scheduled_date: '2026-10-06',
+            due_date: '2026-10-06',
+            assigned_children: '12 Children',
+            location: 'Science Lab & Activity Hall',
+            assigned_by: 'Care Coordinator',
+            instructions: 'Organize children into 3 teams, provide quiz sheets, and supervise experiment setups safely.',
+            status: 'Pending'
+          },
           {
             assignment_id: 1,
             event_name: 'Mathematics Learning Support',
@@ -106,6 +132,14 @@ export default function AssignedActivities() {
     fetchActivities();
   }, []);
 
+  const handleDeleteActivity = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete assignment "${name || 'Activity'}"?`)) return;
+    try {
+      await fetch(`${API}/volunteer-assignments/${id}/`, { method: 'DELETE' });
+    } catch {}
+    setActivities(prev => prev.filter(a => a.assignment_id !== id));
+  };
+
   // Format date helper: "2026-09-20" -> "20 Sep 2026"
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
@@ -120,6 +154,14 @@ export default function AssignedActivities() {
       return dateStr;
     }
   };
+
+  const getLocalDateStr = (d = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const todayStr = getLocalDateStr();
 
   // Client-side filtering
   const filteredActivities = activities.filter(act => {
@@ -216,15 +258,33 @@ export default function AssignedActivities() {
             </select>
           </div>
 
-          {/* Date Filter */}
-          <div style={{ minWidth: '150px' }}>
+          {/* Date Filter & Today Quick Button */}
+          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', minWidth: '260px' }}>
             <input
               type="date"
               className="form-control"
               title="Filter by scheduled date"
               value={dateFilter}
               onChange={e => setDateFilter(e.target.value)}
+              style={{ flex: 1 }}
             />
+            <button
+              type="button"
+              className={`btn btn-sm ${dateFilter === todayStr ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setDateFilter(prev => prev === todayStr ? '' : todayStr)}
+              style={{ fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}
+              title="Filter today's activities"
+            >
+              <span style={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: dateFilter === todayStr ? '#fff' : '#22c55e',
+                display: 'inline-block',
+                boxShadow: dateFilter === todayStr ? 'none' : '0 0 6px #22c55e'
+              }} />
+              Today ({activities.filter(a => (a.scheduled_date || a.due_date || a.assigned_date) === todayStr).length})
+            </button>
           </div>
 
           {(search || statusFilter !== 'All' || typeFilter !== 'All' || dateFilter) && (
@@ -275,17 +335,43 @@ export default function AssignedActivities() {
                 ) : (
                   filteredActivities.map(act => {
                     const scheduledDate = act.scheduled_date || act.due_date || act.assigned_date;
-                    const childDisplay = act.assigned_children
-                      ? act.assigned_children.replace(/[^0-9]/g, '') || act.assigned_children
-                      : '5';
+                    const isToday = (scheduledDate === todayStr || act.assigned_date === todayStr);
+                    const childMatch = String(act.assigned_children || '').match(/^\s*(\d+)/);
+                    const childDisplay = childMatch ? childMatch[1] : (String(act.assigned_children || '').match(/\d+/)?.[0] || '5');
 
                     const pStyle = PRIORITY_BADGE[act.priority] || PRIORITY_BADGE['Medium'];
 
                     return (
-                      <tr key={act.assignment_id}>
+                      <tr
+                        key={act.assignment_id}
+                        style={{
+                          background: isToday ? 'rgba(59, 130, 246, 0.08)' : undefined,
+                          borderLeft: isToday ? '4px solid #3b82f6' : undefined
+                        }}
+                      >
                         <td>
-                          <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.92rem' }}>
-                            {act.event_name}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.92rem' }}>
+                              {act.event_name}
+                            </span>
+                            {isToday && (
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                background: 'rgba(34, 197, 94, 0.16)',
+                                color: '#4ade80',
+                                border: '1px solid rgba(34, 197, 94, 0.35)',
+                                fontSize: '0.64rem',
+                                fontWeight: 800,
+                                padding: '0.12rem 0.45rem',
+                                borderRadius: '999px',
+                                letterSpacing: '0.04em'
+                              }}>
+                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 6px #22c55e' }} />
+                                TODAY
+                              </span>
+                            )}
                           </div>
                           <div style={{
                             fontSize: '0.78rem',
@@ -299,8 +385,13 @@ export default function AssignedActivities() {
                           </div>
                         </td>
 
-                        <td style={{ whiteSpace: 'nowrap', color: '#60a5fa', fontWeight: 600 }}>
+                        <td style={{ whiteSpace: 'nowrap', color: isToday ? '#38bdf8' : '#60a5fa', fontWeight: isToday ? 800 : 600 }}>
                           {formatDate(scheduledDate)}
+                          {isToday && (
+                            <span style={{ color: '#4ade80', fontSize: '0.72rem', marginLeft: '0.3rem', fontWeight: 800 }}>
+                              (Today)
+                            </span>
+                          )}
                         </td>
 
                         <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
@@ -339,23 +430,24 @@ export default function AssignedActivities() {
                         </td>
 
                         <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          {act.status === 'In Progress' ? (
+                          <div className="action-btn-group">
                             <button
-                              className="btn btn-warning btn-sm"
+                              type="button"
+                              className="btn-icon-pencil"
                               onClick={() => setSelectedActivity(act)}
-                              style={{ padding: '0.25rem 0.7rem', fontSize: '0.78rem', fontWeight: 600 }}
+                              title="Edit Activity"
                             >
-                              <i className="bi bi-pencil-square" /> Update
+                              <i className="bi bi-pencil" />
                             </button>
-                          ) : (
                             <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => setSelectedActivity(act)}
-                              style={{ padding: '0.25rem 0.7rem', fontSize: '0.78rem' }}
+                              type="button"
+                              className="btn-box-delete"
+                              onClick={() => handleDeleteActivity(act.assignment_id, act.event_name)}
+                              title="Delete Activity"
                             >
-                              <i className="bi bi-eye" /> View
+                              <i className="bi bi-trash" />
                             </button>
-                          )}
+                          </div>
                         </td>
                       </tr>
                     );

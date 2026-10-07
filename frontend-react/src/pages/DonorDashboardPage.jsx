@@ -3,7 +3,7 @@ import { useOutletContext, Link } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import DonorPaymentModal from '../components/DonorPaymentModal';
 
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 export default function DonorDashboardPage() {
   const { toggleSidebar } = useOutletContext();
@@ -116,13 +116,22 @@ export default function DonorDashboardPage() {
               Support child education, healthcare, and nutrition via Cards, UPI (GPay/PhonePe/Paytm), NetBanking, or Bank Transfer. Instantly receive 80G tax receipt.
             </p>
           </div>
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowPaymentModal(true)}
-            style={{ padding: '0.75rem 1.5rem', fontSize: '0.95rem', fontWeight: 700, background: 'linear-gradient(135deg, #16a34a, #2563eb)' }}
-          >
-            <i className="bi bi-box-arrow-up-right" /> Open Payment Portal
-          </button>
+          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowPaymentModal(true)}
+              style={{ padding: '0.75rem 1.4rem', fontSize: '0.92rem', fontWeight: 700, background: 'linear-gradient(135deg, #16a34a, #2563eb)' }}
+            >
+              <i className="bi bi-box-arrow-up-right me-1" /> Open Payment Portal
+            </button>
+            <Link
+              to="/donation"
+              className="btn btn-secondary"
+              style={{ padding: '0.75rem 1.2rem', fontSize: '0.92rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#f8fafc', border: '1px solid #cbd5e1' }}
+            >
+              <i className="bi bi-box-seam-fill" style={{ color: '#d97706' }} /> Donate Items (In-Kind)
+            </Link>
+          </div>
         </div>
 
         {/* Payment Details Section */}

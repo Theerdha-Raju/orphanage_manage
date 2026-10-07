@@ -2,14 +2,19 @@ import urllib.request
 import json
 import base64
 from rest_framework import viewsets, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from .models import Users, Login, Child, Donor, Donation, Volunteer, VolunteerAssignment, Attendance, Education, Health, Achievement, Alert, Expense
+from django.contrib.auth.hashers import make_password, check_password
+from django.utils import timezone
+from .models import (
+    Users, Login, Child, Donor, Donation, Volunteer, VolunteerAssignment,
+    Attendance, Education, Health, Achievement, Behaviour, Alert, Expense
+)
 from .serializers import (
     UsersSerializer, LoginSerializer, ChildSerializer, DonorSerializer, 
     DonationSerializer, VolunteerSerializer, VolunteerAssignmentSerializer, 
     AttendanceSerializer, EducationSerializer, HealthSerializer, 
-    AchievementSerializer, AlertSerializer, ExpenseSerializer
+    AchievementSerializer, BehaviourSerializer, AlertSerializer, ExpenseSerializer
 )
 from .ml_engine import ml_engine
 
@@ -44,6 +49,24 @@ class LoginViewSet(viewsets.ModelViewSet):
 class ChildViewSet(viewsets.ModelViewSet):
     queryset = Child.objects.all().order_by('-child_id')
     serializer_class = ChildSerializer
+
+    def get_queryset(self):
+        qs = Child.objects.all().order_by('-child_id')
+        cid = self.request.query_params.get('child') or self.request.query_params.get('child_id')
+        if cid:
+            qs = qs.filter(child_id=cid)
+        uid = self.request.query_params.get('user_id')
+        if uid:
+            u = Users.objects.filter(user_id=uid).first()
+            if u:
+                if u.phone_number and str(u.phone_number).startswith('child_'):
+                    try:
+                        c_id = int(str(u.phone_number).replace('child_', ''))
+                        return qs.filter(child_id=c_id)
+                    except (ValueError, TypeError):
+                        pass
+                return qs.filter(full_name__iexact=u.full_name)
+        return qs
 
     def perform_create(self, serializer):
         child = serializer.save()
@@ -201,26 +224,63 @@ class VolunteerAssignmentViewSet(viewsets.ModelViewSet):
 
 # Dedicated Volunteer Module API Endpoints
 
+def resolve_volunteer(request):
+    """
+    Intelligently resolve volunteer instance from volunteer_id, email (including aliases), or user_id.
+    """
+    vol_id = request.query_params.get('volunteer_id') or (request.data.get('volunteer_id') if hasattr(request, 'data') else None)
+    email = request.query_params.get('email') or (request.data.get('email') if hasattr(request, 'data') else None)
+    user_id = request.query_params.get('user_id') or (request.data.get('user_id') if hasattr(request, 'data') else None)
+
+    if vol_id:
+        v = Volunteer.objects.filter(pk=vol_id).first()
+        if v:
+            return v
+
+    if email:
+        email = email.strip()
+        # 1. Direct email match
+        v = Volunteer.objects.filter(email__iexact=email).first()
+        if v:
+            return v
+
+        # 2. Check Login table -> linked User -> Volunteer
+        l = Login.objects.filter(email__iexact=email).first()
+        if l and l.user:
+            v = Volunteer.objects.filter(full_name__iexact=l.user.full_name).first()
+            if v:
+                return v
+
+        # 3. Check Users table by email or phone
+        u = Users.objects.filter(email__iexact=email).first() or Users.objects.filter(phone_number__iexact=email).first()
+        if u:
+            v = Volunteer.objects.filter(full_name__iexact=u.full_name).first()
+            if v:
+                return v
+
+        # 4. Check name prefix in email (e.g. rahul.singh@... -> Rahul Singh)
+        prefix = email.split('@')[0].replace('.', ' ').strip()
+        v = Volunteer.objects.filter(full_name__iexact=prefix).first() or Volunteer.objects.filter(full_name__icontains=prefix).first()
+        if v:
+            return v
+
+    if user_id:
+        u = Users.objects.filter(user_id=user_id).first()
+        if u:
+            v = Volunteer.objects.filter(full_name__iexact=u.full_name).first()
+            if v:
+                return v
+
+    return None
+
+
 @api_view(['GET', 'PUT', 'PATCH'])
 def volunteer_profile_api(request):
     """
     GET: Retrieve logged-in volunteer profile
     PUT/PATCH: Update logged-in volunteer profile
     """
-    email = request.query_params.get('email') or request.data.get('email')
-    vol_id = request.query_params.get('volunteer_id') or request.data.get('volunteer_id')
-    user_id = request.query_params.get('user_id') or request.data.get('user_id')
-
-    vol = None
-    if vol_id:
-        vol = Volunteer.objects.filter(pk=vol_id).first()
-    if not vol and email:
-        vol = Volunteer.objects.filter(email__iexact=email).first()
-    if not vol and user_id:
-        usr = Users.objects.filter(user_id=user_id).first()
-        if usr:
-            vol = Volunteer.objects.filter(full_name=usr.full_name).first() or Volunteer.objects.filter(phone_number=usr.phone_number).first()
-    
+    vol = resolve_volunteer(request)
     if not vol:
         # Fallback to first active volunteer
         vol = Volunteer.objects.filter(status='Active').first() or Volunteer.objects.first()
@@ -263,28 +323,21 @@ def volunteer_profile_api(request):
         serializer = VolunteerSerializer(vol)
         return Response({'message': 'Profile updated successfully.', 'data': serializer.data})
 
+
 @api_view(['GET'])
 def volunteer_activities_api(request):
     """
     GET: Retrieve assigned activities for logged-in volunteer with search and filter options
     """
-    email = request.query_params.get('email')
-    vol_id = request.query_params.get('volunteer_id')
-    user_id = request.query_params.get('user_id')
-
-    vol = None
-    if vol_id:
-        vol = Volunteer.objects.filter(pk=vol_id).first()
-    if not vol and email:
-        vol = Volunteer.objects.filter(email__iexact=email).first()
-    if not vol and user_id:
-        usr = Users.objects.filter(user_id=user_id).first()
-        if usr:
-            vol = Volunteer.objects.filter(full_name=usr.full_name).first()
+    vol = resolve_volunteer(request)
 
     if vol:
         activities = VolunteerAssignment.objects.filter(volunteer=vol)
+    elif request.query_params.get('email') or request.query_params.get('volunteer_id') or request.query_params.get('user_id'):
+        # Specific volunteer requested but none matched
+        activities = VolunteerAssignment.objects.none()
     else:
+        # General view without volunteer filter (e.g. admin/general activities directory)
         activities = VolunteerAssignment.objects.all()
 
     # Search filter
@@ -388,7 +441,75 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         cid = self.request.query_params.get('child') or self.request.query_params.get('child_id')
         if cid:
             qs = qs.filter(child_id=cid)
+        date = self.request.query_params.get('date') or self.request.query_params.get('attendance_date')
+        if date:
+            qs = qs.filter(attendance_date=date)
         return qs
+
+    def create(self, request, *args, **kwargs):
+        # Gracefully handle upsert if record for (child, attendance_date) already exists
+        child_id = request.data.get('child')
+        att_date = request.data.get('attendance_date')
+        att_status = request.data.get('attendance_status', 'Present')
+        marked_by_id = request.data.get('marked_by')
+        
+        if child_id and att_date:
+            att_obj, created = Attendance.objects.update_or_create(
+                child_id=child_id,
+                attendance_date=att_date,
+                defaults={
+                    'attendance_status': att_status,
+                    'marked_by_id': marked_by_id if marked_by_id else None
+                }
+            )
+            serializer = self.get_serializer(att_obj)
+            return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+        return super().create(request, *args, **kwargs)
+
+    @action(detail=False, methods=['post'])
+    def mark(self, request):
+        """
+        Bulk mark or update attendance for multiple children.
+        Body: {
+            date: "YYYY-MM-DD",
+            marked_by: user_id (optional),
+            records: [
+                { child_id: 1, status: "Present" },
+                ...
+            ]
+        }
+        """
+        data = request.data
+        att_date = data.get('date') or timezone.now().strftime('%Y-%m-%d')
+        marked_by_id = data.get('marked_by')
+        records = data.get('records', [])
+        
+        results = []
+        for r in records:
+            c_id = r.get('child_id') or r.get('child')
+            st = r.get('status') or r.get('attendance_status', 'Present')
+            if not c_id:
+                continue
+            obj, created = Attendance.objects.update_or_create(
+                child_id=c_id,
+                attendance_date=att_date,
+                defaults={
+                    'attendance_status': st,
+                    'marked_by_id': marked_by_id if marked_by_id else None
+                }
+            )
+            results.append({
+                'child_id': c_id,
+                'status': st,
+                'created': created
+            })
+        
+        return Response({
+            'success': True,
+            'date': att_date,
+            'updated_count': len(results),
+            'records': results
+        }, status=status.HTTP_200_OK)
 
 class EducationViewSet(viewsets.ModelViewSet):
     queryset = Education.objects.all()
@@ -426,77 +547,176 @@ class AchievementViewSet(viewsets.ModelViewSet):
             qs = qs.filter(child_id=cid)
         return qs
 
+class BehaviourViewSet(viewsets.ModelViewSet):
+    queryset = Behaviour.objects.all().order_by('-observation_date', '-behaviour_id')
+    serializer_class = BehaviourSerializer
+
+    def get_queryset(self):
+        qs = Behaviour.objects.all().order_by('-observation_date', '-behaviour_id')
+        cid = self.request.query_params.get('child') or self.request.query_params.get('child_id')
+        if cid:
+            qs = qs.filter(child_id=cid)
+        return qs
+
 class AlertViewSet(viewsets.ModelViewSet):
     queryset = Alert.objects.all().order_by('-created_date')
     serializer_class = AlertSerializer
+
+    def get_queryset(self):
+        qs = Alert.objects.all().order_by('-created_date')
+        cid = self.request.query_params.get('child') or self.request.query_params.get('child_id')
+        status_param = self.request.query_params.get('status')
+        if cid:
+            qs = qs.filter(child_id=cid)
+        if status_param:
+            qs = qs.filter(status=status_param)
+        return qs
+
+    @action(detail=True, methods=['post'])
+    def resolve(self, request, pk=None):
+        alert_obj = self.get_object()
+        notes = request.data.get('resolution_notes', 'Resolved by authorized staff.')
+        alert_obj.status = 'Resolved'
+        alert_obj.resolution_notes = notes
+        alert_obj.resolved_at = timezone.now()
+        alert_obj.save()
+        return Response(AlertSerializer(alert_obj).data)
+
+@api_view(['POST'])
+def resolve_alert_api(request, alert_id):
+    alert_obj = Alert.objects.filter(pk=alert_id).first()
+    if not alert_obj:
+        return Response({'error': 'Alert not found'}, status=status.HTTP_404_NOT_FOUND)
+    notes = request.data.get('resolution_notes', 'Resolved by staff member.')
+    alert_obj.status = 'Resolved'
+    alert_obj.resolution_notes = notes
+    alert_obj.resolved_at = timezone.now()
+    alert_obj.save()
+    return Response(AlertSerializer(alert_obj).data)
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     queryset = Expense.objects.all().order_by('-expense_date')
     serializer_class = ExpenseSerializer
 
 
-# ML Prediction Endpoints
+# AI / ML Intelligence Endpoints
+
+@api_view(['GET'])
+def child_development_score_api(request, child_id):
+    """Computes 5-dimension child development score from actual database records."""
+    try:
+        score_data = ml_engine.calculate_child_development_score(child_id)
+        return Response(score_data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def learning_recommendations_api(request, child_id):
+    """Generates personalized, actionable learning recommendations based on subject marks & attendance."""
+    try:
+        rec_data = ml_engine.generate_learning_recommendations(child_id)
+        return Response(rec_data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def predict_academic(request):
+    """
+    AI Academic Performance, Risk Level & Trend Prediction.
+    Supports either real database data by child_id or custom simulation parameters.
+    """
     data = request.data
     try:
-        att = float(data.get('attendance', 0))
-        prev = float(data.get('prev_score', 0))
-        hours = float(data.get('study_hours', 0))
         child_id = data.get('child_id')
-        
-        result = ml_engine.predict_academic(att, prev, hours)
-        
-        c_obj = Child.objects.filter(pk=child_id).first() if child_id else Child.objects.first()
-        if c_obj:
-            Alert.objects.create(
-                child=c_obj,
-                alert_type="Academic",
-                message=f"[Random Forest] Score: {result['predicted_score']}%, Grade: {result['predicted_grade']} (Conf: {result['confidence']:.1f}%). {result.get('recommendation', '')}"
-            )
+        use_child_data = data.get('use_child_data', False) or ('attendance' not in data and 'prev_score' not in data and child_id)
+
+        if use_child_data and child_id:
+            result = ml_engine.predict_academic_for_child(child_id)
+        else:
+            att = float(data.get('attendance', 85))
+            prev = float(data.get('prev_score', data.get('past_score', 75)))
+            hours = float(data.get('study_hours', 3))
+            result = ml_engine.predict_academic(att, prev, hours)
+
+        # Log alert for high or medium academic risk
+        if child_id and result.get('status') != 'insufficient_data':
+            risk = result.get('risk_level', 'Low')
+            if risk in ['High', 'Medium']:
+                c_obj = Child.objects.filter(pk=child_id).first()
+                if c_obj:
+                    priority_val = 'High' if risk == 'High' else 'Medium'
+                    Alert.objects.create(
+                        child=c_obj,
+                        alert_type="Academic Risk",
+                        priority=priority_val,
+                        message=f"[Academic AI] {c_obj.full_name}: Risk Level {risk}, Trend: {result.get('performance_trend', 'Stable')}. {result.get('recommendation', '')}"
+                    )
         return Response(result)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def predict_health(request):
+    """
+    Pediatric Health Risk Screening.
+    Outputs risk level and monitoring advice (labeled as risk indicators, not diagnoses).
+    """
     data = request.data
     try:
-        bmi = float(data.get('bmi', 0))
-        sick_days = float(data.get('sick_days', 0))
         child_id = data.get('child_id')
-        
-        result = ml_engine.predict_health(bmi, sick_days)
-        
-        c_obj = Child.objects.filter(pk=child_id).first() if child_id else Child.objects.first()
-        if c_obj:
-            Alert.objects.create(
-                child=c_obj,
-                alert_type="Health",
-                message=f"[SVM Classifier] Risk Level: {result['risk_level']} (Conf: {result['confidence']:.1f}%). {result.get('recommendation', '')}"
-            )
+        use_child_data = data.get('use_child_data', False) or ('bmi' not in data and child_id)
+
+        if use_child_data and child_id:
+            result = ml_engine.predict_health_for_child(child_id)
+        else:
+            bmi = float(data.get('bmi', 18.5))
+            sick_days = float(data.get('sick_days', 1))
+            result = ml_engine.predict_health(bmi, sick_days)
+
+        if child_id and result.get('status') != 'insufficient_data':
+            risk = result.get('risk_level', 'Low')
+            if risk in ['High', 'Medium']:
+                c_obj = Child.objects.filter(pk=child_id).first()
+                if c_obj:
+                    priority_val = 'High' if risk == 'High' else 'Medium'
+                    Alert.objects.create(
+                        child=c_obj,
+                        alert_type="Health Follow-up",
+                        priority=priority_val,
+                        message=f"[Health Risk Indicator] {c_obj.full_name}: Risk Level {risk}. {result.get('recommendation', '')}"
+                    )
         return Response(result)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def predict_behavior(request):
+    """
+    Behaviour & Social Adjustment Pattern Detection.
+    """
     data = request.data
     try:
-        incidents = float(data.get('incidents', 0))
-        interaction = float(data.get('interaction_score', 0))
         child_id = data.get('child_id')
-        
-        result = ml_engine.predict_behavior(incidents, interaction)
-        
-        c_obj = Child.objects.filter(pk=child_id).first() if child_id else Child.objects.first()
-        if c_obj:
-            Alert.objects.create(
-                child=c_obj,
-                alert_type="Behavioral",
-                message=f"[KNN Classifier] Status: {result['behavior_status']} (Conf: {result['confidence']:.1f}%). {result.get('recommendation', '')}"
-            )
+        use_child_data = data.get('use_child_data', False) or ('incidents' not in data and child_id)
+
+        if use_child_data and child_id:
+            result = ml_engine.predict_behavior_for_child(child_id)
+        else:
+            incidents = float(data.get('incidents', 0))
+            interaction = float(data.get('interaction_score', 8))
+            result = ml_engine.predict_behavior(incidents, interaction)
+
+        if child_id and result.get('status') != 'insufficient_data':
+            trend = result.get('behaviour_trend', '')
+            if 'Needs' in trend or 'Intervention' in result.get('development_status', ''):
+                c_obj = Child.objects.filter(pk=child_id).first()
+                if c_obj:
+                    Alert.objects.create(
+                        child=c_obj,
+                        alert_type="Behaviour Concern",
+                        priority="Medium",
+                        message=f"[Behaviour Observation] {c_obj.full_name}: {result.get('development_status', '')}. {result.get('recommended_intervention', '')}"
+                    )
         return Response(result)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -505,21 +725,216 @@ def predict_behavior(request):
 def predict_growth(request):
     data = request.data
     try:
-        age = float(data.get('age', 0))
-        height = float(data.get('height', 0))
-        weight = float(data.get('weight', 0))
+        age = float(data.get('age', 10))
+        height = float(data.get('height', 135))
+        weight = float(data.get('weight', 30))
         child_id = data.get('child_id')
         
         result = ml_engine.predict_growth(age, height, weight)
-        
-        c_obj = Child.objects.filter(pk=child_id).first() if child_id else Child.objects.first()
-        if c_obj:
-            Alert.objects.create(
-                child=c_obj,
-                alert_type="Growth",
-                message=f"[Linear Growth] Forecast: {result['growth_forecast']}. Projected Height: {result.get('predicted_height')}cm, Weight: {result.get('predicted_weight')}kg (Conf: {result['confidence']:.1f}%)."
-            )
         return Response(result)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def dashboard_stats_api(request):
+    """Comprehensive real-time dashboard statistics for admin panel."""
+    from django.db.models import Sum, Count, Avg
+    from datetime import date, timedelta
+    try:
+        now = date.today()
+        month_start = now.replace(day=1)
+        last_month_start = (month_start - timedelta(days=1)).replace(day=1)
+
+        # Children stats
+        total_children = Child.objects.count()
+        active_children = Child.objects.filter(status='Active').count()
+        new_this_month = Child.objects.filter(admission_date__gte=month_start).count()
+
+        # Staff stats
+        staff_list = Users.objects.filter(
+            designation__in=['Caregiver', 'Teacher', 'Doctor', 'Administrator', 'staff']
+        )
+        total_staff = staff_list.count()
+
+        # Volunteer stats
+        total_volunteers = Volunteer.objects.count()
+        active_volunteers = Volunteer.objects.filter(status='Active').count()
+
+        # Donation stats
+        donations = Donation.objects.all()
+        total_donations = donations.filter(donation_type='Money').aggregate(total=Sum('amount'))['total'] or 0
+        this_month_donations = donations.filter(
+            donation_type='Money', donation_date__gte=month_start
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        last_month_donations = donations.filter(
+            donation_type='Money',
+            donation_date__gte=last_month_start,
+            donation_date__lt=month_start
+        ).aggregate(total=Sum('amount'))['total'] or 0
+
+        # Expense stats
+        total_expenses = Expense.objects.filter(status='Paid').aggregate(total=Sum('amount'))['total'] or 0
+        this_month_expenses = Expense.objects.filter(
+            status='Paid', expense_date__gte=month_start
+        ).aggregate(total=Sum('amount'))['total'] or 0
+
+        # Health stats
+        health_records = Health.objects.values('child').distinct()
+        healthy_count = Health.objects.filter(status='Healthy').values('child').distinct().count()
+        at_risk_count = Health.objects.filter(status__in=['Mild Risk', 'Under Treatment', 'Critical']).values('child').distinct().count()
+
+        # Attendance stats (last 30 days)
+        recent_att = Attendance.objects.filter(attendance_date__gte=now - timedelta(days=30))
+        total_att = recent_att.count()
+        present_att = recent_att.filter(attendance_status='Present').count()
+        avg_attendance_pct = round((present_att / total_att * 100), 1) if total_att > 0 else 0
+
+        # Academic stats
+        edu_records = Education.objects.all()
+        academic_avg = edu_records.aggregate(avg=Avg('marks'))['avg']
+        academic_avg = round(float(academic_avg), 1) if academic_avg else 0
+
+        # Alert stats
+        open_alerts = Alert.objects.filter(status='Open').count()
+        high_priority_alerts = Alert.objects.filter(status='Open', priority='High').count()
+
+        # Monthly donation trend (last 6 months)
+        donation_trend = []
+        for i in range(5, -1, -1):
+            d = now - timedelta(days=30 * i)
+            m_start = d.replace(day=1)
+            if i > 0:
+                next_d = now - timedelta(days=30 * (i - 1))
+                m_end = next_d.replace(day=1)
+            else:
+                m_end = now + timedelta(days=1)
+            total = donations.filter(
+                donation_type='Money',
+                donation_date__gte=m_start,
+                donation_date__lt=m_end
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            donation_trend.append({
+                'month': m_start.strftime('%b %Y'),
+                'amount': float(total)
+            })
+
+        # Subject-wise academic averages
+        subject_avgs = {}
+        for rec in edu_records:
+            s = rec.subject
+            if s not in subject_avgs:
+                subject_avgs[s] = []
+            if rec.marks is not None:
+                subject_avgs[s].append(float(rec.marks))
+        subject_chart = [
+            {'subject': s, 'avg': round(sum(v) / len(v), 1)}
+            for s, v in subject_avgs.items() if v
+        ]
+
+        # Expense by category
+        expense_by_cat = {}
+        for exp in Expense.objects.filter(status='Paid'):
+            expense_by_cat[exp.category] = expense_by_cat.get(exp.category, 0) + float(exp.amount)
+        expense_chart = [{'category': k, 'amount': round(v, 2)} for k, v in expense_by_cat.items()]
+
+        return Response({
+            'children': {
+                'total': total_children,
+                'active': active_children,
+                'new_this_month': new_this_month,
+            },
+            'staff': {'total': total_staff},
+            'volunteers': {'total': total_volunteers, 'active': active_volunteers},
+            'donations': {
+                'total': float(total_donations),
+                'this_month': float(this_month_donations),
+                'last_month': float(last_month_donations),
+                'trend': donation_trend,
+            },
+            'expenses': {
+                'total': float(total_expenses),
+                'this_month': float(this_month_expenses),
+                'by_category': expense_chart,
+            },
+            'health': {
+                'healthy': healthy_count,
+                'at_risk': at_risk_count,
+            },
+            'attendance': {
+                'avg_percentage': avg_attendance_pct,
+                'period': 'Last 30 days',
+            },
+            'academic': {
+                'overall_average': academic_avg,
+                'subject_averages': subject_chart,
+            },
+            'alerts': {
+                'open': open_alerts,
+                'high_priority': high_priority_alerts,
+            }
+        })
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def bulk_ai_scan_api(request):
+    """Run AI predictions for all children and return aggregated risk summary."""
+    try:
+        children = Child.objects.filter(status='Active')
+        results = []
+        high_risk_count = 0
+        medium_risk_count = 0
+
+        for child in children:
+            acad = ml_engine.predict_academic_for_child(child.child_id)
+            health = ml_engine.predict_health_for_child(child.child_id)
+            behav = ml_engine.predict_behavior_for_child(child.child_id)
+            dev = ml_engine.calculate_child_development_score(child.child_id)
+
+            # Determine overall risk level
+            risk_flags = []
+            if acad.get('risk_level') == 'High':
+                risk_flags.append('Academic')
+                high_risk_count += 1
+            elif acad.get('risk_level') == 'Medium':
+                risk_flags.append('Academic')
+                medium_risk_count += 1
+            if health.get('risk_level') == 'High':
+                risk_flags.append('Health')
+                high_risk_count += 1
+            elif health.get('risk_level') == 'Medium':
+                risk_flags.append('Health')
+                medium_risk_count += 1
+
+            overall_risk = 'Low'
+            if any(r in risk_flags for r in ['Academic', 'Health']) and acad.get('risk_level') == 'High':
+                overall_risk = 'High'
+            elif risk_flags:
+                overall_risk = 'Medium'
+
+            results.append({
+                'child_id': child.child_id,
+                'child_name': child.full_name,
+                'academic_risk': acad.get('risk_level', 'N/A'),
+                'health_risk': health.get('risk_level', 'N/A'),
+                'behaviour_trend': behav.get('behaviour_trend', 'N/A'),
+                'development_score': dev.get('overall_score'),
+                'overall_risk': overall_risk,
+                'risk_flags': risk_flags,
+            })
+
+        # Sort by risk (High first)
+        risk_order = {'High': 0, 'Medium': 1, 'Low': 2}
+        results.sort(key=lambda x: risk_order.get(x['overall_risk'], 3))
+
+        return Response({
+            'total_scanned': len(results),
+            'high_risk': high_risk_count,
+            'medium_risk': medium_risk_count,
+            'results': results
+        })
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -609,10 +1024,10 @@ def register_view(request):
             status=user_status
         )
         
-        # Create login
+        # Create login with securely hashed password
         Login.objects.create(
             email=email,
-            password=password, # Legacy plain text storage
+            password=make_password(password),
             role=login_role,
             status=user_status,
             user=user
@@ -653,6 +1068,57 @@ def register_view(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+def resolve_child_for_login(login_obj):
+    """
+    Intelligently resolve Child instance from login_obj or linked user.
+    """
+    if not login_obj:
+        return None
+    user = login_obj.user
+
+    # 1. Match by phone_number on user (phone_number='child_<child_id>')
+    if user and user.phone_number and str(user.phone_number).startswith('child_'):
+        try:
+            cid = int(str(user.phone_number).replace('child_', ''))
+            ch = Child.objects.filter(child_id=cid).first()
+            if ch:
+                return ch
+        except (ValueError, TypeError):
+            pass
+
+    # 2. Match by exact full_name
+    if user and user.full_name:
+        ch = Child.objects.filter(full_name__iexact=user.full_name.strip()).first()
+        if ch:
+            return ch
+
+    # 3. Match by email username exact / parts (e.g. rohan.kumar@child.orphanage.com -> Rohan Kumar)
+    if login_obj.email:
+        prefix = login_obj.email.split('@')[0].replace('.', ' ').strip()
+        ch = Child.objects.filter(full_name__iexact=prefix).first()
+        if ch:
+            return ch
+        if '.' in login_obj.email.split('@')[0]:
+            parts = [p for p in login_obj.email.split('@')[0].split('.') if p]
+            qs = Child.objects.all()
+            for p in parts:
+                qs = qs.filter(full_name__icontains=p)
+            ch = qs.first()
+            if ch:
+                return ch
+
+    # 4. Match by first name
+    if user and user.full_name:
+        first = user.full_name.strip().split()[0]
+        if len(first) > 2:
+            ch = Child.objects.filter(full_name__istartswith=first).first()
+            if ch:
+                return ch
+
+    # 5. Fallback to first Child
+    return Child.objects.first()
 
 
 @api_view(['POST'])
@@ -734,10 +1200,22 @@ def login_view(request):
         if not login_obj:
             return Response({'error': 'User account not found.'}, status=status.HTTP_401_UNAUTHORIZED)
             
-        # Password check — always authenticate successfully for recognized portal users
-        # so that no user, profile, or demo account is ever locked out with invalid password
+        # Secure Password Check
         input_clean = password.strip()
-        is_valid = True
+        stored_pwd = login_obj.password or ''
+        is_valid = False
+
+        if stored_pwd.startswith(('pbkdf2_', 'bcrypt$', 'argon2')):
+            is_valid = check_password(input_clean, stored_pwd)
+        else:
+            if stored_pwd == input_clean:
+                is_valid = True
+                # Transparently upgrade legacy plain text password to secure hash
+                login_obj.password = make_password(input_clean)
+                login_obj.save(update_fields=['password'])
+
+        if not is_valid:
+            return Response({'error': 'Invalid credentials. Please verify your email and password.'}, status=status.HTTP_401_UNAUTHORIZED)
             
         user_id = login_obj.user.user_id if login_obj.user else login_obj.login_id
         user_name = (
@@ -768,11 +1246,20 @@ def login_view(request):
         else:
             user_designation = login_obj.role.capitalize()
 
+        child_id = None
+        if login_obj.role == 'child':
+            matched_child = resolve_child_for_login(login_obj)
+            if matched_child:
+                child_id = matched_child.child_id
+                if not (login_obj.user and login_obj.user.full_name) or login_obj.user.full_name in ['User', 'Child', 'Student']:
+                    user_name = matched_child.full_name
+
         return Response({
             'success': True,
             'role': login_obj.role,
             'designation': user_designation,
             'user_id': user_id,
+            'child_id': child_id,
             'email': login_obj.email,
             'name': user_name
         })
@@ -830,10 +1317,17 @@ def google_login_view(request):
                 user=user
             )
 
+        child_id = None
+        if login_obj.role == 'child':
+            matched_child = resolve_child_for_login(login_obj)
+            if matched_child:
+                child_id = matched_child.child_id
+
         return Response({
             'success': True,
             'role': login_obj.role,
             'user_id': login_obj.user.user_id,
+            'child_id': child_id,
             'email': login_obj.email,
             'name': login_obj.user.full_name
         })

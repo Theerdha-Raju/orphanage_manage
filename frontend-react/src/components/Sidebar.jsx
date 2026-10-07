@@ -17,6 +17,7 @@ export default function Sidebar({ isOpen, onClose }) {
       ]},
       { section: 'Management', items: [
         { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
+        { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Child Care & Attendance' },
         { path: '/staff-dashboard',         icon: 'bi-person-workspace',      label: 'Staff & Caregivers' },
         { path: '/volunteer-management',    icon: 'bi-people-fill',            label: 'Volunteers' },
         { path: '/donor-management',        icon: 'bi-heart-fill',             label: 'Donors' },
@@ -41,7 +42,8 @@ export default function Sidebar({ isOpen, onClose }) {
         { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Caregiver Dashboard' },
       ]},
       { section: 'Child Care Operations', items: [
-        { path: '/child-profile',           icon: 'bi-person-lines-fill',      label: 'Child Care & Attendance' },
+        { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Child Care & Attendance' },
+        { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
       ]},
       { section: 'Account', items: [
         { path: '/profile',                 icon: 'bi-person-circle',          label: 'My Profile' },
@@ -52,7 +54,8 @@ export default function Sidebar({ isOpen, onClose }) {
         { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Teacher Dashboard' },
       ]},
       { section: 'Educational Activities', items: [
-        { path: '/child-profile',           icon: 'bi-person-lines-fill',      label: 'Child Records' },
+        { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
+        { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Attendance Records' },
         { path: '/academic-management',     icon: 'bi-journal-bookmark-fill',  label: 'Academics & Progress' },
       ]},
       { section: 'Account', items: [
@@ -64,7 +67,8 @@ export default function Sidebar({ isOpen, onClose }) {
         { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Doctor Dashboard' },
       ]},
       { section: 'Health & Observations', items: [
-        { path: '/child-profile',           icon: 'bi-person-lines-fill',      label: 'Child Records' },
+        { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
+        { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Daily Attendance' },
         { path: '/health-management',       icon: 'bi-heart-pulse-fill',       label: 'Health & Medical Tasks' },
       ]},
       { section: 'Account', items: [
@@ -95,6 +99,7 @@ export default function Sidebar({ isOpen, onClose }) {
         { path: '/child-dashboard',       icon: 'bi-stars',                   label: 'My Dashboard' },
       ]},
       { section: 'My Records', items: [
+        { path: '/child-profile',        icon: 'bi-person-heart',            label: 'Child Profiles' },
         { path: '/academic-management',  icon: 'bi-journal-bookmark-fill',    label: 'My Learning' },
         { path: '/health-management',    icon: 'bi-heart-pulse-fill',         label: 'Health Record' },
         { path: '/ai-prediction',        icon: 'bi-cpu-fill',                 label: 'AI Growth Path' },

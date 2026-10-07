@@ -94,6 +94,9 @@ class Donation(models.Model):
     donation_type = models.CharField(max_length=20)
     amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     item_description = models.CharField(max_length=500, blank=True, null=True)
+    purpose = models.CharField(max_length=100, default='General Welfare', blank=True)
+    receipt_number = models.CharField(max_length=50, blank=True, null=True)
+    payment_method = models.CharField(max_length=50, default='Online Transfer', blank=True)
     donation_date = models.DateField()
     status = models.CharField(max_length=20, default='Received')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -178,6 +181,11 @@ class Education(models.Model):
     class_name = models.CharField(max_length=50)
     subject = models.CharField(max_length=100)
     marks = models.DecimalField(max_digits=5, decimal_places=2)
+    assignment_marks = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    internal_marks = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    exam_marks = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    term = models.CharField(max_length=50, default='Annual Exam', blank=True)
+    teacher = models.ForeignKey(Users, models.SET_NULL, blank=True, null=True, related_name='recorded_educations')
     exam_date = models.DateField()
     remarks = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -191,7 +199,14 @@ class Health(models.Model):
     child = models.ForeignKey(Child, models.CASCADE)
     height_cm = models.DecimalField(max_digits=5, decimal_places=2)
     weight_kg = models.DecimalField(max_digits=5, decimal_places=2)
+    bmi = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True)
     checkup_date = models.DateField()
+    medical_history = models.TextField(blank=True, null=True)
+    vaccination_status = models.CharField(max_length=100, default='Up to Date', blank=True)
+    allergies = models.CharField(max_length=200, blank=True, null=True)
+    medications = models.TextField(blank=True, null=True)
+    doctor_remarks = models.TextField(blank=True, null=True)
+    doctor = models.ForeignKey(Users, models.SET_NULL, blank=True, null=True, related_name='recorded_health_records')
     notes = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, default='Healthy')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -212,16 +227,70 @@ class Achievement(models.Model):
     class Meta:
         db_table = 'achievement'
 
+class Behaviour(models.Model):
+    CATEGORY_CHOICES = [
+        ('Social', 'Social Interaction'),
+        ('Emotional', 'Emotional Wellbeing'),
+        ('Discipline', 'Discipline & Conduct'),
+        ('Extracurricular', 'Extracurricular & Sports'),
+        ('Academic', 'Academic Engagement'),
+    ]
+    PARTICIPATION_CHOICES = [
+        ('High', 'High / Active Participation'),
+        ('Medium', 'Moderate Participation'),
+        ('Low', 'Needs Encouragement / Low'),
+    ]
+
+    behaviour_id = models.AutoField(primary_key=True)
+    child = models.ForeignKey(Child, models.CASCADE, related_name='behaviour_records')
+    recorded_by = models.ForeignKey(Users, models.SET_NULL, blank=True, null=True, related_name='recorded_behaviours')
+    observation_date = models.DateField()
+    behaviour_category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='Social')
+    incident_count = models.IntegerField(default=0)
+    interaction_score = models.DecimalField(max_digits=3, decimal_places=1, default=8.0) # 1.0 to 10.0
+    participation_level = models.CharField(max_length=50, choices=PARTICIPATION_CHOICES, default='High')
+    social_activities = models.TextField(blank=True, null=True)
+    extracurricular_activities = models.TextField(blank=True, null=True)
+    observations = models.TextField(blank=True, null=True)
+    caregiver_remarks = models.TextField(blank=True, null=True)
+    recommended_intervention = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'behaviour'
+
+    def __str__(self):
+        return f"{self.child.full_name} - {self.behaviour_category} ({self.observation_date})"
+
 class Alert(models.Model):
+    PRIORITY_CHOICES = [
+        ('High', 'High'),
+        ('Medium', 'Medium'),
+        ('Low', 'Low'),
+    ]
+    STATUS_CHOICES = [
+        ('Open', 'Open'),
+        ('In Progress', 'In Progress'),
+        ('Resolved', 'Resolved'),
+    ]
+
     alert_id = models.AutoField(primary_key=True)
     child = models.ForeignKey(Child, models.CASCADE)
-    alert_type = models.CharField(max_length=20)
+    alert_type = models.CharField(max_length=50) # e.g. Low Attendance, Academic Risk, Health Follow-up, Behaviour Concern
     message = models.TextField()
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='Medium')
     created_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default='Open')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Open')
+    assigned_to = models.ForeignKey(Users, models.SET_NULL, blank=True, null=True, related_name='assigned_alerts')
+    resolved_at = models.DateTimeField(blank=True, null=True)
+    resolution_notes = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = 'alert'
+
+    def __str__(self):
+        return f"[{self.priority}] {self.alert_type} - {self.child.full_name}"
 
 class Expense(models.Model):
     CATEGORY_CHOICES = [

@@ -193,14 +193,26 @@ TEST_REGISTRY = [
 
 
 def run_all():
+    is_live = "--live" in sys.argv or "--headed" in sys.argv
+    if is_live:
+        headless = False
+    elif "--headless" in sys.argv:
+        headless = True
+    else:
+        env_val = os.environ.get("HEADLESS", os.environ.get("SELENIUM_HEADLESS", "true")).lower()
+        headless = env_val not in ("false", "0", "no", "headed", "live")
+
+    mode_label = "LIVE BROWSER (Watching on screen)" if not headless else "HEADLESS (Background)"
+
     print("=" * 70)
     print("  HOPENEST ORPHANAGE MANAGEMENT SYSTEM - SELENIUM TEST AUTOMATION")
     print("=" * 70)
     print(f"Target URL: {BASE_URL}")
+    print(f"Mode:       {mode_label}")
     print(f"Total Test Scenarios: {len(TEST_REGISTRY)}")
     print("-" * 70)
 
-    driver = get_chrome_driver(headless=True)
+    driver = get_chrome_driver(headless=headless)
     results = []
     total_start = time.time()
 

@@ -124,21 +124,21 @@ def test_landing_page_branding(driver, ctx: TestContext):
 
 
 def test_landing_page_features_and_stats(driver, ctx: TestContext):
-    """Verify feature cards, stats counters, and testimonials on the landing page."""
+    """Verify AI module cards, stats counters, and landing page elements."""
     driver.get(BASE_URL)
     time.sleep(1)
 
-    # Check feature modules
-    feature_cards = driver.find_elements(By.CLASS_NAME, "feature-card")
-    ctx.log(f"Found {len(feature_cards)} feature cards on landing page")
-    assert len(feature_cards) >= 6, f"Expected at least 6 feature cards, found {len(feature_cards)}"
+    # Check AI service modules
+    ai_cards = driver.find_elements(By.CLASS_NAME, "ai-card")
+    ctx.log(f"Found {len(ai_cards)} AI service cards on landing page")
+    assert len(ai_cards) >= 6, f"Expected at least 6 AI service cards, found {len(ai_cards)}"
 
     # Check stats counters
     stat_items = driver.find_elements(By.CLASS_NAME, "hero-stat-item")
     ctx.log(f"Found {len(stat_items)} stat counters on landing page")
     assert len(stat_items) >= 4, f"Expected at least 4 stat counters, found {len(stat_items)}"
 
-    ctx.capture_screenshot("features_and_stats")
+    ctx.capture_screenshot("services_and_stats")
 
 
 def test_landing_page_navigation_to_login(driver, ctx: TestContext):

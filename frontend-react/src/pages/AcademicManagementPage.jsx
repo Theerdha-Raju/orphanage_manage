@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
+import { getLoggedInChild } from '../utils/childAuth';
 
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 const gradeColor = { 'A+': 'badge-green', A: 'badge-green', B: 'badge-accent', C: 'badge-amber', D: 'badge-rose', F: 'badge-rose' };
 
@@ -10,17 +11,22 @@ const emptyForm = { child: '', class_name: '', subject: '', marks: '', exam_date
 
 export default function AcademicManagementPage() {
   const { toggleSidebar } = useOutletContext();
-  const [records, setRecords]     = useState([]);
-  const [children, setChildren]   = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editRecord, setEdit]     = useState(null);
-  const [msg, setMsg]             = useState('');
-  const [search, setSearch]       = useState('');
-  const [form, setForm]           = useState(emptyForm);
-  const [saving, setSaving]       = useState(false);
+  const [records, setRecords]         = useState([]);
+  const [children, setChildren]       = useState([]);
+  const [currentChild, setCurrentChild] = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [showModal, setShowModal]     = useState(false);
+  const [editRecord, setEdit]         = useState(null);
+  const [msg, setMsg]                 = useState('');
+  const [search, setSearch]           = useState('');
+  const [form, setForm]               = useState(emptyForm);
+  const [saving, setSaving]           = useState(false);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  // Role-based filtering: child sees only their own records
+  const userRole = localStorage.getItem('userRole') || '';
+  const isChild  = userRole === 'child';
 
   const loadData = () => {
     setLoading(true);
@@ -28,8 +34,17 @@ export default function AcademicManagementPage() {
       fetch(`${API}/education/`).then(r => r.json()).catch(() => []),
       fetch(`${API}/children/`).then(r => r.json()).catch(() => []),
     ]).then(([e, c]) => {
-      setRecords(Array.isArray(e) ? e : []);
-      setChildren(Array.isArray(c) ? c : []);
+      const allChildren = Array.isArray(c) ? c : [];
+      setChildren(allChildren);
+      if (isChild) {
+        const myChild = getLoggedInChild(allChildren);
+        setCurrentChild(myChild);
+        const myChildId = myChild ? myChild.child_id : null;
+        const allRecords = Array.isArray(e) ? e : [];
+        setRecords(myChildId ? allRecords.filter(r => String(r.child) === String(myChildId)) : []);
+      } else {
+        setRecords(Array.isArray(e) ? e : []);
+      }
     }).finally(() => setLoading(false));
   };
 
@@ -47,7 +62,10 @@ export default function AcademicManagementPage() {
 
   const openAdd = () => {
     setEdit(null);
-    setForm(emptyForm);
+    setForm({
+      ...emptyForm,
+      child: isChild && currentChild ? currentChild.child_id : '',
+    });
     setShowModal(true);
   };
 
@@ -137,11 +155,13 @@ export default function AcademicManagementPage() {
         <div className="page-banner">
           <div>
             <div className="section-label">Education</div>
-            <div className="page-banner-title">Academic Progress ({records.length})</div>
-            <div className="page-banner-sub">Track marks, subjects, and learning outcomes for all children</div>
+            <div className="page-banner-title">{isChild ? `My Academic Progress (${records.length})` : `Academic Progress (${records.length})`}</div>
+            <div className="page-banner-sub">
+              {isChild ? `Personal academic records and scores for ${currentChild?.full_name || 'you'}` : 'Track marks, subjects, and learning outcomes for all children'}
+            </div>
           </div>
           <button className="btn btn-primary" onClick={openAdd}>
-            <i className="bi bi-plus-lg" /> Add Record
+            <i className="bi bi-plus-lg" /> {isChild ? 'Add My Learning Record' : 'Add Record'}
           </button>
         </div>
 
@@ -187,7 +207,7 @@ export default function AcademicManagementPage() {
                 <th>Grade</th>
                 <th>Exam Date</th>
                 <th>Remarks</th>
-                <th>Actions</th>
+                {!isChild && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -201,7 +221,15 @@ export default function AcademicManagementPage() {
                 </td></tr>
               ) : filtered.map((r, i) => {
                 const childObj = children.find(ch => ch.child_id === r.child);
-                const ageYrs = childObj?.date_of_birth ? (new Date().getFullYear() - new Date(childObj.date_of_birth).getFullYear()) : 0;
+                const calcAge = (dob) => {
+                  if (!dob) return 0;
+                  const today = new Date();
+                  const birth = new Date(dob);
+                  let age = today.getFullYear() - birth.getFullYear();
+                  if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+                  return age;
+                };
+                const ageYrs = calcAge(childObj?.date_of_birth);
                 const isBelow5 = ageYrs < 5;
                 const aadhar = childObj?.aadhar_number || `4839 ${1020 + (r.child || 1) * 17} ${9000 + (r.child || 1) * 23}`;
 
@@ -212,7 +240,7 @@ export default function AcademicManagementPage() {
                     <td>
                       <span className={`badge ${isBelow5 ? 'badge-amber' : 'badge-cyan'}`} style={{ fontSize: '0.7rem', padding: '0.15rem 0.45rem' }}>
                         <i className={`bi ${isBelow5 ? 'bi-balloon-fill' : 'bi-mortarboard-fill'}`} style={{ marginRight: '0.25rem' }} />
-                        {isBelow5 ? 'Below 5 Yrs' : '5+ Yrs (School)'}
+                        {ageYrs > 0 ? `${ageYrs} Yrs${isBelow5 ? '' : ' (School)'}` : '—'}
                       </span>
                     </td>
                     <td>
@@ -233,12 +261,14 @@ export default function AcademicManagementPage() {
                     <td><span className={`badge ${gradeColor[toGrade(r.marks)] || 'badge-muted'}`}>{toGrade(r.marks)}</span></td>
                     <td style={{ fontSize: '0.82rem' }}>{r.exam_date}</td>
                     <td style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{r.remarks?.slice(0, 40) || '—'}</td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)} title="Edit"><i className="bi bi-pencil" /></button>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r.education_id)} title="Delete"><i className="bi bi-trash" /></button>
-                      </div>
-                    </td>
+                    {!isChild && (
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)} title="Edit"><i className="bi bi-pencil" /></button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r.education_id)} title="Delete"><i className="bi bi-trash" /></button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -259,11 +289,29 @@ export default function AcademicManagementPage() {
             </div>
             <form onSubmit={handleSave}>
               <div className="form-group">
-                <label className="form-label">Child *</label>
-                <select className="form-control" value={form.child} onChange={e => set('child', e.target.value)} required>
-                  <option value="">— Select Child —</option>
-                  {children.map(c => <option key={c.child_id} value={c.child_id}>{c.full_name}</option>)}
-                </select>
+                <label className="form-label">Child / Student *</label>
+                {isChild ? (
+                  <div style={{
+                    padding: '0.65rem 0.95rem',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <i className="bi bi-person-fill" style={{ color: 'var(--accent)' }} />
+                    {currentChild?.full_name || localStorage.getItem('userName') || 'My Profile'}
+                    <span className="badge badge-accent" style={{ marginLeft: 'auto', fontSize: '0.72rem' }}>Personal Record</span>
+                  </div>
+                ) : (
+                  <select className="form-control" value={form.child} onChange={e => set('child', e.target.value)} required>
+                    <option value="">— Select Child —</option>
+                    {children.map(c => <option key={c.child_id} value={c.child_id}>{c.full_name}</option>)}
+                  </select>
+                )}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">

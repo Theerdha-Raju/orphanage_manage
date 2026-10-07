@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import { requestApi } from '../apiConfig';
+import { getLoggedInChild } from '../utils/childAuth';
 
 export default function ChildDashboardPage() {
   const { toggleSidebar } = useOutletContext();
@@ -27,7 +28,7 @@ export default function ChildDashboardPage() {
     async function loadStudentData() {
       setLoading(true);
       try {
-        // Fetch all children to identify current logged-in child
+        // Fetch all base data concurrently
         const [cRes, eduAllRes, achRes, evRes] = await Promise.all([
           requestApi('/api/children/').then(r => r.json()).catch(() => []),
           requestApi('/api/education/').then(r => r.json()).catch(() => []),
@@ -38,11 +39,8 @@ export default function ChildDashboardPage() {
         const children = Array.isArray(cRes) ? cRes : [];
         setChildrenList(children);
 
-        // Match child by user's full name or fallback to child_id = 4 (Rohan Kumar)
-        const matched = children.find(c => 
-          (c.full_name && userName && c.full_name.trim().toLowerCase() === userName.trim().toLowerCase()) ||
-          (c.full_name && c.full_name.toLowerCase().includes(userName.split(' ')[0].toLowerCase()))
-        ) || children.find(c => c.child_id === 4) || children[0] || null;
+        // Intelligently match child using unified resolver
+        const matched = getLoggedInChild(children);
 
         setCurrentChild(matched);
 
@@ -63,9 +61,16 @@ export default function ChildDashboardPage() {
           setEvents(evRes);
         }
 
-        // If matched child found, fetch child-specific records
         const targetChildId = matched ? matched.child_id : 4;
-        await fetchChildDetails(targetChildId, matched ? matched.full_name : userName);
+
+        // Instantly populate education and achievements from already-fetched datasets (0ms overhead)
+        const childEdu = Array.isArray(eduAllRes) ? eduAllRes.filter(r => r.child === targetChildId) : [];
+        const childAch = Array.isArray(achRes) ? achRes.filter(r => r.child === targetChildId) : [];
+        if (childEdu.length > 0) setEducation(childEdu);
+        if (childAch.length > 0) setAchievements(childAch);
+
+        // Fetch remaining child-specific records (health & attendance) in parallel
+        await fetchChildDetails(targetChildId, matched ? matched.full_name : userName, childEdu, childAch);
 
       } catch (err) {
         console.error('Error loading child dashboard:', err);
@@ -77,28 +82,37 @@ export default function ChildDashboardPage() {
     loadStudentData();
   }, [userName, userId]);
 
-  // Fetch child-specific education, health, attendance, achievements
-  const fetchChildDetails = async (childId, studentName) => {
+  // Fetch child-specific health, attendance, and fallback records
+  const fetchChildDetails = async (childId, studentName, preloadedEdu = [], preloadedAch = []) => {
     try {
-      const [eduRes, hRes, attRes, achRes] = await Promise.all([
-        requestApi(`/api/education/?child=${childId}`).then(r => r.json()).catch(() => []),
+      const promises = [
         requestApi(`/api/health/?child=${childId}`).then(r => r.json()).catch(() => []),
         requestApi(`/api/attendance/?child=${childId}`).then(r => r.json()).catch(() => []),
-        requestApi(`/api/achievements/?child=${childId}`).then(r => r.json()).catch(() => []),
-      ]);
+      ];
 
-      if (Array.isArray(eduRes) && eduRes.length > 0) {
-        setEducation(eduRes);
-      } else {
-        // Fallback default subjects for student if fresh account
-        setEducation([
-          { education_id: 1, subject: 'Computer Science', marks: 85.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Quick learner in beginner algorithms and digital literacy.' },
-          { education_id: 2, subject: 'Mathematics', marks: 84.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Outstanding logic in algebra and arithmetic problem solving.' },
-          { education_id: 3, subject: 'English Language', marks: 81.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Strong comprehension skills and active reading participation.' },
-          { education_id: 4, subject: 'General Science', marks: 78.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Great curiosity in physics and biology experimental demonstrations.' },
-          { education_id: 5, subject: 'Social Studies', marks: 76.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Good understanding of world geography and history timelines.' },
-          { education_id: 6, subject: 'Environmental Studies', marks: 72.4, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Active participation in green campus tree plantation projects.' },
-        ]);
+      // Only fetch education or achievements if not already present in the preloaded set
+      if (preloadedEdu.length === 0) {
+        promises.push(requestApi(`/api/education/?child=${childId}`).then(r => r.json()).catch(() => []));
+      }
+      if (preloadedAch.length === 0) {
+        promises.push(requestApi(`/api/achievements/?child=${childId}`).then(r => r.json()).catch(() => []));
+      }
+
+      const [hRes, attRes, extraEdu, extraAch] = await Promise.all(promises);
+
+      if (preloadedEdu.length === 0) {
+        if (Array.isArray(extraEdu) && extraEdu.length > 0) {
+          setEducation(extraEdu);
+        } else {
+          setEducation([
+            { education_id: 1, subject: 'Computer Science', marks: 85.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Quick learner in beginner algorithms and digital literacy.' },
+            { education_id: 2, subject: 'Mathematics', marks: 84.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Outstanding logic in algebra and arithmetic problem solving.' },
+            { education_id: 3, subject: 'English Language', marks: 81.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Strong comprehension skills and active reading participation.' },
+            { education_id: 4, subject: 'General Science', marks: 78.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Great curiosity in physics and biology experimental demonstrations.' },
+            { education_id: 5, subject: 'Social Studies', marks: 76.0, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Good understanding of world geography and history timelines.' },
+            { education_id: 6, subject: 'Environmental Studies', marks: 72.4, class_name: 'Class 5 - Sec A', exam_date: '2026-08-20', remarks: 'Active participation in green campus tree plantation projects.' },
+          ]);
+        }
       }
 
       if (Array.isArray(hRes) && hRes.length > 0) {
@@ -117,14 +131,16 @@ export default function ChildDashboardPage() {
         setAttendance(attRes);
       }
 
-      if (Array.isArray(achRes) && achRes.length > 0) {
-        setAchievements(achRes);
-      } else {
-        setAchievements([
-          { achievement_id: 1, title: '1st Place - Inter-School Science Fair 2026', category: 'Academic', achievement_date: '2026-08-18', description: 'Designed an innovative solar-powered drip irrigation model that won top honors.' },
-          { achievement_id: 2, title: 'Math Star of the Month (August 2026)', category: 'Academic', achievement_date: '2026-08-28', description: 'Maintained a 100% score on weekly speed-math and logical reasoning quizzes.' },
-          { achievement_id: 3, title: 'Junior Football Tournament Runner-Up', category: 'Sports', achievement_date: '2026-07-30', description: 'Key mid-fielder representation in the City Youth Inter-Wing Championship.' }
-        ]);
+      if (preloadedAch.length === 0) {
+        if (Array.isArray(extraAch) && extraAch.length > 0) {
+          setAchievements(extraAch);
+        } else {
+          setAchievements([
+            { achievement_id: 1, title: '1st Place - Inter-School Science Fair 2026', category: 'Academic', achievement_date: '2026-08-18', description: 'Designed an innovative solar-powered drip irrigation model that won top honors.' },
+            { achievement_id: 2, title: 'Math Star of the Month (August 2026)', category: 'Academic', achievement_date: '2026-08-28', description: 'Maintained a 100% score on weekly speed-math and logical reasoning quizzes.' },
+            { achievement_id: 3, title: 'Junior Football Tournament Runner-Up', category: 'Sports', achievement_date: '2026-07-30', description: 'Key mid-fielder representation in the City Youth Inter-Wing Championship.' }
+          ]);
+        }
       }
     } catch (e) {
       console.warn('Error fetching specific child details:', e);

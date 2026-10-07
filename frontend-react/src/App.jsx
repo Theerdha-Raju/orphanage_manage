@@ -18,6 +18,7 @@ import VolunteerDashboardPage from './pages/VolunteerDashboardPage';
 import ChildDashboardPage from './pages/ChildDashboardPage';
 
 import ChildProfilePage from './pages/ChildProfilePage';
+import AttendancePage from './pages/AttendancePage';
 import DonationPage from './pages/DonationPage';
 import ExpenseManagementPage from './pages/ExpenseManagementPage';
 import VolunteerManagementPage from './pages/VolunteerManagementPage';
@@ -109,6 +110,11 @@ export default function App() {
           <Route path="/child-profile" element={
             <ProtectedRoute allowedRoles={['admin', 'staff', 'caregiver', 'teacher', 'doctor', 'child']}>
               <ChildProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/child-attendance" element={
+            <ProtectedRoute allowedRoles={['admin', 'staff', 'caregiver', 'teacher', 'doctor']}>
+              <AttendancePage />
             </ProtectedRoute>
           } />
           <Route path="/donation" element={

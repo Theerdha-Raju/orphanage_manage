@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
+import { getLoggedInChild } from '../utils/childAuth';
 
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 const getPhotoUrl = (photo) => {
   if (!photo) return null;
   if (typeof photo !== 'string') return null;
   if (photo.startsWith('http://') || photo.startsWith('https://')) return photo;
-  if (photo.startsWith('/media/')) return `http://localhost:8000${photo}`;
-  if (photo.startsWith('/')) return `http://localhost:8000${photo}`;
-  return `http://localhost:8000/media/${photo}`;
+  if (photo.startsWith('/media/')) return photo;
+  if (photo.startsWith('/')) return photo;
+  return `/media/${photo}`;
 };
 
 const emptyForm = {
@@ -73,16 +74,30 @@ function Avatar({ child, size = 36, idx = 0 }) {
 }
 
 // ─── Comprehensive Child Detail Modal ───────────────────────────────────────
-function ChildDetailModal({ child, eduRecords, healthRecords, achieveRecords, attendRecords, onClose, onEdit, onDelete, idx }) {
+function ChildDetailModal({ child, eduRecords, healthRecords, achieveRecords, attendRecords, behavRecords = [], onClose, onEdit, onDelete, idx }) {
   const [tab, setTab] = useState('personal');
+  const [devScore, setDevScore] = useState(null);
+  const [devLoading, setDevLoading] = useState(false);
 
   const childEdu = eduRecords.filter(r => r.child === child.child_id);
   const childHealth = healthRecords.filter(r => r.child === child.child_id);
   const childAchieve = achieveRecords.filter(r => r.child === child.child_id);
   const childAttend = attendRecords.filter(r => r.child === child.child_id);
+  const childBehav = behavRecords.filter(r => r.child === child.child_id);
   const presentCount = childAttend.filter(r => r.attendance_status === 'Present').length;
   const totalCount = childAttend.length;
   const attPct = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : null;
+
+  useEffect(() => {
+    if (tab === 'development' && !devScore) {
+      setDevLoading(true);
+      fetch(`${API}/children/${child.child_id}/development-score/`)
+        .then(r => r.json())
+        .then(data => setDevScore(data))
+        .catch(() => {})
+        .finally(() => setDevLoading(false));
+    }
+  }, [tab, child.child_id]);
 
   const { label: ageLabel, years: ageYrs } = calcAge(child.date_of_birth);
   const statusColors = { Active: 'badge-green', Inactive: 'badge-muted', Adopted: 'badge-accent' };
@@ -98,8 +113,10 @@ function ChildDetailModal({ child, eduRecords, healthRecords, achieveRecords, at
     { key: 'guardian', icon: 'bi-people-fill', label: 'Parent / Guardian' },
     { key: 'study', icon: 'bi-mortarboard-fill', label: `Study (${childEdu.length})` },
     { key: 'health', icon: 'bi-heart-pulse-fill', label: `Health (${childHealth.length})` },
-    { key: 'achievements', icon: 'bi-trophy-fill', label: `Awards (${childAchieve.length})` },
     { key: 'attendance', icon: 'bi-calendar-check-fill', label: `Attend.` },
+    { key: 'behaviour', icon: 'bi-emoji-smile-fill', label: `Behaviour (${childBehav.length})` },
+    { key: 'achievements', icon: 'bi-trophy-fill', label: `Awards (${childAchieve.length})` },
+    { key: 'development', icon: 'bi-speedometer2', label: 'AI Score' },
   ];
 
   return (
@@ -139,6 +156,83 @@ function ChildDetailModal({ child, eduRecords, healthRecords, achieveRecords, at
 
         {/* Tab Body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 0.25rem 0.5rem' }}>
+
+          {/* ── DEVELOPMENT SCORE (AI) ── */}
+          {tab === 'development' && (
+            <div>
+              {devLoading ? (
+                <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: 'var(--text-muted)' }}>
+                  <span className="spinner" style={{ margin: '0 auto 0.75rem', width: 28, height: 28 }} />
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Analyzing records & computing AI development score...</div>
+                </div>
+              ) : devScore && devScore.dimensions ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  {/* Overall Banner */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(79,70,229,0.12), rgba(124,58,237,0.12))',
+                    border: '1px solid rgba(124,58,237,0.25)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6366f1', fontWeight: 700 }}>
+                        <i className="bi bi-cpu-fill me-1" /> Overall Development Index
+                      </div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+                        {devScore.overall_score !== null ? devScore.overall_score : '—'} <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)' }}>/ 100</span>
+                      </div>
+                    </div>
+                    <span className="badge" style={{
+                      padding: '0.4rem 0.8rem',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      background: (devScore.overall_score >= 80 ? 'rgba(34,197,94,0.15)' : devScore.overall_score >= 65 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'),
+                      color: (devScore.overall_score >= 80 ? '#16a34a' : devScore.overall_score >= 65 ? '#d97706' : '#dc2626'),
+                      border: `1px solid ${devScore.overall_score >= 80 ? '#86efac' : devScore.overall_score >= 65 ? '#fde68a' : '#fca5a5'}`
+                    }}>
+                      {devScore.overall_status}
+                    </span>
+                  </div>
+
+                  {/* 5-Dimension Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.65rem' }}>
+                    {Object.entries(devScore.dimensions).map(([key, dim]) => (
+                      <div key={key} style={{
+                        background: 'var(--bg-surface-3)',
+                        borderRadius: '0.55rem',
+                        padding: '0.75rem 0.9rem',
+                        border: '1px solid rgba(255,255,255,0.08)'
+                      }}>
+                        <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--text-muted)', fontWeight: 700 }}>
+                          {dim.label}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginTop: '0.25rem' }}>
+                          <span style={{
+                            fontSize: '1.25rem',
+                            fontWeight: 800,
+                            color: dim.score !== null ? (dim.score >= 80 ? '#10b981' : dim.score >= 60 ? '#f59e0b' : '#ef4444') : '#64748b'
+                          }}>
+                            {dim.score !== null ? `${dim.score}%` : '—'}
+                          </span>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                            {dim.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                  <i className="bi bi-info-circle" style={{ fontSize: '1.5rem', display: 'block', marginBottom: '0.5rem', color: '#94a3b8' }} />
+                  Development score calculation unavailable.
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ── PERSONAL ── */}
           {tab === 'personal' && (
@@ -460,8 +554,8 @@ function ChildDetailModal({ child, eduRecords, healthRecords, achieveRecords, at
 function AllChildrenModal({ children, eduRecords, healthRecords, achieveRecords, attendRecords, onClose, onViewChild, onEdit }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  // Default to ALL children expanded so all details are displayed immediately without blank space
-  const [expandedIds, setExpandedIds] = useState(() => new Set(children.map(c => c.child_id)));
+  // Default to first 3 children expanded so modal opens instantaneously without layout freezing
+  const [expandedIds, setExpandedIds] = useState(() => new Set(children.slice(0, 3).map(c => c.child_id)));
 
   const toggleExpand = (id) => {
     setExpandedIds(prev => {
@@ -1046,23 +1140,53 @@ export default function ChildProfilePage() {
   const [saving, setSaving]           = useState(false);
   const [msg, setMsg]                 = useState('');
 
+  const userRole = localStorage.getItem('userRole') || '';
+  const isChild  = userRole === 'child';
+
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const loadAll = () => {
+  const loadAll = async () => {
     setLoading(true);
-    Promise.all([
-      fetch(`${API}/children/`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/education/`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/health/`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/achievements/`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/attendance/`).then(r => r.json()).catch(() => []),
-    ]).then(([cData, eData, hData, aData, attData]) => {
-      setChildren(Array.isArray(cData) ? cData : []);
-      setEduRecords(Array.isArray(eData) ? eData : []);
-      setHealthRecords(Array.isArray(hData) ? hData : []);
-      setAchieveRecords(Array.isArray(aData) ? aData : []);
-      setAttendRecords(Array.isArray(attData) ? attData : []);
-    }).finally(() => setLoading(false));
+    const fetchJson = async (url) => {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timer);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      } catch {
+        return [];
+      }
+    };
+
+    try {
+      // 1. Fetch children FIRST and unblock table immediately so UI renders in milliseconds
+      const cData = await fetchJson(`${API}/children/`);
+      if (isChild) {
+        const myChild = getLoggedInChild(cData);
+        setChildren(myChild ? [myChild] : cData.slice(0, 1));
+      } else {
+        setChildren(cData);
+      }
+      setLoading(false);
+
+      // 2. Fetch supporting records asynchronously in background for modal use
+      Promise.all([
+        fetchJson(`${API}/education/`),
+        fetchJson(`${API}/health/`),
+        fetchJson(`${API}/achievements/`),
+        fetchJson(`${API}/attendance/`),
+      ]).then(([eData, hData, aData, attData]) => {
+        setEduRecords(eData);
+        setHealthRecords(hData);
+        setAchieveRecords(aData);
+        setAttendRecords(attData);
+      });
+    } catch {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadAll(); }, []);
@@ -1199,40 +1323,46 @@ export default function ChildProfilePage() {
       <div className="page-body">
         <div className="page-banner">
           <div>
-            <div className="section-label">Children Management</div>
-            <div className="page-banner-title">Child Profiles ({children.length})</div>
-            <div className="page-banner-sub">View, add, edit, and manage all children in the orphanage</div>
+            <div className="section-label">{isChild ? 'My Profile' : 'Children Management'}</div>
+            <div className="page-banner-title">{isChild ? 'My Child Profile' : `Child Profiles (${children.length})`}</div>
+            <div className="page-banner-sub">
+              {isChild ? 'Your personal profile and registered records' : 'View, add, edit, and manage all children in the orphanage'}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
-            <button className="btn btn-secondary" onClick={() => setShowAllModal(true)}>
-              <i className="bi bi-people-fill" /> All Children Details
-            </button>
-            <button className="btn btn-primary" onClick={openAdd}>
-              <i className="bi bi-person-plus-fill" /> Add Child
-            </button>
-          </div>
+          {!isChild && (
+            <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+              <button className="btn btn-secondary" onClick={() => setShowAllModal(true)}>
+                <i className="bi bi-people-fill" /> All Children Details
+              </button>
+              <button className="btn btn-primary" onClick={openAdd}>
+                <i className="bi bi-person-plus-fill" /> Add Child
+              </button>
+            </div>
+          )}
         </div>
 
         {msg && <div className="alert alert-success"><i className="bi bi-check-circle-fill" /> {msg}</div>}
 
         {/* Search + Filter */}
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div className="input-wrap" style={{ flex: 1, minWidth: 220 }}>
-            <i className="bi bi-search input-icon" />
-            <input type="text" className="form-control" placeholder="Search by name, father, mother, or guardian..." value={search} onChange={e => setSearch(e.target.value)} />
+        {!isChild && (
+          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="input-wrap" style={{ flex: 1, minWidth: 220 }}>
+              <i className="bi bi-search input-icon" />
+              <input type="text" className="form-control" placeholder="Search by name, father, mother, or guardian..." value={search} onChange={e => setSearch(e.target.value)} />
+            </div>
+            <select className="form-control" style={{ width: 'auto', borderColor: 'var(--accent)' }} value=""
+              onChange={e => { if (e.target.value) { const f = children.find(c => c.child_id === parseInt(e.target.value)); if (f) openEdit(f); } }}>
+              <option value="">✏️ Quick Edit Child...</option>
+              {children.map(c => <option key={c.child_id} value={c.child_id}>{c.full_name} ({c.status})</option>)}
+            </select>
+            <select className="form-control" style={{ width: 'auto' }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+              <option value="All">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Adopted">Adopted</option>
+            </select>
           </div>
-          <select className="form-control" style={{ width: 'auto', borderColor: 'var(--accent)' }} value=""
-            onChange={e => { if (e.target.value) { const f = children.find(c => c.child_id === parseInt(e.target.value)); if (f) openEdit(f); } }}>
-            <option value="">✏️ Quick Edit Child...</option>
-            {children.map(c => <option key={c.child_id} value={c.child_id}>{c.full_name} ({c.status})</option>)}
-          </select>
-          <select className="form-control" style={{ width: 'auto' }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="All">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Adopted">Adopted</option>
-          </select>
-        </div>
+        )}
 
         {/* Table */}
         <div className="table-wrap" style={{ borderRadius: '0.85rem', border: '1px solid #e2e8f0', overflowX: 'auto', background: '#ffffff' }}>
@@ -1341,7 +1471,7 @@ export default function ChildProfilePage() {
                         {[
                           { icon: 'bi-eye', bg: '#eff6ff', border: '#bfdbfe', color: '#2563eb', title: 'View Details', action: () => setViewChild(c) },
                           { icon: 'bi-pencil', bg: '#f8fafc', border: '#e2e8f0', color: '#334155', title: 'Edit', action: () => openEdit(c) },
-                          { icon: 'bi-trash', bg: '#fef2f2', border: '#fecaca', color: '#dc2626', title: 'Delete', action: () => handleDelete(c.child_id, c.full_name) },
+                          ...(!isChild ? [{ icon: 'bi-trash', bg: '#fef2f2', border: '#fecaca', color: '#dc2626', title: 'Delete', action: () => handleDelete(c.child_id, c.full_name) }] : []),
                         ].map(({ icon, bg, border, color, title, action }) => (
                           <button key={icon} type="button" onClick={action} title={title}
                             style={{ width: 28, height: 28, borderRadius: 5, background: bg, border: `1px solid ${border}`, color, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>

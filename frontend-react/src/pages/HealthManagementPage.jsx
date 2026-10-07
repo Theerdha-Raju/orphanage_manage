@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
+import { getLoggedInChild } from '../utils/childAuth';
 
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 const statusColor = { Healthy: 'badge-green', 'Mild Risk': 'badge-amber', Critical: 'badge-rose', Underweight: 'badge-violet' };
 
@@ -10,16 +11,21 @@ const emptyForm = { child: '', height_cm: '', weight_kg: '', checkup_date: new D
 
 export default function HealthManagementPage() {
   const { toggleSidebar } = useOutletContext();
-  const [records, setRecords]     = useState([]);
-  const [children, setChildren]   = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editRecord, setEdit]     = useState(null);
-  const [msg, setMsg]             = useState('');
-  const [search, setSearch]       = useState('');
-  const [form, setForm]           = useState(emptyForm);
-  const [saving, setSaving]       = useState(false);
-  const [modalErr, setModalErr]   = useState('');
+  const [records, setRecords]         = useState([]);
+  const [children, setChildren]       = useState([]);
+  const [currentChild, setCurrentChild] = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [showModal, setShowModal]     = useState(false);
+  const [editRecord, setEdit]         = useState(null);
+  const [msg, setMsg]                 = useState('');
+  const [search, setSearch]           = useState('');
+  const [form, setForm]               = useState(emptyForm);
+  const [saving, setSaving]           = useState(false);
+  const [modalErr, setModalErr]       = useState('');
+
+  // Role-based filtering: child sees only their own records
+  const userRole   = localStorage.getItem('userRole') || '';
+  const isChild    = userRole === 'child';
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -29,8 +35,17 @@ export default function HealthManagementPage() {
       fetch(`${API}/health/`).then(r => r.json()).catch(() => []),
       fetch(`${API}/children/`).then(r => r.json()).catch(() => []),
     ]).then(([h, c]) => {
-      setRecords(Array.isArray(h) ? h : []);
-      setChildren(Array.isArray(c) ? c : []);
+      const allChildren = Array.isArray(c) ? c : [];
+      setChildren(allChildren);
+      if (isChild) {
+        const myChild = getLoggedInChild(allChildren);
+        setCurrentChild(myChild);
+        const myChildId = myChild ? myChild.child_id : null;
+        const allRecords = Array.isArray(h) ? h : [];
+        setRecords(myChildId ? allRecords.filter(r => String(r.child) === String(myChildId)) : []);
+      } else {
+        setRecords(Array.isArray(h) ? h : []);
+      }
     }).finally(() => setLoading(false));
   };
 
@@ -43,7 +58,10 @@ export default function HealthManagementPage() {
 
   const openAdd = () => {
     setEdit(null);
-    setForm(emptyForm);
+    setForm({
+      ...emptyForm,
+      child: isChild && currentChild ? currentChild.child_id : '',
+    });
     setModalErr('');
     setShowModal(true);
   };
@@ -149,11 +167,13 @@ export default function HealthManagementPage() {
         <div className="page-banner">
           <div>
             <div className="section-label">Healthcare</div>
-            <div className="page-banner-title">Health Monitoring ({records.length})</div>
-            <div className="page-banner-sub">Track medical checkups, BMI, and health status for all children</div>
+            <div className="page-banner-title">{isChild ? `My Health Records (${records.length})` : `Health Monitoring (${records.length})`}</div>
+            <div className="page-banner-sub">
+              {isChild ? `Personal health & checkup records for ${currentChild?.full_name || 'you'}` : 'Track medical checkups, BMI, and health status for all children'}
+            </div>
           </div>
           <button className="btn btn-green" onClick={openAdd}>
-            <i className="bi bi-plus-lg" /> Add Health Record
+            <i className="bi bi-plus-lg" /> {isChild ? 'Add My Health Record' : 'Add Health Record'}
           </button>
         </div>
 
@@ -191,7 +211,8 @@ export default function HealthManagementPage() {
             <thead>
               <tr>
                 <th>#</th><th>Child</th><th>Height (cm)</th><th>Weight (kg)</th>
-                <th>BMI</th><th>Checkup Date</th><th>Status</th><th>Notes</th><th>Actions</th>
+                <th>BMI</th><th>Checkup Date</th><th>Status</th><th>Notes</th>
+                {!isChild && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -218,12 +239,14 @@ export default function HealthManagementPage() {
                   <td style={{ fontSize: '0.82rem' }}>{r.checkup_date}</td>
                   <td><span className={`badge ${statusColor[r.status] || 'badge-muted'}`}>{r.status}</span></td>
                   <td style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{r.notes?.slice(0, 40) || '—'}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)} title="Edit"><i className="bi bi-pencil" /></button>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r.health_id)} title="Delete"><i className="bi bi-trash" /></button>
-                    </div>
-                  </td>
+                  {!isChild && (
+                    <td>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(r)} title="Edit"><i className="bi bi-pencil" /></button>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r.health_id)} title="Delete"><i className="bi bi-trash" /></button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -249,11 +272,29 @@ export default function HealthManagementPage() {
                 </div>
               )}
               <div className="form-group">
-                <label className="form-label">Child *</label>
-                <select className="form-control" value={form.child} onChange={e => set('child', e.target.value)} required>
-                  <option value="">— Select Child —</option>
-                  {children.map(c => <option key={c.child_id} value={c.child_id}>{c.full_name}</option>)}
-                </select>
+                <label className="form-label">Child / Patient *</label>
+                {isChild ? (
+                  <div style={{
+                    padding: '0.65rem 0.95rem',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <i className="bi bi-person-fill" style={{ color: '#4ade80' }} />
+                    {currentChild?.full_name || localStorage.getItem('userName') || 'My Profile'}
+                    <span className="badge badge-accent" style={{ marginLeft: 'auto', fontSize: '0.72rem' }}>Personal Record</span>
+                  </div>
+                ) : (
+                  <select className="form-control" value={form.child} onChange={e => set('child', e.target.value)} required>
+                    <option value="">— Select Child —</option>
+                    {children.map(c => <option key={c.child_id} value={c.child_id}>{c.full_name}</option>)}
+                  </select>
+                )}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div className="form-group">

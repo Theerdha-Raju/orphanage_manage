@@ -442,7 +442,7 @@
                 </div>
             </div>
             <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
-                <span class="meta-pill"><i class="bi bi-calendar3"></i> 2026-09-27 19:05:44</span>
+                <span class="meta-pill"><i class="bi bi-calendar3"></i> 2026-10-07 14:40:24</span>
                 <span class="meta-pill"><i class="bi bi-browser-chrome"></i> Headless Chrome</span>
                 <span class="meta-pill"><i class="bi bi-hdd-network"></i> http://localhost:5173</span>
             </div>
@@ -457,22 +457,22 @@
             </div>
             <div class="metric-card passed">
                 <div class="metric-label">Passed Tests <i class="bi bi-check-circle text-success"></i></div>
-                <div class="metric-val" style="color: var(--success);">26</div>
+                <div class="metric-val" style="color: var(--success);">24</div>
                 <div class="metric-sub">Verified functional</div>
             </div>
             <div class="metric-card failed">
                 <div class="metric-label">Failed Tests <i class="bi bi-x-circle text-danger"></i></div>
-                <div class="metric-val" style="color: var(--text-secondary);">0</div>
-                <div class="metric-sub">Zero defects identified</div>
+                <div class="metric-val" style="color: var(--danger);">2</div>
+                <div class="metric-sub">2 broken / defect</div>
             </div>
             <div class="metric-card rate">
                 <div class="metric-label">Pass Rate <i class="bi bi-percent" style="color: #a78bfa;"></i></div>
-                <div class="metric-val" style="color: #c084fc;">100.0%</div>
+                <div class="metric-val" style="color: #c084fc;">92.3%</div>
                 <div class="metric-sub">Success index</div>
             </div>
             <div class="metric-card duration">
                 <div class="metric-label">Duration <i class="bi bi-clock-history text-warning"></i></div>
-                <div class="metric-val" style="font-size: 1.8rem; font-family: 'JetBrains Mono', monospace;">176.8s</div>
+                <div class="metric-val" style="font-size: 1.8rem; font-family: 'JetBrains Mono', monospace;">260.7s</div>
                 <div class="metric-sub">Total execution time</div>
             </div>
         </section>
@@ -484,10 +484,10 @@
                     All Tests (26)
                 </button>
                 <button class="filter-btn" onclick="filterTests('pass')">
-                    <i class="bi bi-check-circle-fill text-success"></i> Passed (26)
+                    <i class="bi bi-check-circle-fill text-success"></i> Passed (24)
                 </button>
                 <button class="filter-btn" onclick="filterTests('fail')">
-                    <i class="bi bi-x-circle-fill text-danger"></i> Failed (0)
+                    <i class="bi bi-x-circle-fill text-danger"></i> Failed (2)
                 </button>
             </div>
             <input type="text" class="search-box" id="testSearch" placeholder="Search test name or module..." onkeyup="searchFilter()" />
@@ -506,7 +506,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.90s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 5.32s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-0"></i>
                 </div>
@@ -517,11 +517,11 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:02:47</span> <span class='log-text'>Navigating to http://localhost:5173</span></li>
-<li><span class='log-time'>19:02:51</span> <span class='log-text'>Page title verified: HopeNest — Intelligent Orphanage Management System</span></li>
-<li><span class='log-time'>19:02:51</span> <span class='log-text'>Navbar brand / logo confirmed</span></li>
-<li><span class='log-time'>19:02:51</span> <span class='log-text'>Hero section title found: 'Empowering Every Child's Bright Future'</span></li>
-<li><span class='log-time'>19:02:51</span> <span class='log-text'>Captured screenshot: test_01_test_landing_page_branding_landing_page.png</span></li>
+                    <li><span class='log-time'>14:36:03</span> <span class='log-text'>Navigating to http://localhost:5173</span></li>
+<li><span class='log-time'>14:36:08</span> <span class='log-text'>Page title verified: HopeNest — Intelligent Orphanage Management System</span></li>
+<li><span class='log-time'>14:36:08</span> <span class='log-text'>Navbar brand / logo confirmed</span></li>
+<li><span class='log-time'>14:36:08</span> <span class='log-text'>Hero section title found: 'Empowering Every Child's Bright Future'</span></li>
+<li><span class='log-time'>14:36:09</span> <span class='log-text'>Captured screenshot: test_01_test_landing_page_branding_landing_page.png</span></li>
                 </ul>
             </div>
             
@@ -547,7 +547,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 1.87s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 2.05s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-1"></i>
                 </div>
@@ -558,9 +558,9 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:02:53</span> <span class='log-text'>Found 6 feature cards on landing page</span></li>
-<li><span class='log-time'>19:02:53</span> <span class='log-text'>Found 5 stat counters on landing page</span></li>
-<li><span class='log-time'>19:02:53</span> <span class='log-text'>Captured screenshot: test_02_test_landing_page_features_and_stats_features_and_stats.png</span></li>
+                    <li><span class='log-time'>14:36:10</span> <span class='log-text'>Found 6 AI service cards on landing page</span></li>
+<li><span class='log-time'>14:36:10</span> <span class='log-text'>Found 5 stat counters on landing page</span></li>
+<li><span class='log-time'>14:36:11</span> <span class='log-text'>Captured screenshot: test_02_test_landing_page_features_and_stats_services_and_stats.png</span></li>
                 </ul>
             </div>
             
@@ -568,8 +568,8 @@
                 
             <div class="test-screenshot-wrap">
                 <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
-                <a href="screenshots/test_02_test_landing_page_features_and_stats_features_and_stats.png" target="_blank" title="Click to view full screenshot">
-                    <img src="screenshots/test_02_test_landing_page_features_and_stats_features_and_stats.png" class="test-thumbnail" alt="Screenshot for Landing Page Feature Modules & Metrics" />
+                <a href="screenshots/test_02_test_landing_page_features_and_stats_services_and_stats.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_02_test_landing_page_features_and_stats_services_and_stats.png" class="test-thumbnail" alt="Screenshot for Landing Page Feature Modules & Metrics" />
                 </a>
             </div>
             
@@ -586,7 +586,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.80s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.76s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-2"></i>
                 </div>
@@ -597,9 +597,9 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:02:55</span> <span class='log-text'>Locating 'Login' button in navbar</span></li>
-<li><span class='log-time'>19:02:55</span> <span class='log-text'>Successfully redirected to login page: http://localhost:5173/login</span></li>
-<li><span class='log-time'>19:02:57</span> <span class='log-text'>Captured screenshot: test_03_test_landing_page_navigation_to_login_nav_to_login.png</span></li>
+                    <li><span class='log-time'>14:36:12</span> <span class='log-text'>Locating 'Login' button in navbar</span></li>
+<li><span class='log-time'>14:36:13</span> <span class='log-text'>Successfully redirected to login page: http://localhost:5173/login</span></li>
+<li><span class='log-time'>14:36:14</span> <span class='log-text'>Captured screenshot: test_03_test_landing_page_navigation_to_login_nav_to_login.png</span></li>
                 </ul>
             </div>
             
@@ -625,7 +625,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.35s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.31s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-3"></i>
                 </div>
@@ -636,10 +636,10 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:02:58</span> <span class='log-text'>Forgot Password page rendered</span></li>
-<li><span class='log-time'>19:02:59</span> <span class='log-text'>Entered recovery email: recovery.test@orphanage.com</span></li>
-<li><span class='log-time'>19:03:00</span> <span class='log-text'>Password reset confirmation message displayed successfully</span></li>
-<li><span class='log-time'>19:03:00</span> <span class='log-text'>Captured screenshot: test_04_test_forgot_password_flow_forgot_password_success.png</span></li>
+                    <li><span class='log-time'>14:36:16</span> <span class='log-text'>Forgot Password page rendered</span></li>
+<li><span class='log-time'>14:36:16</span> <span class='log-text'>Entered recovery email: recovery.test@orphanage.com</span></li>
+<li><span class='log-time'>14:36:18</span> <span class='log-text'>Password reset confirmation message displayed successfully</span></li>
+<li><span class='log-time'>14:36:18</span> <span class='log-text'>Captured screenshot: test_04_test_forgot_password_flow_forgot_password_success.png</span></li>
                 </ul>
             </div>
             
@@ -665,7 +665,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 2.68s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 2.62s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-4"></i>
                 </div>
@@ -676,10 +676,10 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:02</span> <span class='log-text'>Register page opened</span></li>
-<li><span class='log-time'>19:03:02</span> <span class='log-text'>Verified presence of input fields</span></li>
-<li><span class='log-time'>19:03:03</span> <span class='log-text'>Form validation errors triggered and displayed as expected</span></li>
-<li><span class='log-time'>19:03:03</span> <span class='log-text'>Captured screenshot: test_05_test_register_page_elements_and_validation_register_validation.png</span></li>
+                    <li><span class='log-time'>14:36:19</span> <span class='log-text'>Register page opened</span></li>
+<li><span class='log-time'>14:36:19</span> <span class='log-text'>Verified presence of input fields</span></li>
+<li><span class='log-time'>14:36:20</span> <span class='log-text'>Form validation errors triggered and displayed as expected</span></li>
+<li><span class='log-time'>14:36:20</span> <span class='log-text'>Captured screenshot: test_05_test_register_page_elements_and_validation_register_validation.png</span></li>
                 </ul>
             </div>
             
@@ -695,18 +695,18 @@
             </div>
         </div>
         
-        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+        <div class="test-card status-fail" data-status="fail" data-category="Authentication">
             <div class="test-header" onclick="toggleTestDetails('test-detail-5')">
                 <div class="test-meta-left">
-                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <span class="status-icon"><i class="bi bi-x-circle-fill text-danger"></i></span>
                     <div>
                         <div class="test-title">Login Role Preset Selector Auto-Fill</div>
                         <div class="test-category-badge">Authentication</div>
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 9.45s</span>
-                    <span class="status-badge badge-pass">PASS</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.58s</span>
+                    <span class="status-badge badge-fail">FAIL</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-5"></i>
                 </div>
             </div>
@@ -716,21 +716,29 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:03</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:06</span> <span class='log-text'>Caregiver preset clicked: Auto-filled staff@orphanage.com</span></li>
-<li><span class='log-time'>19:03:06</span> <span class='log-text'>Donor preset clicked: Auto-filled donor@orphanage.com</span></li>
-<li><span class='log-time'>19:03:07</span> <span class='log-text'>Volunteer preset clicked: Auto-filled volunteer@orphanage.com</span></li>
-<li><span class='log-time'>19:03:11</span> <span class='log-text'>Student preset clicked: Auto-filled student@orphanage.com</span></li>
-<li><span class='log-time'>19:03:12</span> <span class='log-text'>Captured screenshot: test_06_test_login_role_pills_auto_fill_role_pills_tested.png</span></li>
+                    <li><span class='log-time'>14:36:20</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:23</span> <span class='log-text'>Test failed:</span></li>
+<li><span class='log-time'>14:36:24</span> <span class='log-text'>Captured screenshot: test_06_test_login_role_pills_auto_fill_failure.png</span></li>
                 </ul>
             </div>
             
                 
+            <div class="test-error">
+                <span class="detail-label"><i class="bi bi-bug-fill text-danger"></i> Failure Traceback:</span>
+                <pre class="error-pre"><code>Traceback (most recent call last):
+  File "C:\orphanage_manage\selenium_tests\run_tests.py", line 233, in run_all
+    func(driver, ctx)
+  File "C:\orphanage_manage\selenium_tests\test_suite.py", line 228, in test_login_role_pills_auto_fill
+    assert email_input.get_attribute("value") == "staff@orphanage.com"
+AssertionError
+</code></pre>
+            </div>
+            
                 
             <div class="test-screenshot-wrap">
                 <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
-                <a href="screenshots/test_06_test_login_role_pills_auto_fill_role_pills_tested.png" target="_blank" title="Click to view full screenshot">
-                    <img src="screenshots/test_06_test_login_role_pills_auto_fill_role_pills_tested.png" class="test-thumbnail" alt="Screenshot for Login Role Preset Selector Auto-Fill" />
+                <a href="screenshots/test_06_test_login_role_pills_auto_fill_failure.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_06_test_login_role_pills_auto_fill_failure.png" class="test-thumbnail" alt="Screenshot for Login Role Preset Selector Auto-Fill" />
                 </a>
             </div>
             
@@ -747,7 +755,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.24s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.55s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-6"></i>
                 </div>
@@ -758,13 +766,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:12</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:13</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:15</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:03:15</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:03:17</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:03:18</span> <span class='log-text'>Admin Dashboard verified</span></li>
-<li><span class='log-time'>19:03:19</span> <span class='log-text'>Captured screenshot: test_07_test_admin_login_success_admin_dashboard.png</span></li>
+                    <li><span class='log-time'>14:36:24</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:25</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:26</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:36:26</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:36:30</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:36:31</span> <span class='log-text'>Admin Dashboard verified</span></li>
+<li><span class='log-time'>14:36:31</span> <span class='log-text'>Captured screenshot: test_07_test_admin_login_success_admin_dashboard.png</span></li>
                 </ul>
             </div>
             
@@ -790,7 +798,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.41s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.42s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-7"></i>
                 </div>
@@ -801,13 +809,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:19</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:20</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:22</span> <span class='log-text'>Clicked role preset pill: Caregiver</span></li>
-<li><span class='log-time'>19:03:22</span> <span class='log-text'>Submitting credentials for staff (staff@orphanage.com)</span></li>
-<li><span class='log-time'>19:03:24</span> <span class='log-text'>Successfully logged in as staff, navigated to: http://localhost:5173/staff-dashboard</span></li>
-<li><span class='log-time'>19:03:25</span> <span class='log-text'>Caregiver Staff Dashboard verified</span></li>
-<li><span class='log-time'>19:03:25</span> <span class='log-text'>Captured screenshot: test_08_test_staff_login_success_staff_dashboard.png</span></li>
+                    <li><span class='log-time'>14:36:31</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:33</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:34</span> <span class='log-text'>Clicked role preset pill: Caregiver</span></li>
+<li><span class='log-time'>14:36:34</span> <span class='log-text'>Submitting credentials for staff (staff@orphanage.com)</span></li>
+<li><span class='log-time'>14:36:38</span> <span class='log-text'>Successfully logged in as staff, navigated to: http://localhost:5173/staff-dashboard</span></li>
+<li><span class='log-time'>14:36:39</span> <span class='log-text'>Caregiver Staff Dashboard verified</span></li>
+<li><span class='log-time'>14:36:39</span> <span class='log-text'>Captured screenshot: test_08_test_staff_login_success_staff_dashboard.png</span></li>
                 </ul>
             </div>
             
@@ -833,7 +841,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 5.99s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.82s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-8"></i>
                 </div>
@@ -844,13 +852,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:25</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:26</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:28</span> <span class='log-text'>Clicked role preset pill: Donor</span></li>
-<li><span class='log-time'>19:03:28</span> <span class='log-text'>Submitting credentials for donor (donor@orphanage.com)</span></li>
-<li><span class='log-time'>19:03:30</span> <span class='log-text'>Successfully logged in as donor, navigated to: http://localhost:5173/donor-dashboard</span></li>
-<li><span class='log-time'>19:03:31</span> <span class='log-text'>Donor Dashboard verified</span></li>
-<li><span class='log-time'>19:03:31</span> <span class='log-text'>Captured screenshot: test_09_test_donor_login_success_donor_dashboard.png</span></li>
+                    <li><span class='log-time'>14:36:39</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:40</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:41</span> <span class='log-text'>Clicked role preset pill: Donor</span></li>
+<li><span class='log-time'>14:36:42</span> <span class='log-text'>Submitting credentials for donor (donor@orphanage.com)</span></li>
+<li><span class='log-time'>14:36:45</span> <span class='log-text'>Successfully logged in as donor, navigated to: http://localhost:5173/donor-dashboard</span></li>
+<li><span class='log-time'>14:36:46</span> <span class='log-text'>Donor Dashboard verified</span></li>
+<li><span class='log-time'>14:36:47</span> <span class='log-text'>Captured screenshot: test_09_test_donor_login_success_donor_dashboard.png</span></li>
                 </ul>
             </div>
             
@@ -876,7 +884,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.44s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.87s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-9"></i>
                 </div>
@@ -887,13 +895,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:31</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:32</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:34</span> <span class='log-text'>Clicked role preset pill: Volunteer</span></li>
-<li><span class='log-time'>19:03:34</span> <span class='log-text'>Submitting credentials for volunteer (volunteer@orphanage.com)</span></li>
-<li><span class='log-time'>19:03:36</span> <span class='log-text'>Successfully logged in as volunteer, navigated to: http://localhost:5173/volunteer-dashboard</span></li>
-<li><span class='log-time'>19:03:37</span> <span class='log-text'>Volunteer Dashboard verified</span></li>
-<li><span class='log-time'>19:03:38</span> <span class='log-text'>Captured screenshot: test_10_test_volunteer_login_success_volunteer_dashboard.png</span></li>
+                    <li><span class='log-time'>14:36:47</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:48</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:49</span> <span class='log-text'>Clicked role preset pill: Volunteer</span></li>
+<li><span class='log-time'>14:36:49</span> <span class='log-text'>Submitting credentials for volunteer (volunteer@orphanage.com)</span></li>
+<li><span class='log-time'>14:36:53</span> <span class='log-text'>Successfully logged in as volunteer, navigated to: http://localhost:5173/volunteer-dashboard</span></li>
+<li><span class='log-time'>14:36:54</span> <span class='log-text'>Volunteer Dashboard verified</span></li>
+<li><span class='log-time'>14:36:55</span> <span class='log-text'>Captured screenshot: test_10_test_volunteer_login_success_volunteer_dashboard.png</span></li>
                 </ul>
             </div>
             
@@ -919,7 +927,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 6.76s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.78s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-10"></i>
                 </div>
@@ -930,13 +938,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:38</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:39</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:40</span> <span class='log-text'>Clicked role preset pill: Student</span></li>
-<li><span class='log-time'>19:03:41</span> <span class='log-text'>Submitting credentials for child (student@orphanage.com)</span></li>
-<li><span class='log-time'>19:03:43</span> <span class='log-text'>Successfully logged in as child, navigated to: http://localhost:5173/child-dashboard</span></li>
-<li><span class='log-time'>19:03:44</span> <span class='log-text'>Child Student Dashboard verified</span></li>
-<li><span class='log-time'>19:03:44</span> <span class='log-text'>Captured screenshot: test_11_test_child_student_login_success_child_dashboard.png</span></li>
+                    <li><span class='log-time'>14:36:55</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:56</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:36:57</span> <span class='log-text'>Clicked role preset pill: Student</span></li>
+<li><span class='log-time'>14:36:57</span> <span class='log-text'>Submitting credentials for child (student@orphanage.com)</span></li>
+<li><span class='log-time'>14:37:01</span> <span class='log-text'>Successfully logged in as child, navigated to: http://localhost:5173/child-dashboard</span></li>
+<li><span class='log-time'>14:37:02</span> <span class='log-text'>Child Student Dashboard verified</span></li>
+<li><span class='log-time'>14:37:02</span> <span class='log-text'>Captured screenshot: test_11_test_child_student_login_success_child_dashboard.png</span></li>
                 </ul>
             </div>
             
@@ -952,18 +960,18 @@
             </div>
         </div>
         
-        <div class="test-card status-pass" data-status="pass" data-category="Authentication">
+        <div class="test-card status-fail" data-status="fail" data-category="Authentication">
             <div class="test-header" onclick="toggleTestDetails('test-detail-11')">
                 <div class="test-meta-left">
-                    <span class="status-icon"><i class="bi bi-check-circle-fill text-success"></i></span>
+                    <span class="status-icon"><i class="bi bi-x-circle-fill text-danger"></i></span>
                     <div>
                         <div class="test-title">Invalid Credentials Rejection & Error Display</div>
                         <div class="test-category-badge">Authentication</div>
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 4.75s</span>
-                    <span class="status-badge badge-pass">PASS</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 3.47s</span>
+                    <span class="status-badge badge-fail">FAIL</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-11"></i>
                 </div>
             </div>
@@ -973,19 +981,90 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:44</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:47</span> <span class='log-text'>Submitting incorrect credentials</span></li>
-<li><span class='log-time'>19:03:47</span> <span class='log-text'>Expected authentication error banner is visible</span></li>
-<li><span class='log-time'>19:03:49</span> <span class='log-text'>Captured screenshot: test_12_test_invalid_credentials_error_display_invalid_login_error.png</span></li>
+                    <li><span class='log-time'>14:37:02</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:04</span> <span class='log-text'>Submitting incorrect credentials</span></li>
+<li><span class='log-time'>14:37:05</span> <span class='log-text'>Test failed: Message: element click intercepted: Element is not clickable at point (1003, 686)
+  (Session info: chrome=154.0.8037.98); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementclickinterceptedexception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6dd7c9d55+5a55]
+	chromedriver!(No symbol) [0x7ff6dd6ef540]
+	chromedriver!(No symbol) [0x7ff6dd5145fd]
+	chromedriver!(No symbol) [0x7ff6dd577a73]
+	chromedriver!(No symbol) [0x7ff6dd57567a]
+	chromedriver!(No symbol) [0x7ff6dd5729b7]
+	chromedriver!(No symbol) [0x7ff6dd571880]
+	chromedriver!(No symbol) [0x7ff6dd563828]
+	chromedriver!(No symbol) [0x7ff6dd5990ea]
+	chromedriver!(No symbol) [0x7ff6dd5630a6]
+	chromedriver!(No symbol) [0x7ff6dd5bfcd9]
+	chromedriver!(No symbol) [0x7ff6dd561a12]
+	chromedriver!(No symbol) [0x7ff6dd562823]
+	chromedriver!GetHandleVerifier [0x7ff6ddbe04b1+41c1b1]
+	chromedriver!GetHandleVerifier [0x7ff6ddc0e26b+449f6b]
+	chromedriver!GetHandleVerifier [0x7ff6ddc0274e+43e44e]
+	chromedriver!GetHandleVerifier [0x7ff6dd8c32fe+feffe]
+	chromedriver!(No symbol) [0x7ff6dd6fcb55]
+	chromedriver!(No symbol) [0x7ff6dd6f7f64]
+	chromedriver!(No symbol) [0x7ff6dd6f80f4]
+	chromedriver!(No symbol) [0x7ff6dd6e2e4c]
+	KERNEL32!BaseThreadInitThunk [0x7ffeb436cdf7+17]
+	ntdll!RtlUserThreadStart [0x7ffeb521ee4c+2c]</span></li>
+<li><span class='log-time'>14:37:06</span> <span class='log-text'>Captured screenshot: test_12_test_invalid_credentials_error_display_failure.png</span></li>
                 </ul>
             </div>
             
                 
+            <div class="test-error">
+                <span class="detail-label"><i class="bi bi-bug-fill text-danger"></i> Failure Traceback:</span>
+                <pre class="error-pre"><code>Traceback (most recent call last):
+  File "C:\orphanage_manage\selenium_tests\run_tests.py", line 233, in run_all
+    func(driver, ctx)
+  File "C:\orphanage_manage\selenium_tests\test_suite.py", line 331, in test_invalid_credentials_error_display
+    submit_btn.click()
+  File "C:\Users\rahul\AppData\Local\Programs\Python\Python312\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 112, in click
+    self._execute(Command.CLICK_ELEMENT)
+  File "C:\Users\rahul\AppData\Local\Programs\Python\Python312\Lib\site-packages\selenium\webdriver\remote\webelement.py", line 504, in _execute
+    return self._parent.execute(command, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rahul\AppData\Local\Programs\Python\Python312\Lib\site-packages\selenium\webdriver\remote\webdriver.py", line 506, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\rahul\AppData\Local\Programs\Python\Python312\Lib\site-packages\selenium\webdriver\remote\errorhandler.py", line 232, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted: Element is not clickable at point (1003, 686)
+  (Session info: chrome=154.0.8037.98); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementclickinterceptedexception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff6dd7c9d55+5a55]
+	chromedriver!(No symbol) [0x7ff6dd6ef540]
+	chromedriver!(No symbol) [0x7ff6dd5145fd]
+	chromedriver!(No symbol) [0x7ff6dd577a73]
+	chromedriver!(No symbol) [0x7ff6dd57567a]
+	chromedriver!(No symbol) [0x7ff6dd5729b7]
+	chromedriver!(No symbol) [0x7ff6dd571880]
+	chromedriver!(No symbol) [0x7ff6dd563828]
+	chromedriver!(No symbol) [0x7ff6dd5990ea]
+	chromedriver!(No symbol) [0x7ff6dd5630a6]
+	chromedriver!(No symbol) [0x7ff6dd5bfcd9]
+	chromedriver!(No symbol) [0x7ff6dd561a12]
+	chromedriver!(No symbol) [0x7ff6dd562823]
+	chromedriver!GetHandleVerifier [0x7ff6ddbe04b1+41c1b1]
+	chromedriver!GetHandleVerifier [0x7ff6ddc0e26b+449f6b]
+	chromedriver!GetHandleVerifier [0x7ff6ddc0274e+43e44e]
+	chromedriver!GetHandleVerifier [0x7ff6dd8c32fe+feffe]
+	chromedriver!(No symbol) [0x7ff6dd6fcb55]
+	chromedriver!(No symbol) [0x7ff6dd6f7f64]
+	chromedriver!(No symbol) [0x7ff6dd6f80f4]
+	chromedriver!(No symbol) [0x7ff6dd6e2e4c]
+	KERNEL32!BaseThreadInitThunk [0x7ffeb436cdf7+17]
+	ntdll!RtlUserThreadStart [0x7ffeb521ee4c+2c]
+
+</code></pre>
+            </div>
+            
                 
             <div class="test-screenshot-wrap">
                 <span class="detail-label"><i class="bi bi-camera-fill"></i> Screenshot Capture:</span>
-                <a href="screenshots/test_12_test_invalid_credentials_error_display_invalid_login_error.png" target="_blank" title="Click to view full screenshot">
-                    <img src="screenshots/test_12_test_invalid_credentials_error_display_invalid_login_error.png" class="test-thumbnail" alt="Screenshot for Invalid Credentials Rejection & Error Display" />
+                <a href="screenshots/test_12_test_invalid_credentials_error_display_failure.png" target="_blank" title="Click to view full screenshot">
+                    <img src="screenshots/test_12_test_invalid_credentials_error_display_failure.png" class="test-thumbnail" alt="Screenshot for Invalid Credentials Rejection & Error Display" />
                 </a>
             </div>
             
@@ -1002,7 +1081,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 9.96s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 10.89s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-12"></i>
                 </div>
@@ -1013,15 +1092,15 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:03:49</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:50</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:03:52</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:03:52</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:03:54</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:03:55</span> <span class='log-text'>Finding sidebar logout control</span></li>
-<li><span class='log-time'>19:03:57</span> <span class='log-text'>Successfully logged out and redirected to /login</span></li>
-<li><span class='log-time'>19:03:57</span> <span class='log-text'>Session storage verified clean</span></li>
-<li><span class='log-time'>19:03:59</span> <span class='log-text'>Captured screenshot: test_13_test_user_logout_flow_logout_success.png</span></li>
+                    <li><span class='log-time'>14:37:06</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:07</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:08</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:37:08</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:37:12</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:37:13</span> <span class='log-text'>Finding sidebar logout control</span></li>
+<li><span class='log-time'>14:37:15</span> <span class='log-text'>Successfully logged out and redirected to /login</span></li>
+<li><span class='log-time'>14:37:15</span> <span class='log-text'>Session storage verified clean</span></li>
+<li><span class='log-time'>14:37:17</span> <span class='log-text'>Captured screenshot: test_13_test_user_logout_flow_logout_success.png</span></li>
                 </ul>
             </div>
             
@@ -1047,7 +1126,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 4.01s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 4.36s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-13"></i>
                 </div>
@@ -1058,10 +1137,10 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:00</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:00</span> <span class='log-text'>Navigating to protected route /admin-dashboard without active session</span></li>
-<li><span class='log-time'>19:04:01</span> <span class='log-text'>Correctly redirected unauthorized user to: http://localhost:5173/login</span></li>
-<li><span class='log-time'>19:04:03</span> <span class='log-text'>Captured screenshot: test_14_test_unauthenticated_protected_route_unauth_protected_redirect.png</span></li>
+                    <li><span class='log-time'>14:37:17</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:17</span> <span class='log-text'>Navigating to protected route /admin-dashboard without active session</span></li>
+<li><span class='log-time'>14:37:19</span> <span class='log-text'>Correctly redirected unauthorized user to: http://localhost:5173/login</span></li>
+<li><span class='log-time'>14:37:21</span> <span class='log-text'>Captured screenshot: test_14_test_unauthenticated_protected_route_unauth_protected_redirect.png</span></li>
                 </ul>
             </div>
             
@@ -1087,7 +1166,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 9.27s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 10.99s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-14"></i>
                 </div>
@@ -1098,14 +1177,14 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:03</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:04</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:06</span> <span class='log-text'>Clicked role preset pill: Student</span></li>
-<li><span class='log-time'>19:04:06</span> <span class='log-text'>Submitting credentials for child (student@orphanage.com)</span></li>
-<li><span class='log-time'>19:04:08</span> <span class='log-text'>Successfully logged in as child, navigated to: http://localhost:5173/child-dashboard</span></li>
-<li><span class='log-time'>19:04:09</span> <span class='log-text'>Attempting access to restricted admin route: /expense-management</span></li>
-<li><span class='log-time'>19:04:11</span> <span class='log-text'>Access restriction verified. Final URL: http://localhost:5173/child-dashboard</span></li>
-<li><span class='log-time'>19:04:12</span> <span class='log-text'>Captured screenshot: test_15_test_child_rbac_restrictions_child_rbac_guard.png</span></li>
+                    <li><span class='log-time'>14:37:21</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:22</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:24</span> <span class='log-text'>Clicked role preset pill: Student</span></li>
+<li><span class='log-time'>14:37:24</span> <span class='log-text'>Submitting credentials for child (student@orphanage.com)</span></li>
+<li><span class='log-time'>14:37:28</span> <span class='log-text'>Successfully logged in as child, navigated to: http://localhost:5173/child-dashboard</span></li>
+<li><span class='log-time'>14:37:29</span> <span class='log-text'>Attempting access to restricted admin route: /expense-management</span></li>
+<li><span class='log-time'>14:37:31</span> <span class='log-text'>Access restriction verified. Final URL: http://localhost:5173/child-dashboard</span></li>
+<li><span class='log-time'>14:37:32</span> <span class='log-text'>Captured screenshot: test_15_test_child_rbac_restrictions_child_rbac_guard.png</span></li>
                 </ul>
             </div>
             
@@ -1131,7 +1210,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.44s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 9.79s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-15"></i>
                 </div>
@@ -1142,14 +1221,14 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:12</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:13</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:15</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:04:15</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:04:17</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:04:19</span> <span class='log-text'>Found 4 stat cards on Admin Dashboard</span></li>
-<li><span class='log-time'>19:04:19</span> <span class='log-text'>Found 3 Chart.js canvas elements</span></li>
-<li><span class='log-time'>19:04:20</span> <span class='log-text'>Captured screenshot: test_16_test_admin_dashboard_metrics_and_charts_admin_dashboard_charts.png</span></li>
+                    <li><span class='log-time'>14:37:32</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:33</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:35</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:37:35</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:37:39</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:37:41</span> <span class='log-text'>Found 4 stat cards on Admin Dashboard</span></li>
+<li><span class='log-time'>14:37:41</span> <span class='log-text'>Found 3 Chart.js canvas elements</span></li>
+<li><span class='log-time'>14:37:42</span> <span class='log-text'>Captured screenshot: test_16_test_admin_dashboard_metrics_and_charts_admin_dashboard_charts.png</span></li>
                 </ul>
             </div>
             
@@ -1175,7 +1254,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.39s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 13.48s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-16"></i>
                 </div>
@@ -1186,16 +1265,16 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:20</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:21</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:22</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:04:22</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:04:24</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:04:27</span> <span class='log-text'>Child Profile page loaded</span></li>
-<li><span class='log-time'>19:04:27</span> <span class='log-text'>Found child search input</span></li>
-<li><span class='log-time'>19:04:27</span> <span class='log-text'>Total child profile rows loaded: 1</span></li>
-<li><span class='log-time'>19:04:28</span> <span class='log-text'>Rows after search query: 1</span></li>
-<li><span class='log-time'>19:04:28</span> <span class='log-text'>Captured screenshot: test_17_test_child_profiles_management_child_profiles_table.png</span></li>
+                    <li><span class='log-time'>14:37:42</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:43</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:45</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:37:45</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:37:49</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:37:53</span> <span class='log-text'>Child Profile page loaded</span></li>
+<li><span class='log-time'>14:37:53</span> <span class='log-text'>Found child search input</span></li>
+<li><span class='log-time'>14:37:53</span> <span class='log-text'>Total child profile rows loaded: 37</span></li>
+<li><span class='log-time'>14:37:55</span> <span class='log-text'>Rows after search query: 36</span></li>
+<li><span class='log-time'>14:37:55</span> <span class='log-text'>Captured screenshot: test_17_test_child_profiles_management_child_profiles_table.png</span></li>
                 </ul>
             </div>
             
@@ -1221,7 +1300,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.60s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 12.69s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-17"></i>
                 </div>
@@ -1232,13 +1311,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:28</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:29</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:30</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:04:31</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:04:32</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:04:35</span> <span class='log-text'>Donor Management page and directory verified</span></li>
-<li><span class='log-time'>19:04:36</span> <span class='log-text'>Captured screenshot: test_18_test_donor_management_module_donor_management.png</span></li>
+                    <li><span class='log-time'>14:37:55</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:58</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:37:59</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:38:00</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:38:05</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:38:08</span> <span class='log-text'>Donor Management page and directory verified</span></li>
+<li><span class='log-time'>14:38:08</span> <span class='log-text'>Captured screenshot: test_18_test_donor_management_module_donor_management.png</span></li>
                 </ul>
             </div>
             
@@ -1264,7 +1343,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.21s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 17.90s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-18"></i>
                 </div>
@@ -1275,13 +1354,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:36</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:37</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:39</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:04:39</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:04:41</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:04:44</span> <span class='log-text'>Volunteer Management page verified</span></li>
-<li><span class='log-time'>19:04:44</span> <span class='log-text'>Captured screenshot: test_19_test_volunteer_management_module_volunteer_management.png</span></li>
+                    <li><span class='log-time'>14:38:08</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:10</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:14</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:38:15</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:38:20</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:38:25</span> <span class='log-text'>Volunteer Management page verified</span></li>
+<li><span class='log-time'>14:38:26</span> <span class='log-text'>Captured screenshot: test_19_test_volunteer_management_module_volunteer_management.png</span></li>
                 </ul>
             </div>
             
@@ -1307,7 +1386,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.42s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 12.59s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-19"></i>
                 </div>
@@ -1318,13 +1397,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:44</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:45</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:47</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:04:47</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:04:49</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:04:52</span> <span class='log-text'>Expense Management page verified</span></li>
-<li><span class='log-time'>19:04:52</span> <span class='log-text'>Captured screenshot: test_20_test_expense_management_module_expense_management.png</span></li>
+                    <li><span class='log-time'>14:38:26</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:28</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:30</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:38:30</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:38:34</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:38:38</span> <span class='log-text'>Expense Management page verified</span></li>
+<li><span class='log-time'>14:38:39</span> <span class='log-text'>Captured screenshot: test_20_test_expense_management_module_expense_management.png</span></li>
                 </ul>
             </div>
             
@@ -1350,7 +1429,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.61s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 12.18s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-20"></i>
                 </div>
@@ -1361,13 +1440,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:04:52</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:54</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:04:55</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:04:55</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:04:57</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:05:00</span> <span class='log-text'>Reports & Analytics page verified</span></li>
-<li><span class='log-time'>19:05:00</span> <span class='log-text'>Captured screenshot: test_21_test_reports_analytics_module_reports_page.png</span></li>
+                    <li><span class='log-time'>14:38:39</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:41</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:43</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:38:43</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:38:47</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:38:51</span> <span class='log-text'>Reports & Analytics page verified</span></li>
+<li><span class='log-time'>14:38:51</span> <span class='log-text'>Captured screenshot: test_21_test_reports_analytics_module_reports_page.png</span></li>
                 </ul>
             </div>
             
@@ -1393,7 +1472,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.66s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 12.40s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-21"></i>
                 </div>
@@ -1404,13 +1483,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:05:00</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:01</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:03</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:05:03</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:05:05</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:05:07</span> <span class='log-text'>Settings page verified</span></li>
-<li><span class='log-time'>19:05:08</span> <span class='log-text'>Captured screenshot: test_22_test_settings_module_settings_page.png</span></li>
+                    <li><span class='log-time'>14:38:51</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:54</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:38:56</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:38:56</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:39:00</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:39:03</span> <span class='log-text'>Settings page verified</span></li>
+<li><span class='log-time'>14:39:03</span> <span class='log-text'>Captured screenshot: test_22_test_settings_module_settings_page.png</span></li>
                 </ul>
             </div>
             
@@ -1436,7 +1515,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 10.00s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 13.02s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-22"></i>
                 </div>
@@ -1447,17 +1526,17 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:05:08</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:09</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:10</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:05:10</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:05:12</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:05:15</span> <span class='log-text'>Opened AI Predictions Hub</span></li>
-<li><span class='log-time'>19:05:16</span> <span class='log-text'>Switched to Health Risk Model (SVM) tab</span></li>
-<li><span class='log-time'>19:05:16</span> <span class='log-text'>Switched to Behavioral Pattern Model (KNN) tab</span></li>
-<li><span class='log-time'>19:05:17</span> <span class='log-text'>Switched to Growth Forecast Model tab</span></li>
-<li><span class='log-time'>19:05:17</span> <span class='log-text'>Switched back to Academic Model tab</span></li>
-<li><span class='log-time'>19:05:18</span> <span class='log-text'>Captured screenshot: test_23_test_ai_prediction_tabs_navigation_ai_prediction_tabs.png</span></li>
+                    <li><span class='log-time'>14:39:03</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:04</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:06</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:39:06</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:39:10</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:39:13</span> <span class='log-text'>Opened AI Predictions Hub</span></li>
+<li><span class='log-time'>14:39:14</span> <span class='log-text'>Switched to Health Risk Model (SVM) tab</span></li>
+<li><span class='log-time'>14:39:15</span> <span class='log-text'>Switched to Behavioral Pattern Model (KNN) tab</span></li>
+<li><span class='log-time'>14:39:15</span> <span class='log-text'>Switched to Growth Forecast Model tab</span></li>
+<li><span class='log-time'>14:39:16</span> <span class='log-text'>Switched back to Academic Model tab</span></li>
+<li><span class='log-time'>14:39:16</span> <span class='log-text'>Captured screenshot: test_23_test_ai_prediction_tabs_navigation_ai_prediction_tabs.png</span></li>
                 </ul>
             </div>
             
@@ -1483,7 +1562,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 8.83s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 12.26s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-23"></i>
                 </div>
@@ -1494,14 +1573,14 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:05:18</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:19</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:20</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:05:20</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:05:22</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:05:25</span> <span class='log-text'>Clicking 'Generate Prediction' button</span></li>
-<li><span class='log-time'>19:05:26</span> <span class='log-text'>AI prediction inference result successfully displayed on screen</span></li>
-<li><span class='log-time'>19:05:26</span> <span class='log-text'>Captured screenshot: test_24_test_ai_prediction_academic_run_ai_prediction_results.png</span></li>
+                    <li><span class='log-time'>14:39:16</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:18</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:19</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:39:19</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:39:24</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:39:27</span> <span class='log-text'>Clicking 'Generate Prediction' button</span></li>
+<li><span class='log-time'>14:39:28</span> <span class='log-text'>AI prediction inference result successfully displayed on screen</span></li>
+<li><span class='log-time'>14:39:29</span> <span class='log-text'>Captured screenshot: test_24_test_ai_prediction_academic_run_ai_prediction_results.png</span></li>
                 </ul>
             </div>
             
@@ -1527,7 +1606,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.34s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 11.60s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-24"></i>
                 </div>
@@ -1538,13 +1617,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:05:26</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:27</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:29</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:05:29</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:05:31</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:05:34</span> <span class='log-text'>Health Management page verified</span></li>
-<li><span class='log-time'>19:05:34</span> <span class='log-text'>Captured screenshot: test_25_test_health_management_module_health_management.png</span></li>
+                    <li><span class='log-time'>14:39:29</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:30</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:31</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:39:31</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:39:37</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:39:40</span> <span class='log-text'>Health Management page verified</span></li>
+<li><span class='log-time'>14:39:40</span> <span class='log-text'>Captured screenshot: test_25_test_health_management_module_health_management.png</span></li>
                 </ul>
             </div>
             
@@ -1570,7 +1649,7 @@
                     </div>
                 </div>
                 <div class="test-meta-right">
-                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 7.21s</span>
+                    <span class="test-duration"><i class="bi bi-stopwatch"></i> 16.80s</span>
                     <span class="status-badge badge-pass">PASS</span>
                     <i class="bi bi-chevron-down chevron-icon" id="chevron-test-detail-25"></i>
                 </div>
@@ -1581,13 +1660,13 @@
             <div class="test-logs">
                 <span class="detail-label"><i class="bi bi-terminal"></i> Execution Steps & Logs:</span>
                 <ul class="log-list">
-                    <li><span class='log-time'>19:05:34</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:35</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
-<li><span class='log-time'>19:05:36</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
-<li><span class='log-time'>19:05:36</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
-<li><span class='log-time'>19:05:38</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
-<li><span class='log-time'>19:05:41</span> <span class='log-text'>Academic Management page verified</span></li>
-<li><span class='log-time'>19:05:41</span> <span class='log-text'>Captured screenshot: test_26_test_academic_management_module_academic_management.png</span></li>
+                    <li><span class='log-time'>14:39:40</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:42</span> <span class='log-text'>Cleared localStorage, sessionStorage, and cookies</span></li>
+<li><span class='log-time'>14:39:44</span> <span class='log-text'>Clicked role preset pill: Administrator</span></li>
+<li><span class='log-time'>14:39:44</span> <span class='log-text'>Submitting credentials for admin (admin@orphanage.com)</span></li>
+<li><span class='log-time'>14:39:48</span> <span class='log-text'>Successfully logged in as admin, navigated to: http://localhost:5173/admin-dashboard</span></li>
+<li><span class='log-time'>14:39:57</span> <span class='log-text'>Academic Management page verified</span></li>
+<li><span class='log-time'>14:39:57</span> <span class='log-text'>Captured screenshot: test_26_test_academic_management_module_academic_management.png</span></li>
                 </ul>
             </div>
             

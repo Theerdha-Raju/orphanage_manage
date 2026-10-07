@@ -69,7 +69,8 @@ def clear_auth_and_go_to_login(driver, wait):
 
 
 def run():
-    driver = get_chrome_driver(headless=True)
+    is_live = "--live" in sys.argv or "--headed" in sys.argv
+    driver = get_chrome_driver(headless=False if is_live else None)
     wait = WebDriverWait(driver, 15)
     all_passed = True
     results = []

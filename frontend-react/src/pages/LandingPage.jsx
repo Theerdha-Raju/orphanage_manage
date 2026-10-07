@@ -9,14 +9,6 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-const features = [
-  { icon: 'bi-person-heart',         color: 'var(--accent)',  bg: 'var(--accent-light)',  title: 'Child Management',      desc: 'Comprehensive profiles, admission records, guardianship details, and full history tracking.' },
-  { icon: 'bi-heart-pulse-fill',     color: '#4ade80',        bg: 'var(--green-light)',   title: 'Health Monitoring',     desc: 'Track medical checkups, BMI, vaccination records, and get proactive health alerts.' },
-  { icon: 'bi-journal-bookmark-fill',color: '#a78bfa',        bg: 'var(--violet-light)',  title: 'Academic Progress',     desc: 'Monitor marks, attendance, learning achievements and generate academic reports.' },
-  { icon: 'bi-gift-fill',            color: '#fbbf24',        bg: 'var(--amber-light)',   title: 'Donation Management',   desc: 'Transparent cash and item donation tracking with donor receipts and audit logs.' },
-  { icon: 'bi-people-fill',          color: '#22d3ee',        bg: 'var(--cyan-light)',    title: 'Volunteer Network',     desc: 'Assign, schedule, and manage volunteers with skill matching and activity logs.' },
-  { icon: 'bi-cpu-fill',             color: '#fb7185',        bg: 'var(--rose-light)',    title: 'AI & ML Predictions',   desc: 'Random Forest & SVM models for academic trajectory, health risk, and growth forecasting.' },
-];
 
 const aiModules = [
   { icon: 'bi-graph-up-arrow',      color: 'var(--accent)',  title: 'Academic Prediction',    desc: 'Predict 6-month score trajectory using attendance and historical marks.' },
@@ -281,28 +273,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section className="features-section" id="features">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-label">Platform Features</div>
-            <h2 className="section-title">Everything You Need to Manage an Orphanage</h2>
-            <p className="section-sub">From child health to financial transparency — Orphanage Management covers every operational need with intelligent automation.</p>
-          </div>
-
-          <div className="features-grid">
-            {features.map(f => (
-              <div key={f.title} className="feature-card">
-                <div className="feature-icon" style={{ background: f.bg, color: f.color }}>
-                  <i className={`bi ${f.icon}`} />
-                </div>
-                <h4 className="feature-card-title">{f.title}</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── About Us ── */}
       <section className="section" id="about-us" style={{ background: 'var(--bg-surface)' }}>

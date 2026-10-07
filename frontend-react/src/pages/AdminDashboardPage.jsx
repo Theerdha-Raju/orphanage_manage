@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
@@ -6,6 +6,7 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement,
   LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler
 } from 'chart.js';
+import { requestApi } from '../apiConfig';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -22,6 +23,7 @@ const chartDefaults = {
 export default function AdminDashboardPage() {
   const { toggleSidebar } = useOutletContext();
   
+  const [loading, setLoading]             = useState(true);
   const [childrenCount, setChildrenCount] = useState('...');
   const [staffCount, setStaffCount]       = useState('...');
   const [volunteerCount, setVolunteerCount] = useState('...');
@@ -34,75 +36,32 @@ export default function AdminDashboardPage() {
   const [recentActivities, setRecentActivities]   = useState([]);
   const [aiAlerts, setAiAlerts]                   = useState([]);
 
-  useEffect(() => {
-    // 1. Fetch children
-    fetch('http://localhost:8000/api/children/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setChildrenCount(data.length.toString());
-      }).catch(() => {});
+  const loadDashboardData = useCallback(async () => {
+    setLoading(true);
+    try {
+      // 1. First attempt to load aggregated stats from unified endpoint
+      const statsRes = await requestApi('/api/dashboard/stats/').then(r => r.json()).catch(() => null);
 
-    // 2. Fetch staff
-    fetch('http://localhost:8000/api/users/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const count = data.filter(u => ['staff', 'caregiver', 'teacher', 'doctor'].includes((u.designation || '').toLowerCase())).length;
-          setStaffCount(count.toString());
-        }
-      }).catch(() => {});
+      if (statsRes && statsRes.children) {
+        // Populate KPIs from unified stats
+        setChildrenCount(statsRes.children.total?.toString() || '0');
+        setStaffCount(statsRes.staff?.total?.toString() || '0');
+        setVolunteerCount(statsRes.volunteers?.total?.toString() || '0');
 
-    // 3. Fetch volunteers
-    fetch('http://localhost:8000/api/volunteers/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setVolunteerCount(data.length.toString());
-      }).catch(() => {});
+        const thisMonthAmount = statsRes.donations?.this_month || 0;
+        let formattedRev = '₹' + thisMonthAmount.toLocaleString('en-IN');
+        if (thisMonthAmount >= 100000) formattedRev = '₹' + (thisMonthAmount / 100000).toFixed(1) + 'L';
+        else if (thisMonthAmount >= 1000) formattedRev = '₹' + (thisMonthAmount / 1000).toFixed(1) + 'K';
+        setRevenue(formattedRev);
+        setRevenueTrend(`₹${(statsRes.donations?.total || 0).toLocaleString('en-IN')} cumulative`);
 
-    // 4. Fetch donations & calculate monthly revenue and bar chart
-    fetch('http://localhost:8000/api/donations/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const now = new Date();
-          const currentMonth = now.getMonth() + 1;
-          const currentYear  = now.getFullYear();
-
-          const thisMonthDonations = data.filter(d => {
-            if (d.donation_type !== 'Money' || !d.donation_date) return false;
-            const [year, month] = d.donation_date.split('-').map(Number);
-            return year === currentYear && month === currentMonth;
-          });
-
-          const sum = thisMonthDonations.reduce((acc, d) => acc + (parseFloat(d.amount) || 0), 0);
-
-          let formatted;
-          if (sum >= 100000) formatted = '₹' + (sum / 100000).toFixed(1) + 'L';
-          else if (sum >= 1000) formatted = '₹' + (sum / 1000).toFixed(1) + 'K';
-          else formatted = '₹' + sum.toLocaleString('en-IN');
-
-          setRevenue(formatted);
-          setRevenueTrend(`${thisMonthDonations.length} donation(s) this month`);
-
-          // Group by month
-          const monthsMap = {};
-          data.filter(d => d.donation_type === 'Money' && d.donation_date).forEach(d => {
-            const m = d.donation_date.slice(0, 7); // YYYY-MM
-            monthsMap[m] = (monthsMap[m] || 0) + parseFloat(d.amount || 0);
-          });
-
-          const sortedMonths = Object.keys(monthsMap).sort();
-          const labels = sortedMonths.map(m => {
-            const [y, mn] = m.split('-');
-            return new Date(y, mn - 1).toLocaleString('default', { month: 'short' });
-          });
-          const totals = sortedMonths.map(m => monthsMap[m]);
-
+        // Populate donation chart
+        if (Array.isArray(statsRes.donations?.trend) && statsRes.donations.trend.length > 0) {
           setDonationChartData({
-            labels: labels.length ? labels : ['May', 'Jun', 'Jul', 'Aug'],
+            labels: statsRes.donations.trend.map(t => t.month),
             datasets: [{
               label: 'Donations (₹)',
-              data: totals.length ? totals : [40000, 195000, 100000, 200000],
+              data: statsRes.donations.trend.map(t => t.amount),
               backgroundColor: 'rgba(37,99,235,0.75)',
               borderColor: '#2563eb',
               borderWidth: 1,
@@ -110,48 +69,14 @@ export default function AdminDashboardPage() {
             }]
           });
         }
-      }).catch(() => {});
 
-    // 5. Fetch health records for doughnut chart
-    fetch('http://localhost:8000/api/health/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const healthy = data.filter(h => h.status === 'Healthy').length;
-          const mild    = data.filter(h => h.status === 'Mild Risk' || h.status === 'Underweight').length;
-          const crit    = data.filter(h => h.status === 'Critical').length;
-          setHealthDoughnutData({
-            labels: ['Healthy', 'Mild Risk', 'Critical'],
-            datasets: [{
-              data: [healthy, mild, crit],
-              backgroundColor: ['rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)', 'rgba(225,29,72,0.7)'],
-              borderColor: ['#10b981', '#f59e0b', '#e11d48'],
-              borderWidth: 1,
-            }]
-          });
-        }
-      }).catch(() => {});
-
-    // 6. Fetch Education records for Academic chart
-    fetch('http://localhost:8000/api/education/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const subjMap = {};
-          data.forEach(e => {
-            if (!subjMap[e.subject]) subjMap[e.subject] = [];
-            subjMap[e.subject].push(parseFloat(e.marks || 0));
-          });
-          const labels = Object.keys(subjMap);
-          const avgs = labels.map(s => {
-            const arr = subjMap[s];
-            return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
-          });
+        // Populate academic chart
+        if (Array.isArray(statsRes.academic?.subject_averages) && statsRes.academic.subject_averages.length > 0) {
           setAcademicChartData({
-            labels,
+            labels: statsRes.academic.subject_averages.map(s => s.subject.replace(' Language', '')),
             datasets: [{
               label: 'Avg Score %',
-              data: avgs,
+              data: statsRes.academic.subject_averages.map(s => s.avg),
               borderColor: '#2563eb',
               backgroundColor: 'rgba(37,99,235,0.1)',
               fill: true, tension: 0.4, borderWidth: 2.5,
@@ -159,25 +84,43 @@ export default function AdminDashboardPage() {
             }]
           });
         }
-      }).catch(() => {});
 
-    // 7. Fetch Alerts for recent activity & AI recommendations
-    fetch('http://localhost:8000/api/alerts/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setAiAlerts(data.slice(0, 3));
-          const activities = data.map(a => ({
-            icon: 'bi-cpu-fill',
-            color: '#60a5fa',
-            text: `${a.child_name || 'Child'}: ${a.message}`,
-            time: a.created_date ? new Date(a.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently'
-          }));
-          setRecentActivities(activities);
-        }
-      }).catch(() => {});
+        // Populate health doughnut
+        const healthyCount = statsRes.health?.healthy || 0;
+        const atRiskCount = statsRes.health?.at_risk || 0;
+        setHealthDoughnutData({
+          labels: ['Healthy / Optimal', 'At Risk / Attention'],
+          datasets: [{
+            data: [healthyCount, atRiskCount],
+            backgroundColor: ['rgba(16,185,129,0.7)', 'rgba(225,29,72,0.7)'],
+            borderColor: ['#10b981', '#e11d48'],
+            borderWidth: 1,
+          }]
+        });
+      }
 
+      // 2. Fetch live alerts for recent activity & AI recommendations
+      const alerts = await requestApi('/api/alerts/').then(r => r.json()).catch(() => []);
+      if (Array.isArray(alerts)) {
+        setAiAlerts(alerts.slice(0, 4));
+        const activities = alerts.map(a => ({
+          icon: 'bi-cpu-fill',
+          color: a.severity === 'Critical' ? '#ef4444' : a.severity === 'Warning' ? '#f59e0b' : '#3b82f6',
+          text: `${a.child_name || 'Child'}: ${a.message}`,
+          time: a.created_date ? new Date(a.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently'
+        }));
+        setRecentActivities(activities);
+      }
+    } catch (err) {
+      console.error('Error loading dashboard stats:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const stats = [
     { label: 'Total Children',    value: childrenCount, trend: 'Active', up: true,  icon: 'bi-person-heart',  iconClass: 'stat-icon-accent' },
@@ -188,7 +131,7 @@ export default function AdminDashboardPage() {
 
   return (
     <>
-      <TopHeader title="Admin Dashboard" onToggleSidebar={toggleSidebar} />
+      <TopHeader title="Admin Dashboard" />
 
       <div className="page-body">
         {/* Banner */}
@@ -198,7 +141,16 @@ export default function AdminDashboardPage() {
             <div className="page-banner-title">Orphanage Overview</div>
             <div className="page-banner-sub">Real-time metrics, health diagnostics, academic telemetry & financial logs</div>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button
+              onClick={loadDashboardData}
+              disabled={loading}
+              className="btn btn-outline btn-sm"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', borderColor: 'var(--border)' }}
+            >
+              <i className={`bi bi-arrow-clockwise ${loading ? 'bi-spin' : ''}`} />
+              {loading ? 'Syncing...' : 'Live Sync'}
+            </button>
             <span className="badge badge-accent">
               <i className="bi bi-cpu-fill" /> AI Engine Active
             </span>

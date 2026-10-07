@@ -17,13 +17,15 @@ export default function TopHeader({ title, onToggleSidebar }) {
   return (
     <header className="top-header">
       <div className="top-header-left">
-        <button
-          className="header-btn toggle-sidebar-btn"
-          onClick={onToggleSidebar}
-          aria-label="Toggle sidebar"
-        >
-          <i className="bi bi-list" />
-        </button>
+        {onToggleSidebar && (
+          <button
+            className="header-btn toggle-sidebar-btn"
+            onClick={onToggleSidebar}
+            aria-label="Toggle sidebar"
+          >
+            <i className="bi bi-list" />
+          </button>
+        )}
 
         {title && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>

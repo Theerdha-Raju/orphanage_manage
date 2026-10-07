@@ -12,12 +12,32 @@ export default function VolunteerDashboardPage() {
   const [volunteers, setVolunteers]   = useState([]);
   const [loading, setLoading]         = useState(true);
   const [showModal, setShowModal]     = useState(false);
+  const [editingAssignmentId, setEditingAssignmentId] = useState(null);
   const [saving, setSaving]           = useState(false);
   const [msg, setMsg]                 = useState('');
   const [modalErr, setModalErr]       = useState('');
   const [form, setForm]               = useState({ volunteer: '', event_name: '', assigned_date: new Date().toISOString().slice(0,10), status: 'Assigned' });
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const openAddAssignment = () => {
+    setEditingAssignmentId(null);
+    setForm({ volunteer: '', event_name: '', assigned_date: new Date().toISOString().slice(0,10), status: 'Assigned' });
+    setModalErr('');
+    setShowModal(true);
+  };
+
+  const openEditAssignment = (a) => {
+    setEditingAssignmentId(a.assignment_id);
+    setForm({
+      volunteer: a.volunteer?.toString() || '',
+      event_name: a.event_name || '',
+      assigned_date: a.assigned_date || new Date().toISOString().slice(0,10),
+      status: a.status || 'Assigned'
+    });
+    setModalErr('');
+    setShowModal(true);
+  };
 
   const fetchData = () => {
     setLoading(true);
@@ -50,17 +70,20 @@ export default function VolunteerDashboardPage() {
     }
 
     setSaving(true);
+    const url = editingAssignmentId ? `${API}/volunteer-assignments/${editingAssignmentId}/` : `${API}/volunteer-assignments/`;
+    const method = editingAssignmentId ? 'PUT' : 'POST';
     try {
-      const res = await fetch(`${API}/volunteer-assignments/`, {
-        method: 'POST',
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       });
       if (res.ok) {
         fetchData();
         setShowModal(false);
+        setEditingAssignmentId(null);
         setForm({ volunteer: '', event_name: '', assigned_date: new Date().toISOString().slice(0,10), status: 'Assigned' });
-        setMsg('Assignment created successfully.');
+        setMsg(editingAssignmentId ? 'Assignment updated successfully.' : 'Assignment created successfully.');
         setTimeout(() => setMsg(''), 3000);
       }
     } catch {} finally { setSaving(false); }
@@ -97,7 +120,7 @@ export default function VolunteerDashboardPage() {
             <div className="page-banner-sub">View assignments, manage volunteers, and see your impact.</div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <button className="btn btn-primary" onClick={openAddAssignment}>
               <i className="bi bi-plus-lg" /> Add Assignment
             </button>
             <Link to="/volunteer-management" className="btn btn-secondary">
@@ -137,11 +160,26 @@ export default function VolunteerDashboardPage() {
                 <div key={a.assignment_id || i} style={{ padding: '1rem', background: 'var(--bg-surface-3)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                     <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{a.event_name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                       <span className={`badge ${a.status === 'Completed' ? 'badge-green' : a.status === 'Assigned' ? 'badge-violet' : 'badge-amber'}`}>{a.status}</span>
-                      <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteAssignment(a.assignment_id)} title="Delete Assignment" style={{ padding: '0.1rem 0.3rem', color: 'var(--rose-400)' }}>
-                        <i className="bi bi-trash" />
-                      </button>
+                      <div className="action-btn-group">
+                        <button
+                          type="button"
+                          className="btn-icon-pencil"
+                          onClick={() => openEditAssignment(a)}
+                          title="Edit Assignment"
+                        >
+                          <i className="bi bi-pencil" />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-box-delete"
+                          onClick={() => handleDeleteAssignment(a.assignment_id)}
+                          title="Delete Assignment"
+                        >
+                          <i className="bi bi-trash" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '1rem' }}>
@@ -214,7 +252,7 @@ export default function VolunteerDashboardPage() {
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>
-                <i className="bi bi-calendar-plus-fill" style={{ color: 'var(--accent)', marginRight: '0.5rem' }} /> Create Assignment
+                <i className={`bi ${editingAssignmentId ? 'bi-pencil-square' : 'bi-calendar-plus-fill'}`} style={{ color: 'var(--accent)', marginRight: '0.5rem' }} /> {editingAssignmentId ? 'Edit Assignment' : 'Create Assignment'}
               </h4>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}><i className="bi bi-x-lg" /></button>
             </div>

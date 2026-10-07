@@ -265,38 +265,22 @@ export default function VolunteerManagementPage() {
                       </span>
                     </td>
                     <td style={{ padding: '0.55rem 0.4rem', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+                      <div className="action-btn-group">
                         <button
                           type="button"
+                          className="btn-icon-pencil"
                           onClick={() => openEdit(v)}
                           title="Edit Volunteer"
-                          style={{
-                            width: 26, height: 26,
-                            borderRadius: '5px',
-                            background: 'rgba(30, 41, 59, 0.9)',
-                            border: '1px solid rgba(255, 255, 255, 0.12)',
-                            color: '#f8fafc',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            cursor: 'pointer'
-                          }}
                         >
-                          <i className="bi bi-pencil" style={{ fontSize: '0.72rem' }} />
+                          <i className="bi bi-pencil" />
                         </button>
                         <button
                           type="button"
+                          className="btn-box-delete"
                           onClick={() => handleDelete(v.volunteer_id)}
                           title="Delete Volunteer"
-                          style={{
-                            width: 26, height: 26,
-                            borderRadius: '5px',
-                            background: 'rgba(153, 27, 27, 0.45)',
-                            border: '1px solid rgba(248, 113, 113, 0.35)',
-                            color: '#f87171',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            cursor: 'pointer'
-                          }}
                         >
-                          <i className="bi bi-trash" style={{ fontSize: '0.72rem' }} />
+                          <i className="bi bi-trash" />
                         </button>
                       </div>
                     </td>
