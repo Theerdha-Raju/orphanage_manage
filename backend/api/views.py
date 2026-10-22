@@ -2916,10 +2916,46 @@ def login_view(request):
         password = (data.get('password') or '').strip()
         requested_role = (data.get('role') or '').strip().lower()
         
+        # Auto-seed database if empty (common on fresh cloud deployment like Render)
+        if not Login.objects.exists():
+            try:
+                import seed_portal_users
+                seed_portal_users.seed_users()
+            except Exception as e:
+                logger.error(f"Auto-seed users error: {e}")
+
         # 1. Direct email match (case-insensitive)
         login_obj = None
         if email:
             login_obj = Login.objects.filter(email__iexact=email).first()
+
+        # If not found, check if it's a known preset account from seed_portal_users and create it on-demand
+        if not login_obj and email:
+            try:
+                import seed_portal_users
+                matching_acc = next((a for a in seed_portal_users.accounts if a['email'].lower() == email), None)
+                if matching_acc:
+                    user_obj, _ = Users.objects.get_or_create(
+                        phone_number=matching_acc['phone'],
+                        defaults={
+                            'full_name': matching_acc['name'],
+                            'gender': matching_acc.get('gender', 'Other'),
+                            'address': 'HopeNest Orphanage Campus',
+                            'designation': matching_acc['designation'],
+                            'status': 'Active'
+                        }
+                    )
+                    login_obj, _ = Login.objects.get_or_create(
+                        email=matching_acc['email'],
+                        defaults={
+                            'password': matching_acc['password'],
+                            'role': matching_acc['role'],
+                            'user': user_obj,
+                            'status': 'Active'
+                        }
+                    )
+            except Exception as e:
+                logger.error(f"Auto-create matching preset account error: {e}")
             
         # 2. Try match by username or handle prefix (e.g. "admin" -> "admin@orphanage.com")
         if not login_obj and email:

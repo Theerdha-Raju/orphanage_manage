@@ -1,8 +1,12 @@
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
-django.setup()
+if not os.environ.get('DJANGO_SETTINGS_MODULE'):
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+try:
+    django.setup()
+except RuntimeError:
+    pass
 
 from api.models import Users, Login
 
