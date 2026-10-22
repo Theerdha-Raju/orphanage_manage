@@ -14,4 +14,9 @@ python manage.py migrate
 echo "--- Seeding default portal user accounts ---"
 python seed_portal_users.py || true
 
+echo "--- Seeding real database records (children, donations, expenses, volunteers) ---"
+python seed_real_data.py || true
+python seed_real_volunteer_tasks.py || true
+python seed_eleanor_vance_donations.py || true
+
 echo "--- Build complete! ---"

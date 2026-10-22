@@ -3,8 +3,12 @@ import django
 import random
 import datetime
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
-django.setup()
+if not os.environ.get('DJANGO_SETTINGS_MODULE'):
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+try:
+    django.setup()
+except RuntimeError:
+    pass
 
 from api.models import (
     Users, Login, Child, Donor, Donation, Volunteer, VolunteerAssignment,
@@ -13,15 +17,10 @@ from api.models import (
 from django.utils import timezone
 
 def seed_all():
-    print("--- Clearing old mock data ---")
-    Alert.objects.all().delete()
-    Achievement.objects.all().delete()
-    Education.objects.all().delete()
-    Health.objects.all().delete()
-    Attendance.objects.all().delete()
-    VolunteerAssignment.objects.all().delete()
-    Donation.objects.all().delete()
-    Expense.objects.all().delete()
+    if Child.objects.exists() and Child.objects.count() >= 10:
+        print("--- Children already seeded, skipping reset ---")
+        return
+    print("--- Initializing fresh database with realistic data ---")
     
     # 1. Staff / Caregivers / Doctors / Teachers Users
     print("--- Seeding Users ---")

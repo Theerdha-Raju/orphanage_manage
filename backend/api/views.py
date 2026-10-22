@@ -62,6 +62,15 @@ class ChildViewSet(viewsets.ModelViewSet):
     queryset = Child.objects.all().order_by('-child_id')
     serializer_class = ChildSerializer
 
+    def list(self, request, *args, **kwargs):
+        if Child.objects.count() == 0:
+            try:
+                import seed_real_data
+                seed_real_data.seed_all()
+            except Exception:
+                pass
+        return super().list(request, *args, **kwargs)
+
     def create(self, request, *args, **kwargs):
         if get_request_role(request) == 'volunteer':
             return Response({'error': 'Volunteers are not permitted to modify child records.'}, status=status.HTTP_403_FORBIDDEN)
@@ -2530,6 +2539,14 @@ def dashboard_stats_api(request):
     from django.db.models import Sum, Count, Avg
     from datetime import date, timedelta
     try:
+        # Auto-seed realistic demo data if Child table is completely empty on fresh deployment
+        if Child.objects.count() == 0:
+            try:
+                import seed_real_data
+                seed_real_data.seed_all()
+            except Exception as e:
+                logger.error(f"Auto-seed real data error: {e}")
+
         now = date.today()
         month_start = now.replace(day=1)
         last_month_start = (month_start - timedelta(days=1)).replace(day=1)
