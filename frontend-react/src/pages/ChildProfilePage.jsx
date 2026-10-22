@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import { getLoggedInChild } from '../utils/childAuth';
+import { requestApi, API_BASE } from '../apiConfig';
 
-const API = '/api';
+const API = API_BASE || '/api';
 
 const getPhotoUrl = (photo) => {
   if (!photo) return null;
@@ -74,24 +75,45 @@ function Avatar({ child, size = 36, idx = 0 }) {
 }
 
 // ─── Comprehensive Child Detail Modal ───────────────────────────────────────
-function ChildDetailModal({ child, eduRecords, healthRecords, achieveRecords, attendRecords, behavRecords = [], onClose, onEdit, onDelete, idx }) {
+function ChildDetailModal({ child, eduRecords, healthRecords, achieveRecords, attendRecords = [], behavRecords = [], onClose, onEdit, onDelete, idx }) {
   const [tab, setTab] = useState('personal');
   const [devScore, setDevScore] = useState(null);
   const [devLoading, setDevLoading] = useState(false);
+  const [localAttend, setLocalAttend] = useState(() => (attendRecords || []).filter(r => r.child === child.child_id));
 
-  const childEdu = eduRecords.filter(r => r.child === child.child_id);
-  const childHealth = healthRecords.filter(r => r.child === child.child_id);
-  const childAchieve = achieveRecords.filter(r => r.child === child.child_id);
-  const childAttend = attendRecords.filter(r => r.child === child.child_id);
-  const childBehav = behavRecords.filter(r => r.child === child.child_id);
-  const presentCount = childAttend.filter(r => r.attendance_status === 'Present').length;
-  const totalCount = childAttend.length;
-  const attPct = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : null;
+  useEffect(() => {
+    if (child?.child_id) {
+      requestApi(`/api/attendance/?child=${child.child_id}`)
+        .then(r => r.json())
+        .then(data => {
+          const list = Array.isArray(data) ? data : (data.results || []);
+          if (list && list.length > 0) setLocalAttend(list);
+        })
+        .catch(() => {});
+    }
+  }, [child?.child_id]);
+
+  const childEdu = (eduRecords || []).filter(r => r.child === child.child_id);
+  const childHealth = (healthRecords || []).filter(r => r.child === child.child_id);
+  const childAchieve = (achieveRecords || []).filter(r => r.child === child.child_id);
+  const childAttend = localAttend.length > 0 ? localAttend : (attendRecords || []).filter(r => r.child === child.child_id);
+  const childBehav = (behavRecords || []).filter(r => r.child === child.child_id);
+
+  const childcare = child.childcare_summary || {};
+  const presentCount = childAttend.length > 0
+    ? childAttend.filter(r => r.attendance_status === 'Present').length
+    : (childcare.present || 0);
+  const totalCount = childAttend.length > 0
+    ? childAttend.length
+    : (childcare.total || 0);
+  const attPct = totalCount > 0
+    ? Math.round((presentCount / totalCount) * 100)
+    : (childcare.rate ?? null);
 
   useEffect(() => {
     if (tab === 'development' && !devScore) {
       setDevLoading(true);
-      fetch(`${API}/children/${child.child_id}/development-score/`)
+      requestApi(`/api/children/${child.child_id}/development-score/`)
         .then(r => r.json())
         .then(data => setDevScore(data))
         .catch(() => {})
@@ -684,25 +706,32 @@ function AllChildrenModal({ children, eduRecords, healthRecords, achieveRecords,
           ) : (
             filtered.map((child, idx) => {
               const isExpanded = expandedIds.has(child.child_id);
-              const childEdu = eduRecords.filter(r => r.child === child.child_id);
-              const childHealth = healthRecords.filter(r => r.child === child.child_id);
-              const childAchieve = achieveRecords.filter(r => r.child === child.child_id);
+              const childEdu = (eduRecords || []).filter(r => r.child === child.child_id);
+              const childHealth = (healthRecords || []).filter(r => r.child === child.child_id);
+              const childAchieve = (achieveRecords || []).filter(r => r.child === child.child_id);
               const childAttend = (attendRecords || []).filter(r => r.child === child.child_id);
 
-              const presentCount = childAttend.filter(r => r.attendance_status === 'Present').length;
-              const totalDays = childAttend.length;
-              const attPct = totalDays > 0 ? Math.round((presentCount / totalDays) * 100) : null;
+              const childcare = child.childcare_summary || {};
+              const presentCount = childAttend.length > 0
+                ? childAttend.filter(r => r.attendance_status === 'Present').length
+                : (childcare.present || 0);
+              const totalDays = childAttend.length > 0
+                ? childAttend.length
+                : (childcare.total || 0);
+              const attPct = totalDays > 0
+                ? Math.round((presentCount / totalDays) * 100)
+                : (childcare.rate ?? null);
 
-              const latestHealth = childHealth[0];
-              const latestBMI = latestHealth
+              const latestHealth = childHealth[0] || child.health_summary;
+              const latestBMI = latestHealth?.bmi || (latestHealth?.weight_kg
                 ? (parseFloat(latestHealth.weight_kg) / Math.pow(parseFloat(latestHealth.height_cm) / 100, 2)).toFixed(1)
-                : null;
-              const bmiStatus = latestBMI ? (latestBMI < 18.5 ? 'Underweight' : latestBMI < 25 ? 'Normal' : latestBMI < 30 ? 'Overweight' : 'Obese') : null;
+                : null);
+              const bmiStatus = latestHealth?.status || (latestBMI ? (latestBMI < 18.5 ? 'Underweight' : latestBMI < 25 ? 'Normal' : latestBMI < 30 ? 'Overweight' : 'Obese') : null);
 
               const avgScore = childEdu.length > 0
                 ? (childEdu.reduce((a, r) => a + parseFloat(r.marks || 0), 0) / childEdu.length).toFixed(1)
-                : null;
-              const { grade: avgGrade } = avgScore ? getGrade(parseFloat(avgScore)) : { grade: null };
+                : (child.academic_summary?.marks ? parseFloat(child.academic_summary.marks).toFixed(1) : null);
+              const { grade: avgGrade } = avgScore ? getGrade(parseFloat(avgScore)) : { grade: child.academic_summary?.grade || null };
 
               const { label: ageLabel, years: ageYrs } = calcAge(child.date_of_birth);
               const statusColors = { Active: '#16a34a', Inactive: '#94a3b8', Adopted: '#2563eb' };
@@ -869,7 +898,7 @@ function AllChildrenModal({ children, eduRecords, healthRecords, achieveRecords,
                         <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#16a34a', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                           <i className="bi bi-calendar-check-fill" /> Attendance Records ({totalDays} Days Logged)
                         </div>
-                        {childAttend.length === 0 ? (
+                        {totalDays === 0 ? (
                           <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0.45rem', padding: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
                             <i className="bi bi-calendar-x" style={{ marginRight: '0.35rem' }} /> No attendance records logged for this child yet.
                           </div>
@@ -1147,23 +1176,23 @@ export default function ChildProfilePage() {
 
   const loadAll = async () => {
     setLoading(true);
-    const fetchJson = async (url) => {
+    const fetchJson = async (endpoint) => {
       try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(timer);
+        const res = await requestApi(endpoint);
         if (!res.ok) return [];
         const data = await res.json();
-        return Array.isArray(data) ? data : [];
-      } catch {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.results)) return data.results;
+        return [];
+      } catch (err) {
+        console.error(`Failed to load ${endpoint}:`, err);
         return [];
       }
     };
 
     try {
       // 1. Fetch children FIRST and unblock table immediately so UI renders in milliseconds
-      const cData = await fetchJson(`${API}/children/`);
+      const cData = await fetchJson('/api/children/');
       if (isChild) {
         const myChild = getLoggedInChild(cData);
         setChildren(myChild ? [myChild] : cData.slice(0, 1));
@@ -1174,17 +1203,18 @@ export default function ChildProfilePage() {
 
       // 2. Fetch supporting records asynchronously in background for modal use
       Promise.all([
-        fetchJson(`${API}/education/`),
-        fetchJson(`${API}/health/`),
-        fetchJson(`${API}/achievements/`),
-        fetchJson(`${API}/attendance/`),
+        fetchJson('/api/education/'),
+        fetchJson('/api/health/'),
+        fetchJson('/api/achievements/'),
+        fetchJson('/api/attendance/'),
       ]).then(([eData, hData, aData, attData]) => {
         setEduRecords(eData);
         setHealthRecords(hData);
         setAchieveRecords(aData);
         setAttendRecords(attData);
       });
-    } catch {
+    } catch (err) {
+      console.error('Error loading children in ChildProfilePage:', err);
       setLoading(false);
     }
   };
@@ -1225,7 +1255,7 @@ export default function ChildProfilePage() {
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Are you sure you want to delete the profile for ${name}?`)) return;
     try {
-      const r = await fetch(`${API}/children/${id}/`, { method: 'DELETE' });
+      const r = await requestApi(`/api/children/${id}/`, { method: 'DELETE' });
       if (r.ok || r.status === 204) {
         setMsg(`Profile for ${name} deleted successfully.`);
         setTimeout(() => setMsg(''), 3000);
@@ -1250,7 +1280,7 @@ export default function ChildProfilePage() {
     }
     setSaving(true);
     try {
-      const url = editChild ? `${API}/children/${editChild.child_id}/` : `${API}/children/`;
+      const url = editChild ? `/api/children/${editChild.child_id}/` : '/api/children/';
       const method = editChild ? 'PATCH' : 'POST';
 
       const gName = form.has_guardian ? (form.guardian_name?.trim() || '') : '';
@@ -1273,7 +1303,7 @@ export default function ChildProfilePage() {
         fd.append('mother_name', mName);
         fd.append('guardian_relation', gRel);
         fd.append('photo', form.photo);
-        const r = await fetch(url, { method, body: fd });
+        const r = await requestApi(url, { method, body: fd });
         if (!r.ok) { const err = await r.json(); alert('Error: ' + JSON.stringify(err)); return; }
       } else {
         const payload = {
@@ -1290,7 +1320,7 @@ export default function ChildProfilePage() {
           mother_name: mName,
           guardian_relation: gRel,
         };
-        const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const r = await requestApi(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         if (!r.ok) { const err = await r.json(); alert('Error: ' + JSON.stringify(err)); return; }
       }
 

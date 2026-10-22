@@ -62,6 +62,7 @@ class Child(models.Model):
     photo = models.FileField(upload_to='child_photos/', blank=True, null=True)
     previous_school = models.CharField(max_length=255, blank=True, null=True)
     academic_document = models.FileField(upload_to='academic_docs/', blank=True, null=True)
+    caregiver = models.ForeignKey(Users, models.SET_NULL, blank=True, null=True, related_name='assigned_children')
     status = models.CharField(max_length=20, default='Active')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -91,12 +92,25 @@ class Donor(models.Model):
 class Donation(models.Model):
     donation_id = models.AutoField(primary_key=True)
     donor = models.ForeignKey(Donor, models.CASCADE)
-    donation_type = models.CharField(max_length=20)
+    donation_type = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     item_description = models.CharField(max_length=500, blank=True, null=True)
     purpose = models.CharField(max_length=100, default='General Welfare', blank=True)
     receipt_number = models.CharField(max_length=50, blank=True, null=True)
     payment_method = models.CharField(max_length=50, default='Online Transfer', blank=True)
+    payment_status = models.CharField(max_length=20, default='Successful', blank=True)
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
+    message = models.TextField(blank=True, null=True)
+    # Non-monetary donation specific fields
+    item_category = models.CharField(max_length=100, blank=True, null=True)
+    item_name = models.CharField(max_length=150, blank=True, null=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    unit = models.CharField(max_length=50, blank=True, null=True)
+    delivery_option = models.CharField(max_length=50, blank=True, null=True, default='Pickup')
+    delivery_address = models.CharField(max_length=255, blank=True, null=True)
+    collection_status = models.CharField(max_length=50, default='Pending Collection', blank=True)
     donation_date = models.DateField()
     status = models.CharField(max_length=20, default='Received')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -107,6 +121,32 @@ class Donation(models.Model):
 
     def __str__(self):
         return f"{self.donation_type} - {self.donor.full_name}"
+
+class PaymentOrder(models.Model):
+    order_id = models.AutoField(primary_key=True)
+    razorpay_order_id = models.CharField(max_length=100, unique=True)
+    donor = models.ForeignKey(Donor, on_delete=models.SET_NULL, null=True, blank=True, related_name='payment_orders')
+    donor_name = models.CharField(max_length=150)
+    donor_email = models.CharField(max_length=150)
+    donor_phone = models.CharField(max_length=20, blank=True, null=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=10, default='INR')
+    purpose = models.CharField(max_length=150, default='General Welfare')
+    message = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, default='Pending')  # Pending, Successful, Failed, Refunded
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
+    error_reason = models.TextField(blank=True, null=True)
+    donation = models.ForeignKey(Donation, on_delete=models.SET_NULL, null=True, blank=True, related_name='payment_orders')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'payment_order'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.razorpay_order_id} - {self.status}"
 
 class Volunteer(models.Model):
     volunteer_id = models.AutoField(primary_key=True)
@@ -143,7 +183,7 @@ class VolunteerAssignment(models.Model):
     assigned_date = models.DateField()
     scheduled_date = models.DateField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
-    assigned_children = models.CharField(max_length=200, blank=True, null=True, default='5 Children')
+    assigned_children = models.TextField(blank=True, null=True, default='5 Children')
     location = models.CharField(max_length=255, blank=True, null=True)
     assigned_by = models.CharField(max_length=100, blank=True, null=True, default='Admin')
     instructions = models.TextField(blank=True, null=True)

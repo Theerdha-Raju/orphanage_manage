@@ -118,13 +118,7 @@ export default function ChildDashboardPage() {
       if (Array.isArray(hRes) && hRes.length > 0) {
         setHealth(hRes[0]);
       } else {
-        setHealth({
-          status: 'Healthy',
-          checkup_date: '2026-08-12',
-          height_cm: '137.3',
-          weight_kg: '42.8',
-          notes: 'General physical vitals normal. Vision and dental checks clear. Vaccinations up-to-date.'
-        });
+        setHealth(null); // No health record — will show empty state in UI
       }
 
       if (Array.isArray(attRes) && attRes.length > 0) {
@@ -204,34 +198,21 @@ export default function ChildDashboardPage() {
     };
   }, [educationRecords]);
 
-  // Attendance metrics
+  // Attendance metrics — ONLY computed from real records, never fake data
   const attendanceRate = useMemo(() => {
     if (!attendanceRecords || attendanceRecords.length === 0) return {
-      percent: '96%', present: 24, total: 25, absent: 1, late: 0,
-      streak: 18,
-      records: [
-        { date: '2026-08-01', status: 'Present' }, { date: '2026-08-04', status: 'Present' },
-        { date: '2026-08-05', status: 'Present' }, { date: '2026-08-06', status: 'Present' },
-        { date: '2026-08-07', status: 'Present' }, { date: '2026-08-08', status: 'Present' },
-        { date: '2026-08-11', status: 'Present' }, { date: '2026-08-12', status: 'Present' },
-        { date: '2026-08-13', status: 'Present' }, { date: '2026-08-14', status: 'Present' },
-        { date: '2026-08-15', status: 'Absent'  }, { date: '2026-08-18', status: 'Present' },
-        { date: '2026-08-19', status: 'Present' }, { date: '2026-08-20', status: 'Present' },
-        { date: '2026-08-21', status: 'Present' }, { date: '2026-08-22', status: 'Present' },
-        { date: '2026-08-25', status: 'Present' }, { date: '2026-08-26', status: 'Present' },
-        { date: '2026-08-27', status: 'Present' }, { date: '2026-08-28', status: 'Present' },
-        { date: '2026-08-29', status: 'Present' }, { date: '2026-09-01', status: 'Present' },
-        { date: '2026-09-02', status: 'Present' }, { date: '2026-09-03', status: 'Present' },
-        { date: '2026-09-04', status: 'Present' },
-      ]
+      percent: null, present: 0, total: 0, absent: 0, leave: 0, streak: 0, records: []
     };
     const total   = attendanceRecords.length;
     const present = attendanceRecords.filter(a => a.attendance_status === 'Present').length;
     const absent  = attendanceRecords.filter(a => a.attendance_status === 'Absent').length;
     const leave   = attendanceRecords.filter(a => a.attendance_status === 'Leave').length;
-    const pct     = total > 0 ? ((present / total) * 100).toFixed(0) : '96';
+    // Exclude holidays from denominator
+    const holiday = attendanceRecords.filter(a => a.attendance_status === 'Holiday').length;
+    const denominator = total - holiday;
+    const pct = denominator > 0 ? Math.round((present / denominator) * 100) : 0;
     // Calculate current streak
-    const sorted = [...attendanceRecords].sort((a, b) => new Date(b.date || b.checkup_date) - new Date(a.date || a.checkup_date));
+    const sorted = [...attendanceRecords].sort((a, b) => new Date(b.attendance_date) - new Date(a.attendance_date));
     let streak = 0;
     for (const r of sorted) {
       if (r.attendance_status === 'Present') streak++;
@@ -242,9 +223,10 @@ export default function ChildDashboardPage() {
 
   // BMI calculation
   const bmi = useMemo(() => {
-    const h = parseFloat(healthRecord?.height_cm || 137.3);
-    const w = parseFloat(healthRecord?.weight_kg || 42.8);
-    if (!h || !w) return { value: 'N/A', category: 'Unknown', color: '#64748b' };
+    if (!healthRecord) return { value: 'N/A', category: 'No Data', color: '#94a3b8' };
+    const h = parseFloat(healthRecord.height_cm);
+    const w = parseFloat(healthRecord.weight_kg);
+    if (!h || !w || isNaN(h) || isNaN(w)) return { value: 'N/A', category: 'Unknown', color: '#64748b' };
     const hM = h / 100;
     const val = (w / (hM * hM)).toFixed(1);
     const v = parseFloat(val);
@@ -421,23 +403,35 @@ export default function ChildDashboardPage() {
                 alignItems: 'center',
                 gap: '0.3rem'
               }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a' }} />
-                {healthRecord?.status || 'Healthy'}
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: healthRecord ? '#16a34a' : '#94a3b8' }} />
+                {healthRecord?.status || (healthRecord === null ? 'No Record' : 'Healthy')}
               </span>
             </div>
 
             <div style={{ marginTop: '1.2rem', display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#10b981', letterSpacing: '-0.03em' }}>
-                {healthRecord?.status || 'Healthy'}
-              </span>
-              <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                Checkup: {healthRecord?.checkup_date || '2026-08-12'}
-              </span>
+              {healthRecord === null ? (
+                <span style={{ fontSize: '1rem', fontWeight: 600, color: '#94a3b8' }}>
+                  No health records available.
+                </span>
+              ) : (
+                <>
+                  <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#10b981', letterSpacing: '-0.03em' }}>
+                    {healthRecord.status || 'Healthy'}
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                    Checkup: {healthRecord.checkup_date}
+                  </span>
+                </>
+              )}
             </div>
 
             <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
-              <span style={{ color: '#475569' }}>Height: {healthRecord?.height_cm || '137.3'}cm • Weight: {healthRecord?.weight_kg || '42.8'}kg</span>
-              <strong style={{ color: '#10b981' }}>BMI 22.7</strong>
+              <span style={{ color: '#475569' }}>
+                {healthRecord ? `Height: ${healthRecord.height_cm}cm · Weight: ${healthRecord.weight_kg}kg` : 'No measurements on record'}
+              </span>
+              {healthRecord && (
+                <strong style={{ color: bmi.color }}>BMI {bmi.value} ({bmi.category})</strong>
+              )}
             </div>
           </div>
 
@@ -472,17 +466,31 @@ export default function ChildDashboardPage() {
             </div>
 
             <div style={{ marginTop: '1.2rem', display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '-0.03em' }}>
-                {attendanceRate.percent}
-              </span>
-              <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                ({attendanceRate.present} of {attendanceRate.total} days present)
-              </span>
+              {attendanceRate.percent === null ? (
+                <span style={{ fontSize: '1rem', fontWeight: 600, color: '#94a3b8' }}>
+                  No attendance records available.
+                </span>
+              ) : (
+                <>
+                  <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#f59e0b', letterSpacing: '-0.03em' }}>
+                    {attendanceRate.percent}
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                    ({attendanceRate.present} of {attendanceRate.total} days present)
+                  </span>
+                </>
+              )}
             </div>
 
             <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
-              <span style={{ color: '#475569' }}>Leaves: 1 Approved Excused</span>
-              <strong style={{ color: '#10b981' }}>Excellent Standing</strong>
+              <span style={{ color: '#475569' }}>
+                {attendanceRate.leave > 0 ? `Leaves: ${attendanceRate.leave} Approved` : 'No approved leaves recorded'}
+              </span>
+              {attendanceRate.percent !== null && (
+                <strong style={{ color: attendanceRate.streak >= 7 ? '#10b981' : '#f59e0b' }}>
+                  {attendanceRate.streak >= 7 ? 'Excellent Standing' : 'Good Standing'}
+                </strong>
+              )}
             </div>
           </div>
 
@@ -504,10 +512,10 @@ export default function ChildDashboardPage() {
               </div>
               <div>
                 <h5 style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '1.05rem' }}>
-                  How Your 79.4% Academic Score is Calculated
+                  How Your {academicMetrics.avg} Academic Score is Calculated
                 </h5>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
-                  Transparent arithmetic breakdown of all 6 evaluated subject marks and comparison with the orphanage baseline.
+                  Transparent arithmetic breakdown of all {academicMetrics.count} evaluated subject marks and comparison with the orphanage baseline.
                 </p>
               </div>
             </div>
@@ -1112,17 +1120,23 @@ export default function ChildDashboardPage() {
 
               {/* Big Percentage Circle */}
               <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                <div style={{
-                  width: 110, height: 110, borderRadius: '50%', margin: '0 auto',
-                  background: `conic-gradient(#10b981 0% ${attendanceRate.percent}, #e2e8f0 ${attendanceRate.percent} 100%)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 4px 20px rgba(16,185,129,0.2)'
-                }}>
-                  <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{attendanceRate.percent}</span>
-                    <span style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 600 }}>Present</span>
+                {attendanceRate.percent === null ? (
+                  <div style={{ width: 110, height: 110, borderRadius: '50%', margin: '0 auto', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', textAlign: 'center', padding: '0 0.5rem' }}>No Records</span>
                   </div>
-                </div>
+                ) : (
+                  <div style={{
+                    width: 110, height: 110, borderRadius: '50%', margin: '0 auto',
+                    background: `conic-gradient(#10b981 0% ${attendanceRate.percent}, #e2e8f0 ${attendanceRate.percent} 100%)`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 20px rgba(16,185,129,0.2)'
+                  }}>
+                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#ffffff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{attendanceRate.percent}</span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', fontWeight: 600 }}>Present</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>

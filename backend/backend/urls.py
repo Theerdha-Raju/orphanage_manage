@@ -31,7 +31,10 @@ def media_serve(request, path):
         del response['X-Frame-Options']
     return response
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
 
 def root_home_view(request):
     html_content = """
@@ -70,6 +73,8 @@ def root_home_view(request):
 
 urlpatterns = [
     path('', root_home_view, name='root_home'),
+    path('health/', health_check, name='health_check'),
+    path('api/health-check/', health_check, name='api_health_check'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     re_path(r'^media/(?P<path>.*)$', media_serve),

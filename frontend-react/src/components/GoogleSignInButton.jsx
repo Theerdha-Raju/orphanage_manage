@@ -6,35 +6,54 @@ export default function GoogleSignInButton({ onSuccess, onError, text = "sign_in
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
 
   useEffect(() => {
-    // If Google GSI library is loaded and client ID is configured
-    if (window.google?.accounts?.id && clientId && clientId !== "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (response) => {
-            if (response.credential) {
-              onSuccess({ credential: response.credential, role });
-            } else if (onError) {
-              onError('Google authentication failed.');
-            }
-          },
-        });
+    let intervalId = null;
 
-        if (googleBtnRef.current) {
-          googleBtnRef.current.innerHTML = '';
-          window.google.accounts.id.renderButton(googleBtnRef.current, {
-            theme: 'outline',
-            size: 'large',
-            width: '100%',
-            text: text,
-            shape: 'pill',
-            logo_alignment: 'left',
+    const initGoogleGsi = () => {
+      if (window.google?.accounts?.id && clientId && clientId !== "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (response) => {
+              if (response.credential) {
+                onSuccess({ credential: response.credential, role });
+              } else if (onError) {
+                onError('Google authentication failed.');
+              }
+            },
           });
+
+          if (googleBtnRef.current) {
+            googleBtnRef.current.innerHTML = '';
+            window.google.accounts.id.renderButton(googleBtnRef.current, {
+              theme: 'outline',
+              size: 'large',
+              width: '100%',
+              text: text,
+              shape: 'pill',
+              logo_alignment: 'left',
+            });
+          }
+          if (intervalId) clearInterval(intervalId);
+          return true;
+        } catch (err) {
+          console.error('Google GSI initialization error:', err);
         }
-      } catch (err) {
-        console.error('Google GSI initialization error:', err);
       }
+      return false;
+    };
+
+    const initialized = initGoogleGsi();
+    if (!initialized && clientId && clientId !== "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
+      intervalId = setInterval(() => {
+        if (initGoogleGsi() && intervalId) {
+          clearInterval(intervalId);
+        }
+      }, 300);
     }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [clientId, text, role, onSuccess, onError]);
 
   const handleCustomGoogleClick = () => {

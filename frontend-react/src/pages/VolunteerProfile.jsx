@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
-
-const API = 'http://localhost:8000/api';
+import { requestApi } from '../apiConfig';
 
 export default function VolunteerProfile() {
   const { toggleSidebar } = useOutletContext() || {};
 
   const userEmail = localStorage.getItem('userEmail') || '';
   const userId = localStorage.getItem('userId') || '';
+  const volunteerId = localStorage.getItem('volunteerId') || '';
   const userName = localStorage.getItem('userName') || 'Volunteer';
 
   const [profile, setProfile] = useState(null);
@@ -28,42 +28,39 @@ export default function VolunteerProfile() {
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
 
-  const fetchProfile = () => {
+  const fetchProfile = async () => {
     setLoading(true);
-    fetch(`${API}/volunteer/profile/?email=${encodeURIComponent(userEmail)}&user_id=${userId}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data && !data.error) {
-          setProfile(data);
-          setForm({
-            full_name: data.full_name || userName,
-            email: data.email || userEmail,
-            phone_number: data.phone_number || '',
-            address: data.address || '',
-            skills: data.skills || '',
-            areas_of_interest: data.areas_of_interest || '',
-            availability: data.availability || 'Weekends',
-            status: data.status || 'Active'
-          });
-        }
-      })
-      .catch(() => {
-        // Fallback default profile for testing
-        const fallback = {
-          volunteer_id: 1,
-          full_name: userName,
-          email: userEmail || 'volunteer@orphanage.com',
-          phone_number: '+91 98765 43210',
-          address: 'Room 12, Volunteer Quarters, Orphanage Campus',
-          skills: 'Mathematics Tutoring, STEM Mentorship, Basic First Aid',
-          areas_of_interest: 'Education, Computer Learning, Extracurricular',
-          availability: 'Weekends & Evenings',
-          status: 'Active'
-        };
-        setProfile(fallback);
-        setForm(fallback);
-      })
-      .finally(() => setLoading(false));
+    setError('');
+    try {
+      const endpoint = volunteerId
+        ? `/api/volunteer/profile/?volunteer_id=${volunteerId}`
+        : userEmail
+          ? `/api/volunteer/profile/?email=${encodeURIComponent(userEmail)}&user_id=${userId}`
+          : '/api/volunteer/profile/';
+
+      const res = await requestApi(endpoint);
+      const data = await res.json();
+      if (res.ok && data && !data.error) {
+        setProfile(data);
+        setForm({
+          full_name: data.full_name || userName,
+          email: data.email || userEmail,
+          phone_number: data.phone_number || '',
+          address: data.address || '',
+          skills: data.skills || '',
+          areas_of_interest: data.areas_of_interest || '',
+          availability: data.availability || 'Weekends',
+          status: data.status || 'Active'
+        });
+      } else {
+        setError(data?.error || 'Unable to load volunteer profile from database.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Network error while loading profile. Please check server.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -108,35 +105,35 @@ export default function VolunteerProfile() {
     setError('');
 
     try {
-      const res = await fetch(`${API}/volunteer/profile/`, {
+      const endpoint = volunteerId
+        ? `/api/volunteer/profile/?volunteer_id=${volunteerId}`
+        : `/api/volunteer/profile/`;
+
+      const res = await requestApi(endpoint, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          volunteer_id: profile?.volunteer_id,
-          email: userEmail,
+          volunteer_id: profile?.volunteer_id || volunteerId,
+          email: form.email,
           ...form
         })
       });
 
       const resData = await res.json();
 
-      if (res.ok || resData.message) {
-        setProfile(prev => ({ ...prev, ...form }));
-        localStorage.setItem('userName', form.full_name);
-        localStorage.setItem('userEmail', form.email);
+      if (res.ok) {
+        const updated = resData.data || resData;
+        setProfile(updated);
+        localStorage.setItem('userName', updated.full_name || form.full_name);
+        localStorage.setItem('userEmail', updated.email || form.email);
         setIsEditing(false);
         setMsg('Volunteer profile updated successfully.');
         setTimeout(() => setMsg(''), 4000);
       } else {
         setError(resData.error || 'Failed to update profile.');
       }
-    } catch {
-      // Local optimistic fallback
-      setProfile(prev => ({ ...prev, ...form }));
-      localStorage.setItem('userName', form.full_name);
-      setIsEditing(false);
-      setMsg('Volunteer profile updated successfully.');
-      setTimeout(() => setMsg(''), 4000);
+    } catch (err) {
+      setError(err?.message || 'Network error updating profile.');
     } finally {
       setSaving(false);
     }

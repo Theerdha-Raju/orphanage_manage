@@ -28,22 +28,18 @@ export default function VolunteerLogin() {
         localStorage.setItem('userEmail', data.email || email);
         localStorage.setItem('userName', data.name || 'Volunteer User');
         localStorage.setItem('userId', data.user_id || '1');
+        if (data.volunteer_id) {
+          localStorage.setItem('volunteerId', String(data.volunteer_id));
+        } else {
+          localStorage.removeItem('volunteerId');
+        }
 
         navigate('/volunteer/dashboard');
       } else {
         setError(data.error || 'Invalid volunteer credentials. Please try again.');
       }
-    } catch {
-      // Offline / fallback for testing
-      if (email && password) {
-        localStorage.setItem('userRole', 'volunteer');
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('userName', email.split('@')[0].toUpperCase() || 'Volunteer');
-        localStorage.setItem('userId', '1');
-        navigate('/volunteer/dashboard');
-      } else {
-        setError('Network error. Please check backend server.');
-      }
+    } catch (err) {
+      setError(err?.message || 'Network error. Please check backend server.');
     } finally {
       setLoading(false);
     }

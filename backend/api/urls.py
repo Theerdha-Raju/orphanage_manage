@@ -19,6 +19,17 @@ router.register(r'alerts', views.AlertViewSet)
 router.register(r'expenses', views.ExpenseViewSet)
 
 urlpatterns = [
+    # Razorpay Payment Gateway & Donation Management Endpoints
+    path('donations/create-order/', views.create_razorpay_order_api, name='create_razorpay_order'),
+    path('donations/verify-payment/', views.verify_razorpay_payment_api, name='verify_razorpay_payment'),
+    path('donations/payment-failed/', views.payment_failed_api, name='payment_failed'),
+    path('donations/webhook/', views.razorpay_webhook_api, name='razorpay_webhook'),
+    path('donations/non-monetary/', views.create_non_monetary_donation_api, name='create_non_monetary_donation'),
+    path('donations/<int:donation_id>/receipt/', views.download_receipt_api, name='download_receipt'),
+    path('donations/history/', views.donor_donation_history_api, name='donor_donation_history'),
+    path('donations/admin-dashboard/', views.admin_donation_dashboard_api, name='admin_donation_dashboard'),
+    path('donations/<int:donation_id>/collection-status/', views.admin_update_collection_status_api, name='admin_update_collection_status'),
+
     path('', include(router.urls)),
     path('children/<int:child_id>/development-score/', views.child_development_score_api, name='child_development_score_api'),
     path('education/recommendations/<int:child_id>/', views.learning_recommendations_api, name='learning_recommendations_api'),
@@ -36,4 +47,5 @@ urlpatterns = [
     path('auth/login/', views.login_view, name='login'),
     path('auth/register/', views.register_view, name='register'),
     path('auth/google/', views.google_login_view, name='google_login'),
+    path('health-check/', views.health_check_api, name='health_check_api'),
 ]

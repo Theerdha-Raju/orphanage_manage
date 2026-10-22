@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import ActivityDetails from '../components/ActivityDetails';
-
-const API = 'http://localhost:8000/api';
+import { requestApi } from '../apiConfig';
 
 const STATUS_COLOR = {
   'Pending': 'badge-amber',
@@ -32,6 +31,7 @@ export default function VolunteerDashboard() {
   const userName = localStorage.getItem('userName') || 'Volunteer';
   const userEmail = localStorage.getItem('userEmail') || '';
   const userId = localStorage.getItem('userId') || '';
+  const volunteerId = localStorage.getItem('volunteerId') || '';
 
   const [activities, setActivities] = useState([]);
   const [profile, setProfile] = useState(null);
@@ -40,279 +40,44 @@ export default function VolunteerDashboard() {
   const now = new Date();
   const todayStr = getLocalDateStr(now);
 
-  const fetchDashboardData = () => {
+  const fetchDashboardData = async () => {
     setLoading(true);
-    const actUrl = userEmail
-      ? `${API}/volunteer/activities/?email=${encodeURIComponent(userEmail)}&user_id=${userId}`
-      : `${API}/volunteer/activities/`;
+    try {
+      const actEndpoint = volunteerId
+        ? `/api/volunteer/activities/?volunteer_id=${volunteerId}`
+        : userEmail
+          ? `/api/volunteer/activities/?email=${encodeURIComponent(userEmail)}&user_id=${userId}`
+          : '/api/volunteer/activities/';
 
-    const profUrl = `${API}/volunteer/profile/?email=${encodeURIComponent(userEmail)}&user_id=${userId}`;
+      const profEndpoint = volunteerId
+        ? `/api/volunteer/profile/?volunteer_id=${volunteerId}`
+        : userEmail
+          ? `/api/volunteer/profile/?email=${encodeURIComponent(userEmail)}&user_id=${userId}`
+          : '/api/volunteer/profile/';
 
-    Promise.all([
-      fetch(actUrl).then(r => r.json()).catch(() => []),
-      fetch(profUrl).then(r => r.json()).catch(() => null)
-    ])
-      .then(([actsData, profData]) => {
+      const [actRes, profRes] = await Promise.all([
+        requestApi(actEndpoint),
+        requestApi(profEndpoint)
+      ]);
+
+      if (actRes.ok) {
+        const actsData = await actRes.json();
         if (Array.isArray(actsData)) {
           setActivities(actsData);
         }
+      }
 
+      if (profRes.ok) {
+        const profData = await profRes.json();
         if (profData && !profData.error) {
           setProfile(profData);
         }
-      })
-      .catch(() => {
-        // Fallback demo data for robust rendering
-        setActivities([
-          {
-            assignment_id: 104,
-            event_name: 'AI & Robotics Hands-on Lab',
-            description: 'Hands-on AI concepts, interactive robotics demonstrations, and block coding for young learners.',
-            activity_type: 'Computer Learning',
-            priority: 'High',
-            assigned_date: todayStr,
-            scheduled_date: todayStr,
-            due_date: todayStr,
-            assigned_children: '8 Children',
-            location: 'Computer Lab - Block A',
-            assigned_by: 'Academic Coordinator',
-            instructions: 'Demonstrate beginner robotics kit, guide children through block coding exercises, and ensure hands-on practice.',
-            status: 'In Progress'
-          },
-          {
-            assignment_id: 105,
-            event_name: 'Science & Logic Puzzle Workshop',
-            description: 'Afternoon logic games, static electricity experiments, and science trivia competition.',
-            activity_type: 'Extracurricular',
-            priority: 'Medium',
-            assigned_date: todayStr,
-            scheduled_date: todayStr,
-            due_date: todayStr,
-            assigned_children: '12 Children',
-            location: 'Science Lab & Activity Hall',
-            assigned_by: 'Care Coordinator',
-            instructions: 'Organize children into 3 teams, provide quiz sheets, and supervise experiment setups safely.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 1,
-            event_name: 'Mathematics Learning Support',
-            description: 'Conduct remedial math session focusing on fractions and basic algebra.',
-            activity_type: 'Education',
-            priority: 'High',
-            assigned_date: '2026-09-15',
-            scheduled_date: '2026-09-20',
-            due_date: '2026-09-20',
-            assigned_children: '5 Children',
-            location: 'Education Center - Room 3',
-            assigned_by: 'Academic Coordinator',
-            instructions: 'Use visual flashcards and conduct arithmetic games.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 2,
-            event_name: 'Arts & Crafts Workshop',
-            description: 'Teach watercolor painting and origami craft work to nurture creativity.',
-            activity_type: 'Arts and Crafts',
-            priority: 'Medium',
-            assigned_date: '2026-09-18',
-            scheduled_date: '2026-09-22',
-            due_date: '2026-09-22',
-            assigned_children: '8 Children',
-            location: 'Activity Hall B',
-            assigned_by: 'Care Coordinator',
-            instructions: 'Distribute child-friendly paint brushes and craft supplies.',
-            status: 'In Progress'
-          },
-          {
-            assignment_id: 3,
-            event_name: 'Outdoor Football Training',
-            description: 'Outdoor football drills, fitness exercises, and a friendly mini-tournament.',
-            activity_type: 'Sports',
-            priority: 'Medium',
-            assigned_date: '2026-09-10',
-            scheduled_date: '2026-09-25',
-            due_date: '2026-09-25',
-            assigned_children: '10 Children',
-            location: 'Main Sports Ground',
-            assigned_by: 'Sports Director',
-            instructions: 'Ensure proper warmup, hydration breaks, and safety protocols.',
-            status: 'Completed',
-            completion_date: '2026-09-25',
-            remarks: 'All 10 children participated enthusiastically.'
-          },
-          {
-            assignment_id: 4,
-            event_name: 'Computer Basics & Typing',
-            description: 'Introduction to computer fundamentals, keyboard skills, and basic MS Word usage.',
-            activity_type: 'Computer Learning',
-            priority: 'High',
-            assigned_date: '2026-09-20',
-            scheduled_date: '2026-10-02',
-            due_date: '2026-10-02',
-            assigned_children: '6 Children',
-            location: 'Computer Lab - Block A',
-            assigned_by: 'Academic Coordinator',
-            instructions: 'Ensure each child has individual access to a computer. Cover mouse and keyboard basics first.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 5,
-            event_name: 'English Reading & Storytelling',
-            description: 'Interactive reading session with illustrated storybooks and group narration exercises.',
-            activity_type: 'Education',
-            priority: 'High',
-            assigned_date: '2026-09-22',
-            scheduled_date: '2026-10-04',
-            due_date: '2026-10-04',
-            assigned_children: '7 Children',
-            location: 'Library Hall',
-            assigned_by: 'Head Teacher',
-            instructions: 'Select age-appropriate books. Encourage children to narrate in their own words.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 6,
-            event_name: 'Yoga & Mindfulness Session',
-            description: 'Morning yoga, breathing exercises, and guided mindfulness for emotional well-being.',
-            activity_type: 'Sports',
-            priority: 'Low',
-            assigned_date: '2026-09-17',
-            scheduled_date: '2026-09-28',
-            due_date: '2026-09-28',
-            assigned_children: '12 Children',
-            location: 'Open Garden Area',
-            assigned_by: 'Wellness Coordinator',
-            instructions: 'Use yoga mats. Keep sessions calming. Avoid vigorous exercises.',
-            status: 'In Progress'
-          },
-          {
-            assignment_id: 7,
-            event_name: 'Science Experiment Day',
-            description: 'Fun hands-on science experiments — volcano model, balloon rocket, and static electricity demos.',
-            activity_type: 'Extracurricular',
-            priority: 'Medium',
-            assigned_date: '2026-09-12',
-            scheduled_date: '2026-09-19',
-            due_date: '2026-09-19',
-            assigned_children: '9 Children',
-            location: 'Science Lab',
-            assigned_by: 'Science Teacher',
-            instructions: 'Ensure safety goggles are worn. Supervise all chemical handling.',
-            status: 'Completed',
-            completion_date: '2026-09-19',
-            remarks: '9 children completed all experiments; 2 won the best-model award.'
-          },
-          {
-            assignment_id: 8,
-            event_name: 'Music & Rhythm Practice',
-            description: 'Group music session covering basic percussion, clapping rhythms, and simple folk songs.',
-            activity_type: 'Arts and Crafts',
-            priority: 'Low',
-            assigned_date: '2026-09-24',
-            scheduled_date: '2026-10-06',
-            due_date: '2026-10-06',
-            assigned_children: '11 Children',
-            location: 'Music Room - Ground Floor',
-            assigned_by: 'Care Coordinator',
-            instructions: 'Start with rhythm clapping exercises before introducing instruments.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 9,
-            event_name: 'Dance & Cultural Performance',
-            description: 'Classical and folk dance rehearsal for upcoming cultural day celebration.',
-            activity_type: 'Arts and Crafts',
-            priority: 'Medium',
-            assigned_date: '2026-09-26',
-            scheduled_date: '2026-10-10',
-            due_date: '2026-10-10',
-            assigned_children: '14 Children',
-            location: 'Auditorium - Main Hall',
-            assigned_by: 'Cultural Coordinator',
-            instructions: 'Practice classical bharatanatyam and folk dance steps. Coordinate costume fittings.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 10,
-            event_name: 'Nature Walk & Environment Day',
-            description: 'Guided nature walk, tree planting, and environmental awareness activities.',
-            activity_type: 'Extracurricular',
-            priority: 'Low',
-            assigned_date: '2026-09-20',
-            scheduled_date: '2026-10-05',
-            due_date: '2026-10-05',
-            assigned_children: '15 Children',
-            location: 'Community Park & Garden',
-            assigned_by: 'Environment Club Mentor',
-            instructions: 'Carry water bottles, wear hats. Each child plants one sapling.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 11,
-            event_name: 'Library Reading Program',
-            description: 'Weekly structured reading sessions with comprehension exercises and book reviews.',
-            activity_type: 'Education',
-            priority: 'High',
-            assigned_date: '2026-09-14',
-            scheduled_date: '2026-09-21',
-            due_date: '2026-09-21',
-            assigned_children: '6 Children',
-            location: 'Central Library',
-            assigned_by: 'Head Teacher',
-            instructions: 'Assign age-appropriate books. Track reading progress in the logbook.',
-            status: 'Completed',
-            completion_date: '2026-09-21',
-            remarks: 'All 6 children completed their books; 3 submitted written reviews.'
-          },
-          {
-            assignment_id: 12,
-            event_name: 'Drama & Theatre Workshop',
-            description: 'Drama improvisation, script reading, and stage performance rehearsal for annual day.',
-            activity_type: 'Extracurricular',
-            priority: 'High',
-            assigned_date: '2026-09-27',
-            scheduled_date: '2026-10-12',
-            due_date: '2026-10-12',
-            assigned_children: '10 Children',
-            location: 'Activity Hall A',
-            assigned_by: 'Drama Teacher',
-            instructions: 'Focus on voice projection and stage confidence. Distribute roles fairly.',
-            status: 'In Progress'
-          },
-          {
-            assignment_id: 13,
-            event_name: 'Cooking & Nutrition Basics',
-            description: 'Teaching children simple healthy recipes, kitchen hygiene, and balanced nutrition.',
-            activity_type: 'Extracurricular',
-            priority: 'Medium',
-            assigned_date: '2026-09-25',
-            scheduled_date: '2026-10-08',
-            due_date: '2026-10-08',
-            assigned_children: '8 Children',
-            location: 'Kitchen & Dining Wing',
-            assigned_by: 'Nutrition Counsellor',
-            instructions: 'Supervise knife handling. Emphasise washing hands. Keep recipes simple and fun.',
-            status: 'Pending'
-          },
-          {
-            assignment_id: 14,
-            event_name: 'Health & Hygiene Education',
-            description: 'Interactive session on personal hygiene, dental care, hand washing, and germ prevention.',
-            activity_type: 'Education',
-            priority: 'High',
-            assigned_date: '2026-09-23',
-            scheduled_date: '2026-09-30',
-            due_date: '2026-09-30',
-            assigned_children: '13 Children',
-            location: 'Health Room',
-            assigned_by: 'Health Officer',
-            instructions: 'Use demonstration kits. Provide each child a hygiene kit to take back.',
-            status: 'In Progress'
-          }
-        ]);
-      })
-      .finally(() => setLoading(false));
+      }
+    } catch (err) {
+      console.error('Error fetching volunteer dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -338,9 +103,8 @@ export default function VolunteerDashboard() {
 
   const isTodayActivity = (act) => {
     if (!act) return false;
-    const sDate = act.scheduled_date || act.due_date || '';
-    const aDate = act.assigned_date || '';
-    return sDate === todayStr || aDate === todayStr;
+    const sDate = act.scheduled_date || act.assigned_date || '';
+    return sDate === todayStr;
   };
 
   const todayActivities = activities.filter(isTodayActivity);
@@ -349,10 +113,10 @@ export default function VolunteerDashboard() {
   const inProgressCount = activities.filter(a => a.status === 'In Progress').length;
   const completedCount = activities.filter(a => a.status === 'Completed').length;
 
-  // Upcoming: activities scheduled today or in future, or still Pending/In Progress
+  // Upcoming: strictly future scheduled activities that are not completed (avoids double-counting today's activities)
   const upcomingCount = activities.filter(a => {
     const sDate = a.scheduled_date || a.due_date || '';
-    return (sDate >= todayStr && a.status !== 'Completed') || a.status === 'Pending';
+    return sDate > todayStr && a.status !== 'Completed';
   }).length;
 
   const handleStatusUpdateSuccess = () => {
@@ -362,25 +126,27 @@ export default function VolunteerDashboard() {
   const handleQuickStatus = async (activityId, newStatus) => {
     try {
       const todayIso = getLocalDateStr(now);
-      const res = await fetch(`${API}/volunteer/activities/${activityId}/status/`, {
+      const res = await requestApi(`/api/volunteer/activities/${activityId}/status/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: newStatus,
           completion_date: newStatus === 'Completed' ? todayIso : null,
-          remarks: newStatus === 'Completed' ? 'Completed successfully during today\'s scheduled session.' : ''
+          remarks: newStatus === 'Completed' ? 'Completed successfully during volunteer session.' : ''
         })
       });
       if (res.ok) {
         fetchDashboardData();
         return;
       }
+      const data = await res.json();
+      alert(data.error || 'Failed to update activity status.');
     } catch (e) {
       console.error(e);
+      alert('Network error while updating status.');
     }
-    // Optimistic fallback
-    setActivities(prev => prev.map(a => a.assignment_id === activityId ? { ...a, status: newStatus } : a));
   };
+
 
   const handleDeleteActivity = async (id, name) => {
     if (!window.confirm(`Are you sure you want to delete assignment "${name || 'Activity'}"?`)) return;
@@ -568,7 +334,7 @@ export default function VolunteerDashboard() {
                 Email
               </span>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-                {profile?.email || userEmail || 'volunteer@orphanage.com'}
+                {profile?.email || userEmail || '—'}
               </span>
             </div>
 
@@ -577,7 +343,7 @@ export default function VolunteerDashboard() {
                 Phone Number
               </span>
               <span style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-                {profile?.phone_number || '+91 98765 43210'}
+                {profile?.phone_number || 'Not provided'}
               </span>
             </div>
 
@@ -595,7 +361,7 @@ export default function VolunteerDashboard() {
                 Skills
               </span>
               <span style={{ color: 'var(--text-primary)', fontSize: '0.85rem' }}>
-                {profile?.skills || 'Mathematics Tutoring, STEM Mentorship, Basic First Aid'}
+                {profile?.skills || 'Not specified'}
               </span>
             </div>
 
@@ -604,7 +370,7 @@ export default function VolunteerDashboard() {
                 Areas of Interest
               </span>
               <span style={{ color: '#60a5fa', fontSize: '0.85rem', fontWeight: 600 }}>
-                {profile?.areas_of_interest || 'Education, Sports, Arts and Crafts'}
+                {profile?.areas_of_interest || 'Not specified'}
               </span>
             </div>
 
@@ -613,7 +379,7 @@ export default function VolunteerDashboard() {
                 Availability
               </span>
               <span style={{ color: '#34d399', fontSize: '0.85rem', fontWeight: 600 }}>
-                {profile?.availability || 'Weekends & Evenings'}
+                {profile?.availability || 'Flexible'}
               </span>
             </div>
           </div>
@@ -793,12 +559,39 @@ export default function VolunteerDashboard() {
                           {act.location || 'Campus'}
                         </span>
                       </div>
-                      <div>
-                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>ASSIGNED GROUP</span>
-                        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                          <i className="bi bi-people-fill" style={{ marginRight: '0.3rem', color: '#a855f7' }} />
-                          {act.assigned_children || 'Assigned Group'}
-                        </span>
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.68rem', fontWeight: 700, marginBottom: '0.35rem' }}>ASSIGNED GROUP</span>
+                        {(() => {
+                          const childrenList = Array.isArray(act.assigned_children_list) && act.assigned_children_list.length > 0
+                            ? act.assigned_children_list
+                            : act.assigned_children && act.assigned_children.includes(':')
+                              ? act.assigned_children.split(':')[1].split(',').map(s => s.trim()).filter(Boolean)
+                              : [];
+                          const countMatch = String(act.assigned_children || '').match(/(\d+)/);
+                          const count = childrenList.length || (countMatch ? countMatch[1] : '?');
+                          return (
+                            <>
+                              <span style={{ fontSize: '0.72rem', color: '#a855f7', fontWeight: 700 }}>
+                                <i className="bi bi-people-fill" style={{ marginRight: '0.25rem' }} />{count} Children
+                              </span>
+                              {childrenList.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.3rem' }}>
+                                  {childrenList.map((cName, cIdx) => (
+                                    <span key={cIdx} style={{
+                                      fontSize: '0.67rem', fontWeight: 600,
+                                      background: 'rgba(168, 85, 247, 0.12)', color: '#a855f7',
+                                      border: '1px solid rgba(168, 85, 247, 0.28)',
+                                      padding: '0.1rem 0.4rem', borderRadius: '999px',
+                                      display: 'inline-flex', alignItems: 'center', gap: '0.2rem'
+                                    }}>
+                                      <i className="bi bi-person-fill" style={{ fontSize: '0.65rem' }} />{cName}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                       <div>
                         <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>ASSIGNED BY</span>
@@ -912,23 +705,24 @@ export default function VolunteerDashboard() {
               <thead>
                 <tr>
                   <th>Activity</th>
-                  <th style={{ minWidth: '175px' }}>Dates</th>
-                  <th style={{ textAlign: 'center' }}>Children</th>
-                  <th>Type</th>
-                  <th style={{ textAlign: 'center', minWidth: '105px' }}>Status</th>
-                  <th style={{ textAlign: 'center', minWidth: '95px' }}>Action</th>
+                  <th style={{ minWidth: '160px' }}>Date & Time</th>
+                  <th style={{ minWidth: '130px' }}>Location</th>
+                  <th style={{ minWidth: '130px' }}>Assigned Volunteer</th>
+                  <th style={{ textAlign: 'center', minWidth: '95px' }}>Priority</th>
+                  <th style={{ textAlign: 'center', minWidth: '125px' }}>Status</th>
+                  <th style={{ textAlign: 'center', minWidth: '210px' }}>Status Action</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '2.5rem' }}>
+                    <td colSpan={7} style={{ textAlign: 'center', padding: '2.5rem' }}>
                       <span className="spinner" style={{ margin: '0 auto' }} />
                     </td>
                   </tr>
                 ) : sortedDisplayedActivities.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
+                    <td colSpan={7} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
                       <i className="bi bi-calendar-x" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }} />
                       No activities match the selected filter.
                     </td>
@@ -937,8 +731,6 @@ export default function VolunteerDashboard() {
                   sortedDisplayedActivities.map((act) => {
                     const scheduledDate = act.scheduled_date || act.due_date || act.assigned_date;
                     const isToday = isTodayActivity(act);
-                    const childMatch = String(act.assigned_children || '').match(/^\s*(\d+)/);
-                    const childDisplay = childMatch ? childMatch[1] : (String(act.assigned_children || '').match(/\d+/)?.[0] || '5');
 
                     return (
                       <tr
@@ -972,23 +764,42 @@ export default function VolunteerDashboard() {
                               </span>
                             )}
                           </div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {act.description || 'Assigned shift activity'}
                           </div>
+                          {/* Children names */}
+                          {(() => {
+                            const cList = Array.isArray(act.assigned_children_list) && act.assigned_children_list.length > 0
+                              ? act.assigned_children_list
+                              : act.assigned_children && act.assigned_children.includes(':')
+                                ? act.assigned_children.split(':')[1].split(',').map(s => s.trim()).filter(Boolean)
+                                : [];
+                            const cMatch = String(act.assigned_children || '').match(/(\d+)/);
+                            const cCount = cList.length || (cMatch ? cMatch[1] : '');
+                            if (!cCount) return null;
+                            return (
+                              <div style={{ marginTop: '0.3rem' }}>
+                                <span style={{ fontSize: '0.68rem', color: '#4f46e5', fontWeight: 700 }}>
+                                  <i className="bi bi-people-fill" style={{ marginRight: '0.2rem' }} />{cCount} Children
+                                </span>
+                                {cList.length > 0 && (
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', marginTop: '0.2rem', maxWidth: '320px' }}>
+                                    {cList.map((n, i) => (
+                                      <span key={i} style={{ fontSize: '0.65rem', fontWeight: 600, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '0.07rem 0.35rem', borderRadius: '999px' }}>
+                                        {n}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </td>
 
                         <td style={{ whiteSpace: 'nowrap', minWidth: '175px' }}>
-                          {/* Assigned Date */}
+                          {/* Scheduled Date */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.3rem' }}>
-                            <span style={{ fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.04em', minWidth: '52px' }}>Assigned</span>
-                            <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
-                              <i className="bi bi-calendar-plus" style={{ marginRight: '0.25rem', color: '#64748b' }} />
-                              {formatDate(act.assigned_date)}
-                            </span>
-                          </div>
-                          {/* Activity / Scheduled Date */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <span style={{ fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.04em', minWidth: '52px' }}>Activity</span>
+                            <span style={{ fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.04em', minWidth: '55px' }}>Scheduled</span>
                             <span style={{ fontSize: '0.82rem', color: isToday ? '#38bdf8' : '#60a5fa', fontWeight: 700 }}>
                               <i className="bi bi-calendar-event-fill" style={{ marginRight: '0.25rem' }} />
                               {formatDate(scheduledDate)}
@@ -999,43 +810,96 @@ export default function VolunteerDashboard() {
                               )}
                             </span>
                           </div>
+                          {/* Assigned Date */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.04em', minWidth: '55px' }}>Assigned</span>
+                            <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
+                              <i className="bi bi-calendar-plus" style={{ marginRight: '0.25rem', color: '#64748b' }} />
+                              {formatDate(act.assigned_date)}
+                            </span>
+                          </div>
                         </td>
 
-                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          <span className="badge badge-accent" style={{ fontSize: '0.75rem', padding: '0.2rem 0.55rem' }} title={act.assigned_children || 'Assigned Children'}>
-                            {childDisplay}
+                        <td style={{ whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '0.82rem', color: 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <i className="bi bi-geo-alt-fill" style={{ color: '#ef4444', fontSize: '0.85rem' }} />
+                            {act.location || 'Orphanage Campus'}
                           </span>
                         </td>
 
                         <td style={{ whiteSpace: 'nowrap' }}>
-                          <span className="badge badge-muted" style={{ fontSize: '0.75rem' }}>
-                            {act.activity_type || 'Education'}
+                          <span style={{ fontSize: '0.82rem', color: '#a78bfa', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <i className="bi bi-person-check-fill" style={{ fontSize: '0.85rem' }} />
+                            {act.volunteer_name || profile?.full_name || userName}
                           </span>
                         </td>
 
                         <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          <span className={`badge ${STATUS_COLOR[act.status] || 'badge-muted'}`}>
+                          <span style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: 'var(--radius-sm)',
+                            color: act.priority === 'High' ? '#ef4444' : act.priority === 'Medium' ? '#f59e0b' : '#10b981',
+                            background: act.priority === 'High' ? 'rgba(239, 68, 68, 0.12)' : act.priority === 'Medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                            textTransform: 'uppercase'
+                          }}>
+                            {act.priority || 'Medium'}
+                          </span>
+                        </td>
+
+                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap', minWidth: '125px', verticalAlign: 'top', paddingTop: '0.9rem' }}>
+                          <span
+                            className={`badge ${STATUS_COLOR[act.status] || 'badge-muted'}`}
+                            style={{ minWidth: '95px', display: 'inline-flex', justifyContent: 'center' }}
+                          >
                             {act.status}
                           </span>
                         </td>
 
-                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                          <div className="action-btn-group">
+                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap', minWidth: '210px', verticalAlign: 'top', paddingTop: '0.9rem' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', whiteSpace: 'nowrap' }}>
+                            {act.status === 'Pending' && (
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-sm"
+                                onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
+                                style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', background: '#2563eb', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                title="Move to In Progress"
+                              >
+                                <i className="bi bi-play-fill" /> Start
+                              </button>
+                            )}
+                            {act.status === 'In Progress' && (
+                              <button
+                                type="button"
+                                className="btn btn-sm"
+                                onClick={() => handleQuickStatus(act.assignment_id, 'Completed')}
+                                style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', background: '#16a34a', color: '#fff', border: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                title="Mark as Completed"
+                              >
+                                <i className="bi bi-check2-circle" /> Complete
+                              </button>
+                            )}
+                            {act.status === 'Completed' && (
+                              <button
+                                type="button"
+                                className="btn btn-ghost btn-sm"
+                                onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
+                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', color: 'var(--text-muted)', border: '1px solid var(--border)', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                title="Reopen Activity"
+                              >
+                                <i className="bi bi-arrow-counterclockwise" /> Reopen
+                              </button>
+                            )}
                             <button
                               type="button"
-                              className="btn-icon-pencil"
+                              className="btn btn-secondary btn-sm"
                               onClick={() => setSelectedActivity(act)}
-                              title="Edit Activity"
+                              style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                              title="Update Status & Remarks"
                             >
-                              <i className="bi bi-pencil" />
-                            </button>
-                            <button
-                              type="button"
-                              className="btn-box-delete"
-                              onClick={() => handleDeleteActivity(act.assignment_id, act.event_name)}
-                              title="Delete Activity"
-                            >
-                              <i className="bi bi-trash" />
+                              <i className="bi bi-pencil-square" /> Details
                             </button>
                           </div>
                         </td>

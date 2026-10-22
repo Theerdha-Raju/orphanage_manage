@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-const API = 'http://localhost:8000/api';
+import { requestApi } from '../apiConfig';
 
 const STATUS_COLOR = {
   'Pending': 'badge-amber',
@@ -24,6 +23,26 @@ export default function ActivityDetails({ activity, onClose, onUpdateSuccess }) 
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
 
+  // Parse assigned children names from backend
+  const childrenList = (() => {
+    if (Array.isArray(activity.assigned_children_list) && activity.assigned_children_list.length > 0) {
+      return activity.assigned_children_list;
+    }
+    const raw = activity.assigned_children || '';
+    if (raw.includes(':')) {
+      return raw.split(':')[1].split(',').map(s => s.trim()).filter(Boolean);
+    }
+    return [];
+  })();
+
+  const childCount = (() => {
+    if (activity.assigned_children_count) return activity.assigned_children_count;
+    if (childrenList.length > 0) return childrenList.length;
+    const match = String(activity.assigned_children || '').match(/(\d+)/);
+    return match ? match[1] : '6';
+  })();
+
+
   const submitStatusUpdate = async (targetStatus, targetCompletionDate, targetRemarks) => {
     setUpdating(true);
     setMsg('');
@@ -37,7 +56,7 @@ export default function ActivityDetails({ activity, onClose, onUpdateSuccess }) 
     };
 
     try {
-      const res = await fetch(`${API}/volunteer/activities/${activity.assignment_id}/status/`, {
+      const res = await requestApi(`/api/volunteer/activities/${activity.assignment_id}/status/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -56,23 +75,12 @@ export default function ActivityDetails({ activity, onClose, onUpdateSuccess }) 
         setTimeout(() => {
           setMsg('');
           onClose();
-        }, 1400);
+        }, 1200);
       } else {
         setError(data.error || 'Failed to update activity status.');
       }
-    } catch {
-      // Local optimistic fallback
-      setMsg(`Activity status successfully updated to "${targetStatus}".`);
-      activity.status = targetStatus;
-      activity.remarks = targetRemarks;
-      activity.feedback = targetRemarks;
-      if (targetStatus === 'Completed') activity.completion_date = targetCompletionDate;
-
-      if (onUpdateSuccess) onUpdateSuccess();
-      setTimeout(() => {
-        setMsg('');
-        onClose();
-      }, 1400);
+    } catch (err) {
+      setError(err?.message || 'Failed to update activity status. Please check connection.');
     } finally {
       setUpdating(false);
     }
@@ -272,7 +280,7 @@ export default function ActivityDetails({ activity, onClose, onUpdateSuccess }) 
               <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 700 }}>
                 Assigned Children
               </span>
-              <strong style={{ color: '#34d399' }}>{activity.assigned_children || '5 Children'}</strong>
+              <strong style={{ color: '#34d399' }}>{childCount} Children</strong>
             </div>
             <div>
               <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 700 }}>
@@ -282,11 +290,63 @@ export default function ActivityDetails({ activity, onClose, onUpdateSuccess }) 
             </div>
             <div>
               <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 700 }}>
+                Assigned Volunteer
+              </span>
+              <strong style={{ color: '#a78bfa' }}>{activity.volunteer_name || 'Assigned Volunteer'}</strong>
+            </div>
+            <div>
+              <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 700 }}>
                 Assigned By
               </span>
               <strong style={{ color: '#fbbf24' }}>{activity.assigned_by || 'Admin'}</strong>
             </div>
           </div>
+
+          {/* Participating Children List */}
+          {childrenList.length > 0 && (
+            <div style={{
+              background: 'var(--bg-surface-2)',
+              padding: '0.85rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border)'
+            }}>
+              <span style={{
+                color: '#4f46e5',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                fontSize: '0.74rem',
+                textTransform: 'uppercase',
+                fontWeight: 700,
+                marginBottom: '0.55rem'
+              }}>
+                <i className="bi bi-people-fill" style={{ fontSize: '0.85rem' }} />
+                Participating Children ({childrenList.length})
+              </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                {childrenList.map((name, idx) => (
+                  <span
+                    key={idx}
+                    style={{
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      background: '#eff6ff',
+                      color: '#1d4ed8',
+                      border: '1px solid #bfdbfe',
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: '999px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem'
+                    }}
+                  >
+                    <i className="bi bi-person-fill" style={{ fontSize: '0.8rem', color: '#3b82f6' }} />
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Special Instructions */}
           {activity.instructions && (

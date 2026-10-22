@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
-
-const API = 'http://localhost:8000/api';
+import { requestApi } from '../apiConfig';
 
 const CATEGORIES = ['Food', 'Medical', 'Education', 'Utilities', 'Maintenance', 'Clothing', 'Transportation', 'Other'];
 const STATUSES   = ['Paid', 'Pending', 'Cancelled'];
@@ -26,6 +25,7 @@ export default function ExpenseManagementPage() {
   const [filterStat, setFilterStat]= useState('All');
   const [showModal, setShowModal]  = useState(false);
   const [editExpense, setEdit]     = useState(null);
+  const [viewExpense, setViewExpense] = useState(null);
   const [form, setForm]            = useState(emptyForm);
   const [saving, setSaving]        = useState(false);
   const [msg, setMsg]              = useState('');
@@ -35,10 +35,13 @@ export default function ExpenseManagementPage() {
 
   const loadExpenses = () => {
     setLoading(true);
-    fetch(`${API}/expenses/`)
+    requestApi('/api/expenses/')
       .then(r => r.json())
       .then(data => setExpenses(Array.isArray(data) ? data : (data.results || [])))
-      .catch(() => setExpenses([]))
+      .catch((err) => {
+        console.error('Error fetching expenses:', err);
+        setExpenses([]);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -93,10 +96,10 @@ export default function ExpenseManagementPage() {
     }
 
     setSaving(true);
-    const url    = editExpense ? `${API}/expenses/${editExpense.expense_id}/` : `${API}/expenses/`;
-    const method = editExpense ? 'PATCH' : 'POST';
+    const endpoint = editExpense ? `/api/expenses/${editExpense.expense_id}/` : `/api/expenses/`;
+    const method   = editExpense ? 'PATCH' : 'POST';
     try {
-      const r = await fetch(url, {
+      const r = await requestApi(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
@@ -120,7 +123,7 @@ export default function ExpenseManagementPage() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this expense record?')) return;
     try {
-      const r = await fetch(`${API}/expenses/${id}/`, { method: 'DELETE' });
+      const r = await requestApi(`/api/expenses/${id}/`, { method: 'DELETE' });
       if (r.ok || r.status === 204) {
         setMsg('Expense record deleted.');
         setTimeout(() => setMsg(''), 3000);
@@ -243,59 +246,78 @@ export default function ExpenseManagementPage() {
                 </td></tr>
               ) : filtered.map((e, i) => (
                 <tr key={e.expense_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600, padding: '0.75rem 0.5rem', textAlign: 'center' }}>{i + 1}</td>
+                  <td style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 600, padding: '0.75rem 0.5rem', textAlign: 'center' }}>{i + 1}</td>
                   <td style={{ padding: '0.75rem 0.6rem' }}>
                     <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem', whiteSpace: 'nowrap' }}>{e.title}</div>
-                    {e.description && <div style={{ fontSize: '0.7rem', color: '#94a3b8', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.description}</div>}
+                    {e.description && <div style={{ fontSize: '0.72rem', color: '#64748b', maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.description}</div>}
                   </td>
                   <td style={{ padding: '0.75rem 0.6rem' }}>
                     <span className="badge" style={{ background: `${CAT_COLORS[e.category] || '#64748b'}20`, color: CAT_COLORS[e.category] || '#64748b', border: `1px solid ${CAT_COLORS[e.category] || '#64748b'}40`, fontWeight: 700, fontSize: '0.72rem' }}>
                       {e.category}
                     </span>
                   </td>
-                  <td style={{ padding: '0.75rem 0.6rem', fontWeight: 800, color: '#4ade80', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: '0.75rem 0.6rem', fontWeight: 800, color: '#059669', fontSize: '0.88rem', whiteSpace: 'nowrap' }}>
                     ₹{parseFloat(e.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
-                  <td style={{ padding: '0.75rem 0.6rem', fontSize: '0.82rem', color: '#cbd5e1', whiteSpace: 'nowrap' }}>{e.expense_date}</td>
-                  <td style={{ padding: '0.75rem 0.6rem', fontSize: '0.82rem', color: '#cbd5e1', whiteSpace: 'nowrap' }}>{e.paid_by || '—'}</td>
+                  <td style={{ padding: '0.75rem 0.6rem', fontSize: '0.84rem', color: '#334155', fontWeight: 600, whiteSpace: 'nowrap' }}>{e.expense_date}</td>
+                  <td style={{ padding: '0.75rem 0.6rem', fontSize: '0.84rem', color: '#334155', fontWeight: 600, whiteSpace: 'nowrap' }}>{e.paid_by || '—'}</td>
                   <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center' }}>
                     <span className={`badge ${STATUS_BADGE[e.status] || 'badge-muted'}`} style={{ fontWeight: 700, padding: '0.25rem 0.6rem', fontSize: '0.72rem' }}>
                       {e.status}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem 0.6rem', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => setViewExpense(e)}
+                        title="View Details"
+                        style={{
+                          width: 32, height: 32,
+                          borderRadius: '8px',
+                          background: '#eff6ff',
+                          border: '1px solid #bfdbfe',
+                          color: '#2563eb',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <i className="bi bi-eye" style={{ fontSize: '0.88rem' }} />
+                      </button>
                       <button
                         type="button"
                         onClick={() => openEdit(e)}
                         title="Edit Expense"
                         style={{
-                          width: 30, height: 30,
-                          borderRadius: '6px',
-                          background: 'rgba(30, 41, 59, 0.9)',
-                          border: '1px solid rgba(255, 255, 255, 0.12)',
-                          color: '#f8fafc',
+                          width: 32, height: 32,
+                          borderRadius: '8px',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          color: '#334155',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
                         }}
                       >
-                        <i className="bi bi-pencil" style={{ fontSize: '0.78rem' }} />
+                        <i className="bi bi-pencil" style={{ fontSize: '0.82rem' }} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(e.expense_id)}
                         title="Delete Expense"
                         style={{
-                          width: 30, height: 30,
-                          borderRadius: '6px',
-                          background: 'rgba(153, 27, 27, 0.45)',
-                          border: '1px solid rgba(248, 113, 113, 0.35)',
-                          color: '#f87171',
+                          width: 32, height: 32,
+                          borderRadius: '8px',
+                          background: '#fef2f2',
+                          border: '1px solid #fecaca',
+                          color: '#ef4444',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
                         }}
                       >
-                        <i className="bi bi-trash" style={{ fontSize: '0.78rem' }} />
+                        <i className="bi bi-trash" style={{ fontSize: '0.82rem' }} />
                       </button>
                     </div>
                   </td>
@@ -366,6 +388,133 @@ export default function ExpenseManagementPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Expense Details Modal */}
+      {viewExpense && (
+        <div className="modal-backdrop" onClick={() => setViewExpense(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: 540 }}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: '8px',
+                  background: '#eff6ff', border: '1px solid #bfdbfe',
+                  color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.1rem'
+                }}>
+                  <i className="bi bi-eye" />
+                </div>
+                <div>
+                  <h4 style={{ color: 'var(--text-primary)', margin: 0, fontSize: '1.1rem' }}>
+                    Expense Details
+                  </h4>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    Audit ID: #{viewExpense.expense_id}
+                  </span>
+                </div>
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setViewExpense(null)}>
+                <i className="bi bi-x-lg" />
+              </button>
+            </div>
+
+            <div style={{ padding: '0.5rem 0' }}>
+              <div style={{
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '10px',
+                padding: '1rem',
+                marginBottom: '1rem'
+              }}>
+                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  EXPENSE TITLE
+                </div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginTop: '0.2rem' }}>
+                  {viewExpense.title}
+                </div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669', marginTop: '0.4rem' }}>
+                  ₹{parseFloat(viewExpense.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', marginBottom: '1rem' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.75rem' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Category</span>
+                  <span className="badge" style={{
+                    marginTop: '0.35rem',
+                    background: `${CAT_COLORS[viewExpense.category] || '#64748b'}20`,
+                    color: CAT_COLORS[viewExpense.category] || '#64748b',
+                    border: `1px solid ${CAT_COLORS[viewExpense.category] || '#64748b'}40`,
+                    fontWeight: 700, fontSize: '0.75rem'
+                  }}>
+                    {viewExpense.category}
+                  </span>
+                </div>
+
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.75rem' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Status</span>
+                  <span className={`badge ${STATUS_BADGE[viewExpense.status] || 'badge-muted'}`} style={{ marginTop: '0.35rem', fontWeight: 700, fontSize: '0.75rem' }}>
+                    {viewExpense.status}
+                  </span>
+                </div>
+
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.75rem' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Expense Date</span>
+                  <strong style={{ color: '#1e293b', fontSize: '0.9rem', marginTop: '0.2rem', display: 'block' }}>
+                    <i className="bi bi-calendar3" style={{ marginRight: '0.35rem', color: '#2563eb' }} />
+                    {viewExpense.expense_date}
+                  </strong>
+                </div>
+
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '0.75rem' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Paid By</span>
+                  <strong style={{ color: '#1e293b', fontSize: '0.9rem', marginTop: '0.2rem', display: 'block' }}>
+                    <i className="bi bi-person-fill" style={{ marginRight: '0.35rem', color: '#64748b' }} />
+                    {viewExpense.paid_by || '—'}
+                  </strong>
+                </div>
+              </div>
+
+              {viewExpense.description && (
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '0.85rem',
+                  marginBottom: '1rem'
+                }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>
+                    Description & Bill Notes
+                  </span>
+                  <p style={{ margin: 0, fontSize: '0.84rem', color: '#334155', lineHeight: 1.5 }}>
+                    {viewExpense.description}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '0.85rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => setViewExpense(null)}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  const target = viewExpense;
+                  setViewExpense(null);
+                  openEdit(target);
+                }}
+              >
+                <i className="bi bi-pencil" /> Edit Expense
+              </button>
+            </div>
           </div>
         </div>
       )}

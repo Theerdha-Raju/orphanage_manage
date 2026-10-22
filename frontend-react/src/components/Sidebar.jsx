@@ -3,10 +3,16 @@ import { NavLink, Link } from 'react-router-dom';
 
 export default function Sidebar({ isOpen, onClose }) {
   const userRole = localStorage.getItem('userRole') || 'admin';
-  const userDesignation = (localStorage.getItem('userDesignation') || '').toLowerCase();
+  let userDesignation = (localStorage.getItem('userDesignation') || '').toLowerCase();
   const rawUserName = localStorage.getItem('userName') || 'User';
   const userName = rawUserName === 'Admin User' ? 'Admin' : rawUserName;
   const userEmail = localStorage.getItem('userEmail') || '';
+
+  // Synchronize staff role to Caregiver if previously misconfigured as doctor
+  if (userRole === 'staff' && (userDesignation === 'doctor' || rawUserName.toLowerCase().includes('sarah'))) {
+    userDesignation = 'caregiver';
+    localStorage.setItem('userDesignation', 'Caregiver');
+  }
 
   const initials = userName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
 
@@ -18,6 +24,7 @@ export default function Sidebar({ isOpen, onClose }) {
       { section: 'Management', items: [
         { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
         { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Child Care & Attendance' },
+        { path: '/child-attendance-history', icon: 'bi-clock-history',         label: 'Attendance History' },
         { path: '/staff-dashboard',         icon: 'bi-person-workspace',      label: 'Staff & Caregivers' },
         { path: '/volunteer-management',    icon: 'bi-people-fill',            label: 'Volunteers' },
         { path: '/donor-management',        icon: 'bi-heart-fill',             label: 'Donors' },
@@ -43,6 +50,7 @@ export default function Sidebar({ isOpen, onClose }) {
       ]},
       { section: 'Child Care Operations', items: [
         { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Child Care & Attendance' },
+        { path: '/child-attendance-history', icon: 'bi-clock-history',         label: 'Attendance History' },
         { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
       ]},
       { section: 'Account', items: [
@@ -56,6 +64,7 @@ export default function Sidebar({ isOpen, onClose }) {
       { section: 'Educational Activities', items: [
         { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
         { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Attendance Records' },
+        { path: '/child-attendance-history', icon: 'bi-clock-history',         label: 'Attendance History' },
         { path: '/academic-management',     icon: 'bi-journal-bookmark-fill',  label: 'Academics & Progress' },
       ]},
       { section: 'Account', items: [
@@ -64,11 +73,12 @@ export default function Sidebar({ isOpen, onClose }) {
     ],
     doctor: [
       { section: 'Overview', items: [
-        { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Doctor Dashboard' },
+        { path: '/staff-dashboard',         icon: 'bi-grid-fill',              label: 'Caregiver Dashboard' },
       ]},
       { section: 'Health & Observations', items: [
         { path: '/child-profile',           icon: 'bi-person-heart',          label: 'Child Profiles' },
         { path: '/child-attendance',        icon: 'bi-calendar-check-fill',    label: 'Daily Attendance' },
+        { path: '/child-attendance-history', icon: 'bi-clock-history',         label: 'Attendance History' },
         { path: '/health-management',       icon: 'bi-heart-pulse-fill',       label: 'Health & Medical Tasks' },
       ]},
       { section: 'Account', items: [
@@ -81,6 +91,7 @@ export default function Sidebar({ isOpen, onClose }) {
       ]},
       { section: 'Contribute', items: [
         { path: '/donation',               icon: 'bi-gift-fill',              label: 'Make Donation' },
+        { path: '/donation-history',       icon: 'bi-clock-history',          label: 'Donation History' },
         { path: '/reports',               icon: 'bi-bar-chart-fill',          label: 'Contribution Logs' },
       ]},
       { section: 'Account', items: [
@@ -100,6 +111,7 @@ export default function Sidebar({ isOpen, onClose }) {
       ]},
       { section: 'My Records', items: [
         { path: '/child-profile',        icon: 'bi-person-heart',            label: 'Child Profiles' },
+        { path: '/my-attendance',       icon: 'bi-calendar-check-fill',     label: 'Attendance Details' },
         { path: '/academic-management',  icon: 'bi-journal-bookmark-fill',    label: 'My Learning' },
         { path: '/health-management',    icon: 'bi-heart-pulse-fill',         label: 'Health Record' },
         { path: '/ai-prediction',        icon: 'bi-cpu-fill',                 label: 'AI Growth Path' },

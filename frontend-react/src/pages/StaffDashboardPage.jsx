@@ -174,7 +174,13 @@ export default function StaffDashboardPage() {
   const { toggleSidebar } = useOutletContext();
   const userName = localStorage.getItem('userName') || 'Caregiver Staff';
   const userRole = localStorage.getItem('userRole') || 'staff';
-  const userDesignation = localStorage.getItem('userDesignation') || (userRole === 'admin' ? 'Administrator' : 'Caregiver');
+  let userDesignation = localStorage.getItem('userDesignation') || (userRole === 'admin' ? 'Administrator' : 'Caregiver');
+
+  // Synchronize staff role to Caregiver if previously misconfigured as doctor
+  if (userRole === 'staff' && (userDesignation.toLowerCase() === 'doctor' || userName.toLowerCase().includes('sarah'))) {
+    userDesignation = 'Caregiver';
+    localStorage.setItem('userDesignation', 'Caregiver');
+  }
 
   const [staffList, setStaffList] = useState([]);
   const [totalStaffs, setTotalStaffs] = useState(0);
@@ -610,7 +616,7 @@ export default function StaffDashboardPage() {
         {/* STATS GRID */}
         <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
           {[
-            { label: 'Total Staff / Caregivers', value: totalStaffs, icon: 'bi-people-fill', cls: 'stat-icon-violet', sub: 'Active workforce category' },
+            { label: 'User Role', value: userDesignation, icon: 'bi-person-badge-fill', cls: 'stat-icon-violet', sub: 'Active profile role' },
             { label: 'Caregivers', value: caregiverCount, icon: 'bi-person-heart', cls: 'stat-icon-indigo', sub: 'Child care & attendance' },
             { label: 'Teachers', value: teacherCount, icon: 'bi-journal-bookmark-fill', cls: 'stat-icon-amber', sub: 'Education & academics' },
             { label: 'Doctors', value: doctorCount, icon: 'bi-heart-pulse-fill', cls: 'stat-icon-green', sub: 'Health checks & records' },
@@ -621,7 +627,7 @@ export default function StaffDashboardPage() {
               <div className={`stat-icon ${s.cls}`}><i className={`bi ${s.icon}`} /></div>
               <div>
                 <div className="stat-label">{s.label}</div>
-                <div className="stat-value">{s.value}</div>
+                <div className="stat-value" style={typeof s.value === 'string' && s.value.length > 6 ? { fontSize: '1.25rem' } : {}}>{s.value}</div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{s.sub}</div>
               </div>
             </div>

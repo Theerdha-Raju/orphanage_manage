@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Users, Login, Child, Donor, Donation, Volunteer, VolunteerAssignment, Attendance, Education, Health, Achievement, Alert, Expense
+from .models import Users, Login, Child, Donor, Donation, PaymentOrder, Volunteer, VolunteerAssignment, Attendance, Education, Health, Achievement, Alert, Expense
 
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
@@ -27,9 +27,15 @@ class DonorAdmin(admin.ModelAdmin):
 
 @admin.register(Donation)
 class DonationAdmin(admin.ModelAdmin):
-    list_display = ('donation_id', 'donor', 'donation_type', 'amount', 'donation_date', 'status')
-    search_fields = ('donor__full_name', 'item_description')
-    list_filter = ('donation_type', 'status', 'donation_date')
+    list_display = ('donation_id', 'donor', 'donation_type', 'amount', 'payment_status', 'receipt_number', 'razorpay_payment_id', 'collection_status', 'donation_date', 'status')
+    search_fields = ('donor__full_name', 'item_description', 'receipt_number', 'razorpay_payment_id', 'razorpay_order_id')
+    list_filter = ('donation_type', 'payment_status', 'collection_status', 'status', 'donation_date')
+
+@admin.register(PaymentOrder)
+class PaymentOrderAdmin(admin.ModelAdmin):
+    list_display = ('order_id', 'razorpay_order_id', 'donor_name', 'amount', 'status', 'razorpay_payment_id', 'created_at')
+    search_fields = ('razorpay_order_id', 'donor_name', 'donor_email', 'razorpay_payment_id')
+    list_filter = ('status', 'created_at')
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):

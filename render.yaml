@@ -1,0 +1,38 @@
+# Render Blueprint Specification for HopeNest Backend & PostgreSQL
+services:
+  - type: web
+    name: hopenest-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn backend.wsgi:application"
+    healthCheckPath: "/api/health-check/"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hopenest-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "http://localhost:5173"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "http://localhost:5173"
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+databases:
+  - name: hopenest-db
+    databaseName: orphanage_manage
+    user: postgres
+    plan: free

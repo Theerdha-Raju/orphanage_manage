@@ -10,22 +10,59 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Optionally load environment variables from local .env files if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+    load_dotenv(BASE_DIR.parent / '.env')
+except ImportError:
+    pass
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID = os.environ.get(
+    'GOOGLE_CLIENT_ID',
+    '818271876365-uv4atev2m1n3cq8eg0tjh80givc3af99.apps.googleusercontent.com'
+)
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+
+# Razorpay Payment Gateway Configuration
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
+RAZORPAY_WEBHOOK_SECRET = os.environ.get('RAZORPAY_WEBHOOK_SECRET', '')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1s_s15z$649d#ai-+#j=h3oi)eyu)!gv+j9all&t9a6w-_x0@*'
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-1s_s15z$649d#ai-+#j=h3oi)eyu)!gv+j9all&t9a6w-_x0@*'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't', 'yes')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        'ALLOWED_HOSTS',
+        'localhost,127.0.0.1,.onrender.com,testserver'
+    ).split(',')
+    if host.strip()
+]
+
+# Support Render external hostname if injected by Render runtime
+render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_external_hostname and render_external_hostname not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_external_hostname)
 
 
 # Application definition
@@ -44,6 +81,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,16 +115,27 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database — PostgreSQL
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'orphanage_manage',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5432',
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DB_NAME", "orphanage_manage"),
+            "USER": os.environ.get("DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", "postgres"),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "5432"),
+        }
+    }
 
 
 # Password validation
@@ -110,17 +159,69 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS configuration
+default_cors = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+]
+raw_cors = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+if raw_cors:
+    parsed_cors = [
+        origin.strip()
+        for origin in raw_cors.split(",")
+        if origin.strip()
+    ]
+    CORS_ALLOWED_ORIGINS = list(set(default_cors + parsed_cors))
+    CORS_ALLOW_ALL_ORIGINS = False
+elif DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = default_cors
+else:
+    CORS_ALLOWED_ORIGINS = default_cors
+    CORS_ALLOW_ALL_ORIGINS = False
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ['*']
 CORS_EXPOSE_HEADERS = ['*']
 
+# CSRF configuration for Render frontend/backend architecture
+default_csrf = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+raw_csrf = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
+if raw_csrf:
+    parsed_csrf = [
+        origin.strip()
+        for origin in raw_csrf.split(",")
+        if origin.strip()
+    ]
+    CSRF_TRUSTED_ORIGINS = list(set(default_csrf + parsed_csrf))
+else:
+    CSRF_TRUSTED_ORIGINS = default_csrf
+
+for origin in CORS_ALLOWED_ORIGINS:
+    if origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
+
 X_FRAME_OPTIONS = 'ALLOWALL'
+
+# Production security settings
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "False") == "True"
+    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "False") == "True"
+    CSRF_COOKIE_SECURE = os.environ.get("CSRF_COOKIE_SECURE", "False") == "True"
 
 # DRF: disable authentication/permission requirements for open API
 REST_FRAMEWORK = {

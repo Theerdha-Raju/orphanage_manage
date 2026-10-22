@@ -284,6 +284,11 @@ export default function LoginPage() {
         } else {
           localStorage.removeItem('childId');
         }
+        if (data.volunteer_id) {
+          localStorage.setItem('volunteerId',   String(data.volunteer_id));
+        } else {
+          localStorage.removeItem('volunteerId');
+        }
 
         if (window.PasswordCredential) {
           try {

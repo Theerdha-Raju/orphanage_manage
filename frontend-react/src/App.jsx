@@ -19,7 +19,10 @@ import ChildDashboardPage from './pages/ChildDashboardPage';
 
 import ChildProfilePage from './pages/ChildProfilePage';
 import AttendancePage from './pages/AttendancePage';
+import ChildAttendancePage from './pages/ChildAttendancePage';
+import ChildAttendanceHistoryPage from './pages/ChildAttendanceHistoryPage';
 import DonationPage from './pages/DonationPage';
+import DonationHistoryPage from './pages/DonationHistoryPage';
 import ExpenseManagementPage from './pages/ExpenseManagementPage';
 import VolunteerManagementPage from './pages/VolunteerManagementPage';
 import HealthManagementPage from './pages/HealthManagementPage';
@@ -117,9 +120,24 @@ export default function App() {
               <AttendancePage />
             </ProtectedRoute>
           } />
+          <Route path="/child-attendance-history" element={
+            <ProtectedRoute allowedRoles={['admin', 'staff', 'caregiver', 'teacher', 'doctor']}>
+              <ChildAttendanceHistoryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/my-attendance" element={
+            <ProtectedRoute allowedRoles={['child']}>
+              <ChildAttendancePage />
+            </ProtectedRoute>
+          } />
           <Route path="/donation" element={
             <ProtectedRoute allowedRoles={['admin', 'donor']}>
               <DonationPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/donation-history" element={
+            <ProtectedRoute allowedRoles={['admin', 'donor']}>
+              <DonationHistoryPage />
             </ProtectedRoute>
           } />
           <Route path="/expense-management" element={

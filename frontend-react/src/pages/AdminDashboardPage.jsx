@@ -102,7 +102,18 @@ export default function AdminDashboardPage() {
       // 2. Fetch live alerts for recent activity & AI recommendations
       const alerts = await requestApi('/api/alerts/').then(r => r.json()).catch(() => []);
       if (Array.isArray(alerts)) {
-        setAiAlerts(alerts.slice(0, 4));
+        // Prioritize distinct children and alert types for richer dashboard display
+        const uniqueAiAlerts = [];
+        const seenKeys = new Set();
+        for (const a of alerts) {
+          const key = `${a.child_id || a.child_name || a.child}_${a.alert_type}`;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            uniqueAiAlerts.push(a);
+            if (uniqueAiAlerts.length >= 4) break;
+          }
+        }
+        setAiAlerts(uniqueAiAlerts.length > 0 ? uniqueAiAlerts : alerts.slice(0, 4));
         const activities = alerts.map(a => ({
           icon: 'bi-cpu-fill',
           color: a.severity === 'Critical' ? '#ef4444' : a.severity === 'Warning' ? '#f59e0b' : '#3b82f6',

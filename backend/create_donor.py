@@ -1,21 +1,56 @@
-import sqlite3
+import os
+import django
 
-conn = sqlite3.connect('db.sqlite3')
-cur = conn.cursor()
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+django.setup()
 
-# Insert donor user
-cur.execute("INSERT OR IGNORE INTO users (full_name, phone_number, gender, address, designation, status) VALUES ('Rahul Donor', '9876543210', 'Other', 'Kerala', 'donor', 'Active')")
-user_id = cur.lastrowid
+from api.models import Users, Login, Donor
 
-if user_id == 0:
-    cur.execute("SELECT user_id FROM users WHERE phone_number='9876543210'")
-    user_id = cur.fetchone()[0]
+def create_or_verify_donor():
+    user, _ = Users.objects.get_or_create(
+        phone_number='9800000003',
+        defaults={
+            'full_name': 'Eleanor Vance',
+            'gender': 'Female',
+            'address': '42 Philanthropy Way, Indiranagar, Bengaluru, Karnataka 560038',
+            'designation': 'donor',
+            'status': 'Active'
+        }
+    )
+    user.full_name = 'Eleanor Vance'
+    user.designation = 'donor'
+    user.save()
 
-cur.execute("INSERT OR IGNORE INTO login (email, password, role, user_id) VALUES ('donor@orphanage.com', 'Donor@123', 'donor', ?)", (user_id,))
+    l1, _ = Login.objects.get_or_create(
+        email='donor@orphanage.com',
+        defaults={'password': 'Donor@123', 'role': 'donor', 'status': 'Active', 'user': user}
+    )
+    l1.role = 'donor'
+    l1.user = user
+    l1.save()
 
-conn.commit()
+    l2, _ = Login.objects.get_or_create(
+        email='eleanor.vance@orphanage.com',
+        defaults={'password': 'Donor@123', 'role': 'donor', 'status': 'Active', 'user': user}
+    )
+    l2.role = 'donor'
+    l2.user = user
+    l2.save()
 
-cur.execute("SELECT email, password, role FROM login WHERE role='donor'")
-rows = cur.fetchall()
-print("Donor accounts:", rows)
-conn.close()
+    donor, _ = Donor.objects.get_or_create(
+        email='donor@orphanage.com',
+        defaults={
+            'full_name': 'Eleanor Vance',
+            'phone_number': '9800000003',
+            'address': '42 Philanthropy Way, Indiranagar, Bengaluru, Karnataka 560038',
+            'status': 'Active'
+        }
+    )
+    donor.full_name = 'Eleanor Vance'
+    donor.phone_number = '9800000003'
+    donor.save()
+
+    print("Donor account verified for Eleanor Vance:", donor.donor_id, donor.full_name, donor.email)
+
+if __name__ == '__main__':
+    create_or_verify_donor()
