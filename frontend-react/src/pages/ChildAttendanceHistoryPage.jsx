@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
-
-const API = '/api';
+import { API_URL as API } from '../apiConfig';
 
 const AVATAR_COLORS = [
   '#4f46e5', '#7c3aed', '#2563eb', '#059669',

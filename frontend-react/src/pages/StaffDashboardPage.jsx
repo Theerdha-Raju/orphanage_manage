@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
-
-const API = '/api';
+import { API_URL as API } from '../apiConfig';
 
 const DESIGNATION_OPTIONS = ['Caregiver', 'Teacher', 'Doctor'];
 

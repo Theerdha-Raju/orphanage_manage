@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import DonorPaymentModal from '../components/DonorPaymentModal';
-
-const API = '/api';
+import { API_URL as API } from '../apiConfig';
 
 export default function DonationHistoryPage() {
   const { toggleSidebar } = useOutletContext();

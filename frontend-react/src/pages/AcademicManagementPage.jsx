@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import { getLoggedInChild } from '../utils/childAuth';
-
-const API = '/api';
+import { API_URL as API } from '../apiConfig';
 
 const gradeColor = { 'A+': 'badge-green', A: 'badge-green', B: 'badge-accent', C: 'badge-amber', D: 'badge-rose', F: 'badge-rose' };
 

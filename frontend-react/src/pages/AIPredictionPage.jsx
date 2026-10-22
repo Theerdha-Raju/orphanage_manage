@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
 import { getLoggedInChild } from '../utils/childAuth';
-
-const API = '/api';
+import { API_URL as API } from '../apiConfig';
 
 const riskColor = (r) => r === 'High' ? '#ef4444' : r === 'Medium' ? '#f59e0b' : r === 'Low' ? '#10b981' : '#64748b';
 const riskBg   = (r) => r === 'High' ? 'rgba(239,68,68,0.08)' : r === 'Medium' ? 'rgba(245,158,11,0.08)' : 'rgba(16,185,129,0.08)';

@@ -193,8 +193,22 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 ]
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = ['*']
-CORS_EXPOSE_HEADERS = ['*']
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-user-role',
+    'x-user-email',
+    'x-user-id',
+    'x-volunteer-id',
+]
+CORS_EXPOSE_HEADERS = ['content-type', 'x-csrftoken']
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',

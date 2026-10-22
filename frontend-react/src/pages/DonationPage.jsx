@@ -6,8 +6,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 import DonorPaymentModal from '../components/DonorPaymentModal';
-
-const API = '/api';
+import { API_URL as API } from '../apiConfig';
 
 const DONATION_TYPES = [
   'All',

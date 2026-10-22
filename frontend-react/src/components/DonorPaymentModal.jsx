@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const API = '/api';
+import { API_URL as API } from '../apiConfig';
 
 const PRESET_AMOUNTS = [100, 500, 1000, 2000, 5000];
 

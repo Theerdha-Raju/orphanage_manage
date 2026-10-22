@@ -1,0 +1,21 @@
+# Environment variables
+.env
+*.env
+!.env.example
+
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*.pyc
+
+# Static & Media
+staticfiles/
+media/*
+!media/.gitkeep
+!media/child_photos/.gitkeep
+!media/academic_docs/.gitkeep
+
+# Databases & local files
+*.sqlite3
+local_settings.py
+*.log
