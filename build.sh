@@ -12,4 +12,7 @@ python manage.py collectstatic --no-input
 echo "--- Running database migrations ---"
 python manage.py migrate
 
+echo "--- Seeding default portal user accounts ---"
+python seed_portal_users.py || true
+
 echo "--- Build complete! ---"

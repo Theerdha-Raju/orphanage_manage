@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
+import { API_URL } from '../apiConfig';
 
-const API = 'http://localhost:8000/api';
+const API = API_URL;
 
 const STATUS_BADGE = { Active: 'badge-green', Inactive: 'badge-muted', 'On Leave': 'badge-amber' };
 

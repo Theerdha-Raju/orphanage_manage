@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import TopHeader from '../components/TopHeader';
+import { API_URL } from '../apiConfig';
 
-const API = 'http://localhost:8000/api';
+const API = API_URL;
 
 export default function VolunteerDashboardPage() {
   const { toggleSidebar } = useOutletContext();

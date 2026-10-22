@@ -180,17 +180,29 @@ if raw_cors:
         if origin.strip()
     ]
     CORS_ALLOWED_ORIGINS = list(set(default_cors + parsed_cors))
-    CORS_ALLOW_ALL_ORIGINS = False
-elif DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-    CORS_ALLOWED_ORIGINS = default_cors
 else:
     CORS_ALLOWED_ORIGINS = default_cors
-    CORS_ALLOW_ALL_ORIGINS = False
 
+# Allow any onrender.com domain and local dev ports
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.onrender\.com$",
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.netlify\.app$",
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+]
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ['*']
 CORS_EXPOSE_HEADERS = ['*']
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 # CSRF configuration for Render frontend/backend architecture
 default_csrf = [
@@ -198,6 +210,9 @@ default_csrf = [
     "http://127.0.0.1:5173",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "https://*.onrender.com",
+    "https://*.vercel.app",
+    "https://*.netlify.app",
 ]
 raw_csrf = os.environ.get("CSRF_TRUSTED_ORIGINS", "")
 if raw_csrf:
