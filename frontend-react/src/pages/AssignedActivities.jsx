@@ -308,8 +308,14 @@ export default function AssignedActivities() {
                   <th style={{ textAlign: 'center', minWidth: '125px', width: '125px' }}>Status</th>
                   <th style={{
                     textAlign: 'center',
-                    minWidth: '220px',
-                    width: '220px'
+                    minWidth: '190px',
+                    width: '190px',
+                    position: 'sticky',
+                    right: 0,
+                    background: '#f8fafc',
+                    zIndex: 3,
+                    boxShadow: '-3px 0 6px rgba(0,0,0,0.06)',
+                    whiteSpace: 'nowrap'
                   }}>
                     Status Actions
                   </th>
@@ -514,17 +520,24 @@ export default function AssignedActivities() {
                           textAlign: 'center',
                           whiteSpace: 'nowrap',
                           verticalAlign: 'top',
-                          paddingTop: '0.9rem',
-                          minWidth: '220px',
-                          width: '220px'
+                          paddingTop: '0.85rem',
+                          paddingLeft: '0.5rem',
+                          paddingRight: '0.5rem',
+                          minWidth: '190px',
+                          width: '190px',
+                          position: 'sticky',
+                          right: 0,
+                          background: isToday ? '#eff6ff' : '#ffffff',
+                          zIndex: 2,
+                          boxShadow: '-3px 0 6px rgba(0,0,0,0.06)'
                         }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
                             {act.status === 'Pending' && (
                               <button
                                 type="button"
                                 className="btn btn-primary btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
-                                style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', background: '#2563eb', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', background: '#2563eb', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                                 title="Start Activity"
                               >
                                 <i className="bi bi-play-fill" /> Start
@@ -535,7 +548,7 @@ export default function AssignedActivities() {
                                 type="button"
                                 className="btn btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'Completed')}
-                                style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', background: '#16a34a', color: '#fff', border: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', background: '#16a34a', color: '#fff', border: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                                 title="Mark as Completed"
                               >
                                 <i className="bi bi-check2-circle" /> Complete
@@ -546,7 +559,7 @@ export default function AssignedActivities() {
                                 type="button"
                                 className="btn btn-ghost btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
-                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', color: 'var(--text-muted)', border: '1px solid var(--border)', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.52rem', color: '#475569', background: '#f8fafc', border: '1px solid #cbd5e1', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                                 title="Reopen Activity"
                               >
                                 <i className="bi bi-arrow-counterclockwise" /> Reopen
@@ -556,7 +569,7 @@ export default function AssignedActivities() {
                               type="button"
                               className="btn btn-secondary btn-sm"
                               onClick={() => setSelectedActivity(act)}
-                              style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                              style={{ fontSize: '0.74rem', padding: '0.28rem 0.52rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                               title="View & Edit Details"
                             >
                               <i className="bi bi-pencil-square" /> Details

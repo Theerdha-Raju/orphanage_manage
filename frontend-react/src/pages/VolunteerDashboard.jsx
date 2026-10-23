@@ -700,17 +700,29 @@ export default function VolunteerDashboard() {
             </div>
           </div>
 
-          <div className="table-wrap">
-            <table className="table">
+          <div className="table-wrap" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <table className="table" style={{ width: '100%', minWidth: '960px', margin: 0 }}>
               <thead>
                 <tr>
-                  <th>Activity</th>
-                  <th style={{ minWidth: '160px' }}>Date & Time</th>
-                  <th style={{ minWidth: '130px' }}>Location</th>
-                  <th style={{ minWidth: '130px' }}>Assigned Volunteer</th>
-                  <th style={{ textAlign: 'center', minWidth: '95px' }}>Priority</th>
-                  <th style={{ textAlign: 'center', minWidth: '125px' }}>Status</th>
-                  <th style={{ textAlign: 'center', minWidth: '210px' }}>Status Action</th>
+                  <th style={{ minWidth: '220px', maxWidth: '280px' }}>Activity</th>
+                  <th style={{ minWidth: '150px', width: '150px' }}>Date & Time</th>
+                  <th style={{ minWidth: '120px', width: '120px' }}>Location</th>
+                  <th style={{ minWidth: '120px', width: '120px' }}>Assigned Volunteer</th>
+                  <th style={{ textAlign: 'center', minWidth: '85px', width: '85px' }}>Priority</th>
+                  <th style={{ textAlign: 'center', minWidth: '110px', width: '110px' }}>Status</th>
+                  <th style={{
+                    textAlign: 'center',
+                    minWidth: '190px',
+                    width: '190px',
+                    position: 'sticky',
+                    right: 0,
+                    background: '#f8fafc',
+                    zIndex: 3,
+                    boxShadow: '-3px 0 6px rgba(0,0,0,0.06)',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    Status Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -848,23 +860,37 @@ export default function VolunteerDashboard() {
                           </span>
                         </td>
 
-                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap', minWidth: '125px', verticalAlign: 'top', paddingTop: '0.9rem' }}>
+                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap', minWidth: '110px', width: '110px', verticalAlign: 'top', paddingTop: '0.9rem' }}>
                           <span
                             className={`badge ${STATUS_COLOR[act.status] || 'badge-muted'}`}
-                            style={{ minWidth: '95px', display: 'inline-flex', justifyContent: 'center' }}
+                            style={{ minWidth: '88px', display: 'inline-flex', justifyContent: 'center' }}
                           >
                             {act.status}
                           </span>
                         </td>
 
-                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap', minWidth: '210px', verticalAlign: 'top', paddingTop: '0.9rem' }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', whiteSpace: 'nowrap' }}>
+                        <td style={{
+                          textAlign: 'center',
+                          whiteSpace: 'nowrap',
+                          minWidth: '190px',
+                          width: '190px',
+                          verticalAlign: 'top',
+                          paddingTop: '0.85rem',
+                          paddingLeft: '0.5rem',
+                          paddingRight: '0.5rem',
+                          position: 'sticky',
+                          right: 0,
+                          background: isToday ? '#eff6ff' : '#ffffff',
+                          zIndex: 2,
+                          boxShadow: '-3px 0 6px rgba(0,0,0,0.06)'
+                        }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
                             {act.status === 'Pending' && (
                               <button
                                 type="button"
                                 className="btn btn-primary btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
-                                style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', background: '#2563eb', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', background: '#2563eb', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                                 title="Move to In Progress"
                               >
                                 <i className="bi bi-play-fill" /> Start
@@ -875,7 +901,7 @@ export default function VolunteerDashboard() {
                                 type="button"
                                 className="btn btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'Completed')}
-                                style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', background: '#16a34a', color: '#fff', border: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', background: '#16a34a', color: '#fff', border: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                                 title="Mark as Completed"
                               >
                                 <i className="bi bi-check2-circle" /> Complete
@@ -886,7 +912,7 @@ export default function VolunteerDashboard() {
                                 type="button"
                                 className="btn btn-ghost btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
-                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', color: 'var(--text-muted)', border: '1px solid var(--border)', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.52rem', color: '#475569', background: '#f8fafc', border: '1px solid #cbd5e1', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                                 title="Reopen Activity"
                               >
                                 <i className="bi bi-arrow-counterclockwise" /> Reopen
@@ -896,7 +922,7 @@ export default function VolunteerDashboard() {
                               type="button"
                               className="btn btn-secondary btn-sm"
                               onClick={() => setSelectedActivity(act)}
-                              style={{ fontSize: '0.76rem', padding: '0.3rem 0.65rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                              style={{ fontSize: '0.74rem', padding: '0.28rem 0.52rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
                               title="Update Status & Remarks"
                             >
                               <i className="bi bi-pencil-square" /> Details
