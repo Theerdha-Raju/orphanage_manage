@@ -701,40 +701,35 @@ export default function VolunteerDashboard() {
           </div>
 
           <div className="table-wrap" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <table className="table" style={{ width: '100%', minWidth: '960px', margin: 0 }}>
+            <table className="table" style={{ width: '100%', minWidth: '760px', margin: 0, tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '17%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '9%' }} />
+                <col style={{ width: '11%' }} />
+                <col style={{ width: '20%' }} />
+              </colgroup>
               <thead>
                 <tr>
-                  <th style={{ minWidth: '220px', maxWidth: '280px' }}>Activity</th>
-                  <th style={{ minWidth: '150px', width: '150px' }}>Date & Time</th>
-                  <th style={{ minWidth: '120px', width: '120px' }}>Location</th>
-                  <th style={{ minWidth: '120px', width: '120px' }}>Assigned Volunteer</th>
-                  <th style={{ textAlign: 'center', minWidth: '85px', width: '85px' }}>Priority</th>
-                  <th style={{ textAlign: 'center', minWidth: '110px', width: '110px' }}>Status</th>
-                  <th style={{
-                    textAlign: 'center',
-                    minWidth: '190px',
-                    width: '190px',
-                    position: 'sticky',
-                    right: 0,
-                    background: '#f8fafc',
-                    zIndex: 3,
-                    boxShadow: '-3px 0 6px rgba(0,0,0,0.06)',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    Status Actions
-                  </th>
+                  <th>Activity</th>
+                  <th>Date &amp; Time</th>
+                  <th>Location</th>
+                  <th style={{ textAlign: 'center' }}>Priority</th>
+                  <th style={{ textAlign: 'center' }}>Status</th>
+                  <th style={{ textAlign: 'center', background: '#f1f5f9' }}>Status Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '2.5rem' }}>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '2.5rem' }}>
                       <span className="spinner" style={{ margin: '0 auto' }} />
                     </td>
                   </tr>
                 ) : sortedDisplayedActivities.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-muted)' }}>
                       <i className="bi bi-calendar-x" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }} />
                       No activities match the selected filter.
                     </td>
@@ -776,7 +771,7 @@ export default function VolunteerDashboard() {
                               </span>
                             )}
                           </div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {act.description || 'Assigned shift activity'}
                           </div>
                           {/* Children names */}
@@ -790,17 +785,20 @@ export default function VolunteerDashboard() {
                             const cCount = cList.length || (cMatch ? cMatch[1] : '');
                             if (!cCount) return null;
                             return (
-                              <div style={{ marginTop: '0.3rem' }}>
-                                <span style={{ fontSize: '0.68rem', color: '#4f46e5', fontWeight: 700 }}>
+                              <div style={{ marginTop: '0.25rem' }}>
+                                <span style={{ fontSize: '0.67rem', color: '#4f46e5', fontWeight: 700 }}>
                                   <i className="bi bi-people-fill" style={{ marginRight: '0.2rem' }} />{cCount} Children
                                 </span>
                                 {cList.length > 0 && (
-                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', marginTop: '0.2rem', maxWidth: '320px' }}>
-                                    {cList.map((n, i) => (
-                                      <span key={i} style={{ fontSize: '0.65rem', fontWeight: 600, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '0.07rem 0.35rem', borderRadius: '999px' }}>
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.18rem', marginTop: '0.18rem' }}>
+                                    {cList.slice(0, 4).map((n, i) => (
+                                      <span key={i} style={{ fontSize: '0.62rem', fontWeight: 600, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '0.05rem 0.28rem', borderRadius: '999px' }}>
                                         {n}
                                       </span>
                                     ))}
+                                    {cList.length > 4 && (
+                                      <span style={{ fontSize: '0.62rem', color: '#64748b', padding: '0.05rem 0.18rem' }}>+{cList.length - 4}</span>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -808,89 +806,58 @@ export default function VolunteerDashboard() {
                           })()}
                         </td>
 
-                        <td style={{ whiteSpace: 'nowrap', minWidth: '175px' }}>
-                          {/* Scheduled Date */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.3rem' }}>
-                            <span style={{ fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.04em', minWidth: '55px' }}>Scheduled</span>
-                            <span style={{ fontSize: '0.82rem', color: isToday ? '#38bdf8' : '#60a5fa', fontWeight: 700 }}>
-                              <i className="bi bi-calendar-event-fill" style={{ marginRight: '0.25rem' }} />
-                              {formatDate(scheduledDate)}
-                              {isToday && (
-                                <span style={{ color: '#4ade80', fontSize: '0.72rem', marginLeft: '0.3rem', fontWeight: 800 }}>
-                                  (Today)
-                                </span>
-                              )}
-                            </span>
+                        <td style={{ verticalAlign: 'top', paddingTop: '0.85rem', overflow: 'hidden' }}>
+                          <div style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: '0.12rem' }}>Scheduled</div>
+                          <div style={{ fontSize: '0.8rem', color: isToday ? '#38bdf8' : '#60a5fa', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <i className="bi bi-calendar-event-fill" style={{ marginRight: '0.2rem' }} />
+                            {formatDate(scheduledDate)}{isToday && <span style={{ color: '#4ade80', fontSize: '0.7rem', marginLeft: '0.25rem', fontWeight: 800 }}>(Today)</span>}
                           </div>
-                          {/* Assigned Date */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <span style={{ fontSize: '0.63rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.04em', minWidth: '55px' }}>Assigned</span>
-                            <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 }}>
-                              <i className="bi bi-calendar-plus" style={{ marginRight: '0.25rem', color: '#64748b' }} />
-                              {formatDate(act.assigned_date)}
-                            </span>
+                          <div style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.05em', marginTop: '0.28rem', marginBottom: '0.12rem' }}>Assigned</div>
+                          <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <i className="bi bi-calendar-plus" style={{ marginRight: '0.2rem', color: '#64748b' }} />
+                            {formatDate(act.assigned_date)}
                           </div>
                         </td>
 
-                        <td style={{ whiteSpace: 'nowrap' }}>
-                          <span style={{ fontSize: '0.82rem', color: 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <i className="bi bi-geo-alt-fill" style={{ color: '#ef4444', fontSize: '0.85rem' }} />
-                            {act.location || 'Orphanage Campus'}
+                        <td style={{ verticalAlign: 'top', paddingTop: '0.85rem', overflow: 'hidden' }}>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', overflow: 'hidden', maxWidth: '100%' }}>
+                            <i className="bi bi-geo-alt-fill" style={{ color: '#ef4444', fontSize: '0.82rem', flexShrink: 0 }} />
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{act.location || 'Orphanage'}</span>
                           </span>
                         </td>
 
-                        <td style={{ whiteSpace: 'nowrap' }}>
-                          <span style={{ fontSize: '0.82rem', color: '#a78bfa', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <i className="bi bi-person-check-fill" style={{ fontSize: '0.85rem' }} />
-                            {act.volunteer_name || profile?.full_name || userName}
-                          </span>
-                        </td>
-
-                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <td style={{ textAlign: 'center', verticalAlign: 'top', paddingTop: '0.85rem' }}>
                           <span style={{
-                            fontSize: '0.7rem',
-                            fontWeight: 700,
-                            padding: '0.2rem 0.5rem',
-                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '0.68rem', fontWeight: 700, padding: '0.18rem 0.4rem',
+                            borderRadius: '5px', display: 'inline-block',
                             color: act.priority === 'High' ? '#ef4444' : act.priority === 'Medium' ? '#f59e0b' : '#10b981',
-                            background: act.priority === 'High' ? 'rgba(239, 68, 68, 0.12)' : act.priority === 'Medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                            background: act.priority === 'High' ? 'rgba(239,68,68,0.1)' : act.priority === 'Medium' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)',
                             textTransform: 'uppercase'
                           }}>
-                            {act.priority || 'Medium'}
+                            {(act.priority || 'Medium').slice(0, 3)}
                           </span>
                         </td>
 
-                        <td style={{ textAlign: 'center', whiteSpace: 'nowrap', minWidth: '110px', width: '110px', verticalAlign: 'top', paddingTop: '0.9rem' }}>
+                        <td style={{ textAlign: 'center', verticalAlign: 'top', paddingTop: '0.85rem' }}>
                           <span
                             className={`badge ${STATUS_COLOR[act.status] || 'badge-muted'}`}
-                            style={{ minWidth: '88px', display: 'inline-flex', justifyContent: 'center' }}
+                            style={{ display: 'inline-flex', justifyContent: 'center', fontSize: '0.72rem', padding: '0.22rem 0.5rem', whiteSpace: 'nowrap' }}
                           >
                             {act.status}
                           </span>
                         </td>
 
                         <td style={{
-                          textAlign: 'center',
-                          whiteSpace: 'nowrap',
-                          minWidth: '190px',
-                          width: '190px',
-                          verticalAlign: 'top',
-                          paddingTop: '0.85rem',
-                          paddingLeft: '0.5rem',
-                          paddingRight: '0.5rem',
-                          position: 'sticky',
-                          right: 0,
-                          background: isToday ? '#eff6ff' : '#ffffff',
-                          zIndex: 2,
-                          boxShadow: '-3px 0 6px rgba(0,0,0,0.06)'
+                          textAlign: 'center', verticalAlign: 'top', paddingTop: '0.8rem',
+                          background: isToday ? '#eff6ff' : '#fafafa',
+                          borderLeft: '1px solid var(--border)'
                         }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.28rem', flexWrap: 'wrap' }}>
                             {act.status === 'Pending' && (
                               <button
                                 type="button"
-                                className="btn btn-primary btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
-                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', background: '#2563eb', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
+                                style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap', fontWeight: 600 }}
                                 title="Move to In Progress"
                               >
                                 <i className="bi bi-play-fill" /> Start
@@ -899,9 +866,8 @@ export default function VolunteerDashboard() {
                             {act.status === 'In Progress' && (
                               <button
                                 type="button"
-                                className="btn btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'Completed')}
-                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.55rem', background: '#16a34a', color: '#fff', border: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
+                                style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap', fontWeight: 600 }}
                                 title="Mark as Completed"
                               >
                                 <i className="bi bi-check2-circle" /> Complete
@@ -910,9 +876,8 @@ export default function VolunteerDashboard() {
                             {act.status === 'Completed' && (
                               <button
                                 type="button"
-                                className="btn btn-ghost btn-sm"
                                 onClick={() => handleQuickStatus(act.assignment_id, 'In Progress')}
-                                style={{ fontSize: '0.74rem', padding: '0.28rem 0.52rem', color: '#475569', background: '#f8fafc', border: '1px solid #cbd5e1', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
+                                style={{ fontSize: '0.72rem', padding: '0.25rem 0.5rem', background: '#f8fafc', color: '#475569', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap', fontWeight: 600 }}
                                 title="Reopen Activity"
                               >
                                 <i className="bi bi-arrow-counterclockwise" /> Reopen
@@ -920,9 +885,8 @@ export default function VolunteerDashboard() {
                             )}
                             <button
                               type="button"
-                              className="btn btn-secondary btn-sm"
                               onClick={() => setSelectedActivity(act)}
-                              style={{ fontSize: '0.74rem', padding: '0.28rem 0.52rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.22rem', borderRadius: '6px' }}
+                              style={{ fontSize: '0.72rem', padding: '0.25rem 0.5rem', background: 'var(--bg-surface-2)', color: 'var(--text-secondary)', border: '1px solid var(--border)', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap', fontWeight: 600 }}
                               title="Update Status & Remarks"
                             >
                               <i className="bi bi-pencil-square" /> Details
