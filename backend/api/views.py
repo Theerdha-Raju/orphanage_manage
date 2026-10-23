@@ -3229,6 +3229,143 @@ def google_login_view(request):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+def dashboard_stats_api(request):
+    """
+    Unified dashboard statistics endpoint.
+    Returns aggregated KPIs for the admin dashboard:
+    children, staff, volunteers, donations, academic, health.
+    """
+    from django.db.models import Sum, Count, Avg, Q
+    from django.utils import timezone
+    import datetime
+
+    try:
+        # ── Children ──────────────────────────────────────────────
+        total_children  = Child.objects.count()
+        active_children = Child.objects.filter(status='Active').count()
+
+        # ── Staff (Users with caregiver / teacher / doctor roles) ──
+        staff_qs = Users.objects.filter(
+            designation__in=['caregiver', 'teacher', 'doctor', 'staff',
+                             'Caregiver', 'Teacher', 'Doctor', 'Staff']
+        )
+        total_staff = staff_qs.count()
+
+        # ── Volunteers ─────────────────────────────────────────────
+        total_volunteers  = Volunteer.objects.count()
+        active_volunteers = Volunteer.objects.filter(status='Active').count()
+
+        # ── Donations ──────────────────────────────────────────────
+        now       = timezone.now()
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        all_donations = Donation.objects.filter(
+            Q(donation_type='Money') | Q(donation_type='Monetary Donation'),
+            payment_status='Successful'
+        )
+        total_donation_amount  = float(all_donations.aggregate(s=Sum('amount'))['s'] or 0)
+        this_month_amount      = float(
+            all_donations.filter(donation_date__gte=month_start)
+                         .aggregate(s=Sum('amount'))['s'] or 0
+        )
+
+        # Monthly donation trend (last 6 months)
+        trend = []
+        for i in range(5, -1, -1):
+            month_dt = (now.replace(day=1) - datetime.timedelta(days=i * 28)).replace(day=1)
+            next_month = (month_dt.replace(day=28) + datetime.timedelta(days=4)).replace(day=1)
+            month_label = month_dt.strftime('%b')
+            month_total = float(
+                all_donations.filter(
+                    donation_date__gte=month_dt,
+                    donation_date__lt=next_month
+                ).aggregate(s=Sum('amount'))['s'] or 0
+            )
+            trend.append({'month': month_label, 'amount': month_total})
+
+        # ── Academic ───────────────────────────────────────────────
+        subject_rows = (
+            Education.objects
+            .values('subject')
+            .annotate(avg=Avg('marks'))
+            .order_by('subject')
+        )
+        subject_averages = [
+            {'subject': r['subject'] or 'General', 'avg': round(float(r['avg'] or 0), 1)}
+            for r in subject_rows
+        ][:8]  # cap at 8 subjects
+
+        avg_marks = float(
+            Education.objects.aggregate(a=Avg('marks'))['a'] or 0
+        )
+
+        # ── Health ─────────────────────────────────────────────────
+        healthy_count = Health.objects.filter(
+            Q(status__iexact='Healthy') | Q(status__iexact='Good') | Q(status__iexact='Optimal')
+        ).count()
+        at_risk_count = Health.objects.filter(
+            Q(status__iexact='At Risk') | Q(status__iexact='Critical') |
+            Q(status__iexact='Poor')    | Q(status__iexact='Fair')
+        ).count()
+
+        # ── Alerts ─────────────────────────────────────────────────
+        open_alerts = Alert.objects.filter(status='Open').count()
+        high_priority_alerts = Alert.objects.filter(status='Open', priority='High').count()
+
+        # ── Expenses ───────────────────────────────────────────────
+        expense_qs = Expense.objects.filter(status='Paid')
+        total_expenses = float(expense_qs.aggregate(s=Sum('amount'))['s'] or 0)
+        category_rows = (
+            expense_qs.values('category')
+            .annotate(amount=Sum('amount'))
+            .order_by('-amount')
+        )
+        by_category = [
+            {'category': r['category'] or 'General', 'amount': float(r['amount'] or 0)}
+            for r in category_rows
+        ]
+
+        return Response({
+            'children': {
+                'total':  total_children,
+                'active': active_children,
+            },
+            'staff': {
+                'total': total_staff,
+            },
+            'volunteers': {
+                'total':  total_volunteers,
+                'active': active_volunteers,
+            },
+            'donations': {
+                'total':      total_donation_amount,
+                'this_month': this_month_amount,
+                'trend':      trend,
+            },
+            'academic': {
+                'avg_marks':        round(avg_marks, 1),
+                'overall_average':  round(avg_marks, 1),
+                'subject_averages': subject_averages,
+            },
+            'health': {
+                'healthy': healthy_count,
+                'at_risk': at_risk_count,
+            },
+            'alerts': {
+                'open':          open_alerts,
+                'high_priority': high_priority_alerts,
+            },
+            'expenses': {
+                'total':       total_expenses,
+                'by_category': by_category,
+            },
+        })
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
 def health_check_api(request):
     """Simple backend health check endpoint."""
     return Response({'status': 'ok'})

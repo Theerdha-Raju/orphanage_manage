@@ -18,5 +18,6 @@ echo "--- Seeding real database records (children, donations, expenses, voluntee
 python seed_real_data.py || true
 python seed_real_volunteer_tasks.py || true
 python seed_eleanor_vance_donations.py || true
+python seed_to_500_children.py || true
 
 echo "--- Build complete! ---"

@@ -97,6 +97,30 @@ export default function AdminDashboardPage() {
             borderWidth: 1,
           }]
         });
+      } else {
+        // Fallback: fetch individual entity endpoints if unified stats endpoint is unreachable
+        const [childrenData, usersData, volsData, donData] = await Promise.all([
+          requestApi('/api/children/').then(r => r.json()).catch(() => []),
+          requestApi('/api/users/').then(r => r.json()).catch(() => []),
+          requestApi('/api/volunteers/').then(r => r.json()).catch(() => []),
+          requestApi('/api/donations/').then(r => r.json()).catch(() => []),
+        ]);
+
+        const cList = Array.isArray(childrenData) ? childrenData : (childrenData?.results || []);
+        const uList = Array.isArray(usersData) ? usersData : (usersData?.results || []);
+        const vList = Array.isArray(volsData) ? volsData : (volsData?.results || []);
+        const dList = Array.isArray(donData) ? donData : (donData?.results || []);
+
+        setChildrenCount(String(cList.length));
+        setStaffCount(String(uList.filter(u => ['caregiver', 'teacher', 'doctor', 'staff'].includes((u.designation || u.role || '').toLowerCase())).length || uList.length));
+        setVolunteerCount(String(vList.length));
+
+        const totalDon = dList.reduce((acc, d) => acc + (parseFloat(d.amount) || 0), 0);
+        let formattedRev = '₹' + totalDon.toLocaleString('en-IN');
+        if (totalDon >= 100000) formattedRev = '₹' + (totalDon / 100000).toFixed(1) + 'L';
+        else if (totalDon >= 1000) formattedRev = '₹' + (totalDon / 1000).toFixed(1) + 'K';
+        setRevenue(formattedRev);
+        setRevenueTrend(`₹${totalDon.toLocaleString('en-IN')} cumulative`);
       }
 
       // 2. Fetch live alerts for recent activity & AI recommendations
