@@ -592,15 +592,34 @@ export default function AttendancePage() {
                     { label: 'Total Absent', value: histData.summary?.total_absent ?? 0, color: '#ef4444', icon: 'bi-x-circle-fill', sub: 'Unexcused absences' },
                     { label: 'Total Leave', value: histData.summary?.total_leave ?? 0, color: '#f59e0b', icon: 'bi-calendar-event-fill', sub: 'Approved leave days' },
                   ].map(s => (
-                    <div key={s.label} className="stat-card" style={{ borderLeft: `4px solid ${s.color}` }}>
-                      <div className="stat-card-header">
-                        <span className="stat-card-title">{s.label}</span>
-                        <div className="stat-card-icon" style={{ background: `${s.color}20`, color: s.color }}>
+                    <div
+                      key={s.label}
+                      className="stat-card"
+                      style={{
+                        borderLeft: `4px solid ${s.color}`,
+                        padding: '0.95rem 1.15rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'stretch',
+                        justifyContent: 'space-between',
+                        gap: '0.45rem',
+                        minHeight: '115px',
+                        boxShadow: 'var(--shadow-sm)',
+                        background: '#ffffff'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', lineHeight: 1.25 }}>{s.label}</span>
+                        <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: `${s.color}18`, color: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', flexShrink: 0 }}>
                           <i className={`bi ${s.icon}`} />
                         </div>
                       </div>
-                      <div className="stat-card-value" style={{ color: s.color }}>{s.value.toLocaleString()}</div>
-                      <div className="stat-card-sub" style={{ color: 'var(--text-muted)' }}>{s.sub}</div>
+                      <div style={{ color: s.color, fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-display)', lineHeight: 1.1, margin: '0.1rem 0' }}>
+                        {s.value.toLocaleString()}
+                      </div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 500, lineHeight: 1.35, whiteSpace: 'normal', wordBreak: 'normal' }}>
+                        {s.sub}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -940,64 +959,122 @@ export default function AttendancePage() {
 
         {/* STATS GRID */}
         <div className="stats-grid" style={{ marginBottom: '1.25rem' }}>
-          <div className="stat-card" style={{ borderLeft: '4px solid #3b82f6' }}>
-            <div className="stat-card-header">
-              <span className="stat-card-title">Total In-Care</span>
-              <div className="stat-card-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#2563eb' }}>
+          <div
+            className="stat-card"
+            style={{
+              borderLeft: '4px solid #3b82f6',
+              padding: '0.95rem 1.15rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              justifyContent: 'space-between',
+              gap: '0.45rem',
+              minHeight: '115px',
+              boxShadow: 'var(--shadow-sm)',
+              background: '#ffffff'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', lineHeight: 1.25 }}>Total In-Care</span>
+              <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: 'rgba(59, 130, 246, 0.12)', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', flexShrink: 0 }}>
                 <i className="bi bi-people-fill" />
               </div>
             </div>
-            <div className="stat-card-value">{dailyStats.total}</div>
-            <div className="stat-card-sub" style={{ color: 'var(--text-muted)' }}>
+            <div style={{ color: '#2563eb', fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-display)', lineHeight: 1.1, margin: '0.1rem 0' }}>
+              {dailyStats.total}
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 500, lineHeight: 1.35, whiteSpace: 'normal', wordBreak: 'normal' }}>
               Orphanage children enrolled
             </div>
           </div>
 
-          <div className="stat-card" style={{ borderLeft: '4px solid #22c55e' }}>
-            <div className="stat-card-header">
-              <span className="stat-card-title">Present Today</span>
-              <div className="stat-card-icon" style={{ background: 'rgba(34, 197, 94, 0.12)', color: '#16a34a' }}>
+          <div
+            className="stat-card"
+            style={{
+              borderLeft: '4px solid #22c55e',
+              padding: '0.95rem 1.15rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              justifyContent: 'space-between',
+              gap: '0.45rem',
+              minHeight: '115px',
+              boxShadow: 'var(--shadow-sm)',
+              background: '#ffffff'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', lineHeight: 1.25 }}>Present Today</span>
+              <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: 'rgba(34, 197, 94, 0.12)', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', flexShrink: 0 }}>
                 <i className="bi bi-check-circle-fill" />
               </div>
             </div>
-            <div className="stat-card-value" style={{ color: '#15803d' }}>
+            <div style={{ color: '#15803d', fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-display)', lineHeight: 1.1, margin: '0.1rem 0', display: 'flex', alignItems: 'baseline', gap: '0.45rem' }}>
               {dailyStats.present}
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginLeft: '0.45rem' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>
                 ({dailyStats.rate}%)
               </span>
             </div>
-            <div className="stat-card-sub" style={{ color: '#16a34a' }}>
-              In attendance & routine care
+            <div style={{ color: '#16a34a', fontSize: '0.74rem', fontWeight: 500, lineHeight: 1.35, whiteSpace: 'normal', wordBreak: 'normal' }}>
+              In attendance &amp; routine care
             </div>
           </div>
 
-          <div className="stat-card" style={{ borderLeft: '4px solid #ef4444' }}>
-            <div className="stat-card-header">
-              <span className="stat-card-title">Absent</span>
-              <div className="stat-card-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#dc2626' }}>
+          <div
+            className="stat-card"
+            style={{
+              borderLeft: '4px solid #ef4444',
+              padding: '0.95rem 1.15rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              justifyContent: 'space-between',
+              gap: '0.45rem',
+              minHeight: '115px',
+              boxShadow: 'var(--shadow-sm)',
+              background: '#ffffff'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', lineHeight: 1.25 }}>Absent</span>
+              <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: 'rgba(239, 68, 68, 0.12)', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', flexShrink: 0 }}>
                 <i className="bi bi-x-circle-fill" />
               </div>
             </div>
-            <div className="stat-card-value" style={{ color: dailyStats.absent > 0 ? '#b91c1c' : 'inherit' }}>
+            <div style={{ color: dailyStats.absent > 0 ? '#b91c1c' : '#1e293b', fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-display)', lineHeight: 1.1, margin: '0.1rem 0' }}>
               {dailyStats.absent}
             </div>
-            <div className="stat-card-sub" style={{ color: dailyStats.absent > 0 ? '#dc2626' : 'var(--text-muted)' }}>
+            <div style={{ color: dailyStats.absent > 0 ? '#dc2626' : 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 500, lineHeight: 1.35, whiteSpace: 'normal', wordBreak: 'normal' }}>
               {dailyStats.absent > 0 ? 'Requires caregiver check-in' : 'Zero unexcused absences'}
             </div>
           </div>
 
-          <div className="stat-card" style={{ borderLeft: '4px solid #f59e0b' }}>
-            <div className="stat-card-header">
-              <span className="stat-card-title">On Approved Leave</span>
-              <div className="stat-card-icon" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#d97706' }}>
+          <div
+            className="stat-card"
+            style={{
+              borderLeft: '4px solid #f59e0b',
+              padding: '0.95rem 1.15rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              justifyContent: 'space-between',
+              gap: '0.45rem',
+              minHeight: '115px',
+              boxShadow: 'var(--shadow-sm)',
+              background: '#ffffff'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', lineHeight: 1.25 }}>On Approved Leave</span>
+              <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: 'rgba(245, 158, 11, 0.12)', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', flexShrink: 0 }}>
                 <i className="bi bi-calendar-event-fill" />
               </div>
             </div>
-            <div className="stat-card-value" style={{ color: '#b45309' }}>
+            <div style={{ color: '#b45309', fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-display)', lineHeight: 1.1, margin: '0.1rem 0' }}>
               {dailyStats.leave}
             </div>
-            <div className="stat-card-sub" style={{ color: 'var(--text-muted)' }}>
-              Family visits & hospital checks
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 500, lineHeight: 1.35, whiteSpace: 'normal', wordBreak: 'normal' }}>
+              Family visits &amp; hospital checks
             </div>
           </div>
         </div>

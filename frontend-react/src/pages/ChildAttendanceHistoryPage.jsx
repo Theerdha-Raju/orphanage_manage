@@ -544,17 +544,32 @@ export default function ChildAttendanceHistoryPage() {
                         sub: 'Sanctioned leave requests'
                       },
                     ].map(s => (
-                      <div key={s.label} className="stat-card" style={{ borderLeft: `4px solid ${s.color}`, padding: '0.85rem 1rem' }}>
-                        <div className="stat-card-header">
-                          <span className="stat-card-title" style={{ fontSize: '0.78rem' }}>{s.label}</span>
-                          <div className="stat-card-icon" style={{ background: `${s.color}20`, color: s.color }}>
+                      <div
+                        key={s.label}
+                        className="stat-card"
+                        style={{
+                          borderLeft: `4px solid ${s.color}`,
+                          padding: '0.95rem 1.15rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'stretch',
+                          justifyContent: 'space-between',
+                          gap: '0.45rem',
+                          minHeight: '115px',
+                          boxShadow: 'var(--shadow-sm)',
+                          background: '#ffffff'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', lineHeight: 1.25 }}>{s.label}</span>
+                          <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: `${s.color}18`, color: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.95rem', flexShrink: 0 }}>
                             <i className={`bi ${s.icon}`} />
                           </div>
                         </div>
-                        <div className="stat-card-value" style={{ color: s.color, fontSize: '1.45rem' }}>
+                        <div style={{ color: s.color, fontSize: '1.75rem', fontWeight: 800, fontFamily: 'var(--font-display)', lineHeight: 1.1, margin: '0.1rem 0' }}>
                           {s.value.toLocaleString()}
                         </div>
-                        <div className="stat-card-sub" style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 500, lineHeight: 1.35, whiteSpace: 'normal', wordBreak: 'normal' }}>
                           {s.sub}
                         </div>
                       </div>
